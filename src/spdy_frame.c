@@ -1,5 +1,6 @@
 #include "spdy_frame.h"
 #include "spdy_control_frame.h"
+#include "spdy_data_frame.h"
 
 #include <stdlib.h>
 
@@ -20,6 +21,11 @@ int spdy_frame_parse_header(spdy_frame *frame, char *data) {
 			// Allocate space for data frame.
 			frame->frame = malloc(sizeof(spdy_data_frame));
 			if(!frame->frame) {
+				return -1;
+			}
+			if(spdy_data_frame_parse_header(frame->frame, data) < 0) {
+				free(frame->frame);
+				frame->frame = NULL;
 				return -1;
 			}
 			break;

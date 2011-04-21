@@ -24,17 +24,6 @@ typedef struct {
 	void *frame;               /*!< Frame */
 } spdy_frame;
 
-/**
- * Data frame
- * Contains all data (including the data payload) of a control frame.
- */
-typedef struct {
-	uint32_t stream_id; /*!< 31 bit stream id */
-	uint8_t  flags;     /*!< 8 bit flags */
-	uint32_t length;    /*!< 24 bit length */
-	unsigned char *data;/*!< Frame payload */
-} spdy_data_frame;
-
 int spdy_frame_parse_header(spdy_frame *frame, char *data);
 
 #endif

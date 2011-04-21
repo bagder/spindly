@@ -7,6 +7,7 @@ LDFLAGS +=
 
 SRCS_SPDY =  src/spdy_frame.c
 SRCS_SPDY += src/spdy_control_frame.c
+SRCS_SPDY += src/spdy_data_frame.c
 SRCS_SPDY += src/spdy_nv_block.c
 HDRS_SPDY = $(SRCS_SPDY,.c=.h)
 OBJS_SPDY = $(SRCS_SPDY:.c=.o)
@@ -14,6 +15,7 @@ OBJS_SPDY = $(SRCS_SPDY:.c=.o)
 SRCS_TEST =  tests/check_spdy.c
 SRCS_TEST += tests/check_spdy_frame.c
 SRCS_TEST += tests/check_spdy_control_frame.c
+SRCS_TEST += tests/check_spdy_data_frame.c
 SRCS_TEST += tests/check_spdy_nv_block.c
 SRCS_TEST += tests/testdata.c
 OBJS_TEST = $(SRCS_TEST:.c=.o)

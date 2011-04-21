@@ -1,0 +1,41 @@
+#include "check_spdy_data_frame.h"
+#include "../src/spdy_data_frame.h"
+
+#include "testdata.h"
+
+START_TEST (test_spdy_data_frame_parse_header)
+{
+	spdy_data_frame frame;
+	spdy_data_frame_parse_header(&frame, test_data_frame_header);
+	fail_unless(frame.stream_id == 1, "Stream ID parsing failed.");
+	fail_unless(frame.flags == 1, "Flag parsing failed.");
+	fail_unless(frame.length == 0, "Length parsing failed.");
+}
+END_TEST
+
+START_TEST (test_spdy_data_frame_pack_header)
+{
+	spdy_data_frame frame = {
+		.stream_id = 1,
+		.flags = 1,
+		.length = 0
+	};
+	char *out=NULL;
+	int ret = spdy_data_frame_pack_header(&out, &frame);
+	fail_unless(ret == 0, "spdy_data_frame_pack_header failed.");
+	fail_unless(memcmp(out, test_data_frame_header, 8) == 0, "Packed data is invalid.");
+}
+END_TEST
+
+Suite * spdy_data_frame_suite()
+{
+	Suite *s = suite_create("spdy_data_frame");
+	TCase *tc_core = tcase_create("spdy_data_frame_parse_header");
+	tcase_add_test(tc_core, test_spdy_data_frame_parse_header);
+	suite_add_tcase (s, tc_core);
+	tc_core = tcase_create("spdy_data_frame_pack_header");
+	tcase_add_test(tc_core, test_spdy_data_frame_pack_header);
+	suite_add_tcase(s, tc_core);
+	return s;
+}
+

@@ -12,7 +12,7 @@
  * @return 0 on success, -1 on failure.
  */
 int spdy_control_frame_parse_header(spdy_control_frame *frame, char *data) {
-	// Read frame version. (AND is there to remove the first bit
+	// Read SPDY version. (AND is there to remove the first bit
 	// which is used as frame type identifier.
 	frame->version = ntohs(*((uint16_t*) data)) & 0x7FFF;
 	data += 2;
@@ -39,12 +39,15 @@ int spdy_control_frame_pack_header(char **out, spdy_control_frame *frame) {
 	if(!dat) {
 		return -1;
 	}
-	(void)frame;
+	// The OR sets the first bit to true, indicating that this is a
+	// control frame.
 	*(uint16_t*)dat = htons(frame->version | 0x8000);
 	dat += 2;
 	*(uint16_t*)dat = htons(frame->type);
 	dat += 2;
 	*(uint32_t*)dat = htonl(frame->length);
+	// The flags are set after the length is written, because elsewise
+	// the flags would get overwritten by the length.
 	dat[0] = frame->flags;
 	return 0;
 }
