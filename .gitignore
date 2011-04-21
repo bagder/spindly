@@ -1,2 +1,3 @@
 *.o
-tests/check
+tests/checks
+gource.mp4
