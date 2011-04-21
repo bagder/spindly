@@ -14,7 +14,7 @@ enum SPDY_FRAME_TYPE {
 
 /**
  * Control frame
- * Contains all data (including the data payload) of a control frame.
+ * Contains all data (including the data payload) of a data frame.
  */
 typedef struct {
 	uint16_t version;   /*!< 15 bit version */
