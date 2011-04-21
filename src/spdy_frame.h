@@ -12,6 +12,11 @@ enum SPDY_FRAME_TYPE {
 	SPDY_CONTROL_FRAME=1 /*!< SPDY Control Frame */
 };
 
+typedef struct {
+	enum SPDY_FRAME_TYPE type; /*!< Type of the frame */
+	void *frame;               /*!< Frame */
+} spdy_frame;
+
 /**
  * Control frame
  * Contains all data (including the data payload) of a data frame.
@@ -34,5 +39,7 @@ typedef struct {
 	uint32_t length;    /*!< 24 bit length */
 	unsigned char *data;/*!< Frame payload */
 } spdy_data_frame;
+
+int spdy_frame_parse_header(spdy_frame *frame, char *data);
 
 #endif

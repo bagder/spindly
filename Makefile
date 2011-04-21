@@ -11,6 +11,7 @@ HDRS_SPDY = $(SRCS_SPDY,.c=.h)
 OBJS_SPDY = $(SRCS_SPDY:.c=.o)
 
 SRCS_TEST =  tests/check_spdy.c
+SRCS_TEST += tests/check_spdy_frame.c
 SRCS_TEST += tests/check_spdy_nv_block.c
 OBJS_TEST = $(SRCS_TEST:.c=.o)
 LIBS_TEST = `pkg-config --libs check`
