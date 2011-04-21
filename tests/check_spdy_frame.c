@@ -1,12 +1,12 @@
 #include "check_spdy_frame.h"
 #include "../src/spdy_frame.h"
 
-char *test_frame = "\x80\x02\x00\x01\x01\x00\x01\x20\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00";
+#include "testdata.h"
 
 START_TEST (test_spdy_frame_parse_header)
 {
 	spdy_frame frame;
-	spdy_frame_parse_header(&frame, test_frame);
+	spdy_frame_parse_header(&frame, test_frame_header);
 	fail_unless(frame.type == SPDY_CONTROL_FRAME, "Frame type detection failed.");
 }
 END_TEST
