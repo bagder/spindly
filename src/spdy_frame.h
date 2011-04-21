@@ -12,6 +12,11 @@ enum SPDY_FRAME_TYPE {
 	SPDY_CONTROL_FRAME=1 /*!< SPDY Control Frame */
 };
 
+/**
+ * Frame
+ * Indicates the type of the frame and keeps a pointer to a
+ * control or data frame.
+ */
 typedef struct {
 	enum SPDY_FRAME_TYPE type; /*!< Type of the frame */
 	void *frame;               /*!< Frame */
