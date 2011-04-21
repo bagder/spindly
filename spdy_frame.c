@@ -1,4 +1,4 @@
 #include "spdy_frame.h"
 
-void test() {
+void spdy_frame_test() {
 }

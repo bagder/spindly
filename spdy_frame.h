@@ -1,5 +1,5 @@
 #ifndef SPDY_FRAME_H_
-#define SPDY_FRAME_H_
+#define SPDY_FRAME_H_ 1
 
 #include <stdint.h>
 

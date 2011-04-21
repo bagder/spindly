@@ -6,6 +6,7 @@ CFLAGS += -Werror -Wall -Wextra -Wformat=2 -std=c99 -pedantic
 LDFLAGS +=
 
 SRCS_SPDY =  spdy_frame.c
+SRCS_SPDY += spdy_nv_block.c
 HDRS_SPDY = $(SRCS_SPDY,.c=.h)
 OBJS_SPDY = $(SRCS_SPDY:.c=.o)
 
