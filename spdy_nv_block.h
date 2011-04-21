@@ -10,7 +10,7 @@
 typedef struct {
 	char *name;            /*!< Name of the values */
 	uint16_t values_count; /*!< Number of values */
-	char **values;         /*!< Values */
+	char *values;         /*!< Values */
 } spdy_nv_pair;
 
 /**
@@ -22,6 +22,8 @@ typedef struct {
 	uint16_t count;      /*!< Number of Name/Value pairs */
 	spdy_nv_pair *pairs; /*!< Array of Name/Value pairs */
 } spdy_nv_block;
+
+int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data);
 
 #endif
 
