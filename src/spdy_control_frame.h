@@ -16,6 +16,7 @@ typedef struct {
 } spdy_control_frame;
 
 int spdy_control_frame_parse_header(spdy_control_frame *frame, char *data);
+int spdy_control_frame_pack_header(char **out, spdy_control_frame *frame);
 
 #endif
 
