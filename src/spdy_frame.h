@@ -1,6 +1,8 @@
 #ifndef SPDY_FRAME_H_
 #define SPDY_FRAME_H_ 1
 
+#include "spdy_control_frame.h"
+
 #include <stdint.h>
 
 /**
@@ -21,18 +23,6 @@ typedef struct {
 	enum SPDY_FRAME_TYPE type; /*!< Type of the frame */
 	void *frame;               /*!< Frame */
 } spdy_frame;
-
-/**
- * Control frame
- * Contains all data (including the data payload) of a data frame.
- */
-typedef struct {
-	uint16_t version;   /*!< 15 bit version */
-	uint16_t type;      /*!< 16 bit type */
-	uint8_t flags;      /*!< 8 bit flags */
-	uint32_t length;    /*!< 24 bit length */
-	unsigned char *data;/*!< Frame payload */
-} spdy_control_frame;
 
 /**
  * Data frame

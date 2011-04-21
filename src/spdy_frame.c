@@ -1,4 +1,5 @@
 #include "spdy_frame.h"
+#include "spdy_control_frame.h"
 
 #include <stdlib.h>
 
@@ -9,7 +10,6 @@
  * @see spdy_frame
  * @see spdy_control_frame
  * @see spdy_data_frame
- * @see SPDY_FRAME_TYPE
  * @return 0 on success, -1 on failure.
  */
 int spdy_frame_parse_header(spdy_frame *frame, char *data) {
@@ -27,6 +27,12 @@ int spdy_frame_parse_header(spdy_frame *frame, char *data) {
 			// Allocate space for control frame.
 			frame->frame = malloc(sizeof(spdy_control_frame));
 			if(!frame->frame) {
+				return -1;
+			}
+			// Parse frame header.
+			if(spdy_control_frame_parse_header(frame->frame, data) < 0) {
+				free(frame->frame);
+				frame->frame = NULL;
 				return -1;
 			}
 			break;

@@ -10,6 +10,9 @@
  * @param nv_block Target block.
  * @param data Data to parse.
  * @see spdy_nv_block
+ * @todo Replace mallocs with a single one. (Speed up!)
+ * @todo Freeing in the loop.
+ * @todo Multiple value support.
  * @return 0 on success, -1 on failure.
  */
 int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data) {
@@ -29,7 +32,6 @@ int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data) {
 
 	uint16_t item_length;
 	size_t size;
-	// TODO: It should be possible to replace all the mallocs with a single one.
 	// Loop through all pairs
 	for(int i=0; i < nv_block->count; i++) {
 		spdy_nv_pair *pair = &nv_block->pairs[i];
@@ -42,7 +44,6 @@ int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data) {
 		size = (sizeof(char)*item_length)+1;
 		pair->name = malloc(size);
 		if(!pair->name) {
-			// TODO: Cleanup!
 			return -1;
 		}
 		memcpy(pair->name, data, item_length);
@@ -50,13 +51,13 @@ int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data) {
 		data += item_length;
 
 		// Read Values
+		// Read length of value
 		item_length = ntohs(*((uint16_t*) data));
 		data += 2;
 		// Allocate space for values
 		size = (sizeof(char)*item_length)+1;
 		pair->values = malloc(size);
 		if(!pair->name) {
-			// TODO: Cleanup!
 			return -1;
 		}
 		memcpy(pair->values, data, item_length);
