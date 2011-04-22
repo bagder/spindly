@@ -21,7 +21,7 @@ spdy_nv_pair test_nv_pairs[] = {
 START_TEST (test_spdy_nv_block_parse)
 {
 	spdy_nv_block nv_block;
-	int ret = spdy_nv_block_parse(&nv_block, test_nv_block);
+	int ret = spdy_nv_block_parse(&nv_block, test_nv_block,436);
 	// Check return value
 	fail_unless(ret == 0, "spdy_nv_block_parse failed.");
 	// Check pair number
@@ -56,7 +56,7 @@ START_TEST (test_spdy_nv_block_parse_pack)
 	char *dest;
 	size_t dest_size;
 	int ret;
-	ret = spdy_nv_block_parse(&nv_block, test_nv_block);
+	ret = spdy_nv_block_parse(&nv_block, test_nv_block,436);
 	fail_unless(ret == 0, "spdy_nv_block_parse failed.");
 	ret = spdy_nv_block_pack(&dest, &dest_size, &nv_block);
 	fail_unless(ret == 0, "spdy_nv_block_pack failed.");
