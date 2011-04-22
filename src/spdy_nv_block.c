@@ -1,4 +1,5 @@
 #include "spdy_nv_block.h"
+#include "spdy_log.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -9,13 +10,23 @@
  * Parse a Name/Value block payload.
  * @param nv_block - Target block.
  * @param data - Data to parse.
+ * @param data_length - Length of data.
  * @see spdy_nv_block
  * @todo Replace mallocs with a single one. (Speed up!)
  * @todo Freeing in the loop.
  * @todo Multiple value support.
  * @return 0 on success, -1 on failure.
  */
-int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data) {
+int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data, size_t data_length) {
+	// The bounds of data.
+	char *data_max = data + data_length;
+
+	// Data must at least contain the number of NV pairs.
+	if(data_length < 2) {
+		SPDYDEBUG("Data to small.");
+		return -1;
+	}
+
 	// Read the 16 bit integer containing the number of name/value pairs.
 	nv_block->count = ntohs(*((uint16_t*) data));
 	assert(nv_block->count > 0);
@@ -24,6 +35,7 @@ int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data) {
 	nv_block->pairs = calloc(nv_block->count, sizeof(spdy_nv_pair));
 	// Malloc failed
 	if(!nv_block->pairs) {
+		SPDYDEBUG("Malloc of pairs failed.");
 		return -1;
 	}
 
@@ -34,6 +46,10 @@ int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data) {
 	size_t size;
 	// Loop through all pairs
 	for(int i=0; i < nv_block->count; i++) {
+		if(data+2 > data_max) {
+			SPDYDEBUG("Data to small.");
+			return -1;
+		}
 		spdy_nv_pair *pair = &nv_block->pairs[i];
 
 		// Read Name
@@ -42,8 +58,13 @@ int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data) {
 		data += 2;
 		// Allocate space for name
 		size = (sizeof(char)*item_length)+1;
+		if(data+item_length > data_max) {
+			SPDYDEBUG("Data to small.");
+			return -1;
+		}
 		pair->name = malloc(size);
 		if(!pair->name) {
+			SPDYDEBUG("Pair name malloc failed.");
 			return -1;
 		}
 		memcpy(pair->name, data, item_length);
@@ -52,12 +73,21 @@ int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data) {
 
 		// Read Values
 		// Read length of value
+		if(data+2 > data_max) {
+			SPDYDEBUG("Data to small.");
+			return -1;
+		}
 		item_length = ntohs(*((uint16_t*) data));
 		data += 2;
 		// Allocate space for values
 		size = (sizeof(char)*item_length)+1;
+		if(data+item_length > data_max) {
+			SPDYDEBUG("Data to small: Max: %p Is: %p", data_max, data+item_length);
+			return -1;
+		}
 		pair->values = malloc(size);
 		if(!pair->name) {
+			SPDYDEBUG("Pair value malloc failed.");
 			return -1;
 		}
 		memcpy(pair->values, data, item_length);

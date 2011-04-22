@@ -24,7 +24,7 @@ typedef struct {
 	spdy_nv_pair *pairs; /*!< Array of Name/Value pairs */
 } spdy_nv_block;
 
-int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data);
+int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data, size_t data_length);
 int spdy_nv_block_pack(char **dest, size_t *dest_size, spdy_nv_block *nv_block);
 
 #endif
