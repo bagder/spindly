@@ -18,8 +18,10 @@ START_TEST (test_spdy_zlib_inflate)
 {
 	char *dest;
 	size_t dest_size;
-	int ret = spdy_zlib_inflate(test_control_frame+18, 280, &dest, &dest_size);
-	fail_unless(ret == 0, "spdy_zlib_inflate failed.");
+	spdy_zlib_context ctx;
+	int ret = spdy_zlib_inflate_init(&ctx);
+	fail_unless(ret == 0, "spdy_zlib_inflate_init failed.");
+	ret = spdy_zlib_inflate(&ctx, test_control_frame+18, 280, &dest, &dest_size);
 	fail_unless(memcmp(dest, test_nv_block, 436)==0, "Difference to testdata.");
 	spdy_nv_block nv_block;
 	ret = spdy_nv_block_parse(&nv_block, dest,dest_size);
@@ -32,13 +34,15 @@ START_TEST (test_spdy_zlib_deflate_inflate)
 {
 	char *deflate, *inflate;
 	size_t deflate_size, inflate_size;
+	spdy_zlib_context ctx;
 	int ret;
 	ret = spdy_zlib_deflate(test_nv_block, 436, &deflate, &deflate_size);
 	fail_unless(ret == 0, "spdy_zlib_deflate failed.");
 
-	ret = spdy_zlib_inflate(deflate, deflate_size, &inflate, &inflate_size);
+	ret = spdy_zlib_inflate_init(&ctx);
+	fail_unless(ret == 0, "spdy_zlib_inflate_init failed.");
+	ret = spdy_zlib_inflate(&ctx, deflate, deflate_size, &inflate, &inflate_size);
 	fail_unless(ret == 0, "spdy_zlib_inflate failed.");
-
 	fail_unless(memcmp(inflate, test_nv_block, inflate_size)==0, "Data changed.");
 
 	free(deflate);
