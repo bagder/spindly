@@ -181,7 +181,6 @@ int spdy_zlib_inflate(spdy_zlib_context *ctx, char *src, uint32_t length, char *
 			switch(ret) {
 				case Z_NEED_DICT:
 					// Setting the dictionary for the SPDY zlib compression.
-					SPDYDEBUG("SETTING DICT");
 					ret = inflateSetDictionary(
 							&ctx->stream,
 							(unsigned char*)spdy_zlib_dictionary,
