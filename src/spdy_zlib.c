@@ -1,4 +1,5 @@
 #include "spdy_zlib.h"
+#include "spdy_log.h"
 
 #include <zlib.h>
 #include <stdlib.h>
@@ -27,17 +28,17 @@ char *spdy_zlib_dictionary = "optionsgetheadpostputdeletetraceacceptaccept-chars
 
 /**
  * Deflate data as used in the header compression of spdy.
- * @param src Data to deflate
- * @param length Length of data
- * @param dest Destination of deflated data
- * @param dest_size Pointer to size of deflated data.
+ * @param src - Data to deflate
+ * @param length - Length of data
+ * @param dest - Destination of deflated data
+ * @param dest_size - Pointer to size of deflated data.
  * @see spdy_zlib_inflate
  * @return 0 on success, -1 on failure.
  */
 int spdy_zlib_deflate(char *src, uint32_t length, char **dest, size_t *dest_size) {
+	z_stream strm;
 	int ret, flush;
 	unsigned int have;
-	z_stream strm;
 	unsigned char out[CHUNK];
 	*dest = NULL;
 	*dest_size=0;
@@ -113,32 +114,40 @@ int spdy_zlib_deflate(char *src, uint32_t length, char **dest, size_t *dest_size
 }
 
 /**
- * Inflate data as used in the header compression of spdy.
- * @param src Data to inflate
- * @param length Length of data
- * @param dest Destination of inflated data
- * @param dest_size Pointer to size of inflated data.
- * @see spdy_zlib_deflate
+ * Initialize an inflate context.
+ * @param ctx - Context to initialize
  * @return 0 on success, -1 on failure.
  */
-int spdy_zlib_inflate(char *src, uint32_t length, char **dest, size_t *dest_size) {
-	int ret;
-	unsigned int have;
-	z_stream strm;
-	unsigned char out[CHUNK];
-	*dest = NULL;
-	*dest_size=0;
-
-	strm.zalloc = Z_NULL;
-	strm.zfree = Z_NULL;
-	strm.opaque = Z_NULL;
-	strm.avail_in = 0;
-	strm.next_in = Z_NULL;
-
-	ret = inflateInit(&strm);
+int spdy_zlib_inflate_init(spdy_zlib_context *ctx) {
+	ctx->stream.zalloc = Z_NULL;
+	ctx->stream.zfree = Z_NULL;
+	ctx->stream.opaque = Z_NULL;
+	ctx->stream.avail_in = 0;
+	ctx->stream.next_in = Z_NULL;
+	int ret = inflateInit2(&ctx->stream, 15);
 	if(ret != Z_OK) {
 		return -1;
 	}
+	return 0;
+}
+
+/**
+ * Inflate data as used in the header compression of spdy.
+ * @param ctx - Compression context
+ * @param src - Data to inflate
+ * @param length - Length of data
+ * @param dest - Destination of inflated data
+ * @param dest_size - Pointer to size of inflated data.
+ * @see spdy_zlib_deflate
+ * @return 0 on success, -1 on failure.
+ */
+int spdy_zlib_inflate(spdy_zlib_context *ctx, char *src, uint32_t length, char **dest, size_t *dest_size) {
+	int ret;
+	unsigned int have;
+	//z_stream strm;
+	unsigned char out[CHUNK];
+	*dest = NULL;
+	*dest_size=0;
 
 	// Loop while inflate return is not Z_STREAM_END
 	do {
@@ -146,24 +155,24 @@ int spdy_zlib_inflate(char *src, uint32_t length, char **dest, size_t *dest_size
 		// Only read CHUNK amount of data if supplied data is bigger then
 		// CHUNK.
 		if(length > CHUNK) {
-			strm.avail_in = CHUNK;
+			ctx->stream.avail_in = CHUNK;
 			length -= CHUNK;
 		} else {
-			strm.avail_in = length;
+			ctx->stream.avail_in = length;
 			length = 0;
 		}
 
 		// Determine if we actually have data for inflate.
-		if(strm.avail_in == 0)
+		if(ctx->stream.avail_in == 0)
 			break;
 
-		strm.next_in = (unsigned char*)src;
+		ctx->stream.next_in = (unsigned char*)src;
 
 		// Loop while output data is available
 		do {
-			strm.avail_out = CHUNK;
-			strm.next_out = out;
-			ret = inflate(&strm, Z_NO_FLUSH);
+			ctx->stream.avail_out = CHUNK;
+			ctx->stream.next_out = out;
+			ret = inflate(&ctx->stream, Z_SYNC_FLUSH);
 
 			// Should only happen if some other part of the application
 			// clobbered the memory of the stream.
@@ -172,34 +181,41 @@ int spdy_zlib_inflate(char *src, uint32_t length, char **dest, size_t *dest_size
 			switch(ret) {
 				case Z_NEED_DICT:
 					// Setting the dictionary for the SPDY zlib compression.
+					SPDYDEBUG("SETTING DICT");
 					ret = inflateSetDictionary(
-							&strm,
+							&ctx->stream,
 							(unsigned char*)spdy_zlib_dictionary,
 							strlen(spdy_zlib_dictionary)+1);
 					if(ret != Z_OK) {
-						inflateEnd(&strm);
+						inflateEnd(&ctx->stream);
+						SPDYDEBUG("inflateSetDictionary failed.");
 						return -1;
 					}
-					ret = inflate(&strm, Z_NO_FLUSH);
+					ret = inflate(&ctx->stream, Z_SYNC_FLUSH);
 					break;
 				case Z_DATA_ERROR:
+					inflateEnd(&ctx->stream);
+					SPDYDEBUG("DATA ERROR");
+					return -1;
 				case Z_MEM_ERROR:
-					inflateEnd(&strm);
+					inflateEnd(&ctx->stream);
+					SPDYDEBUG("MEM ERROR");
 					return -1;
 			}
-			have = CHUNK - strm.avail_out;
+			have = CHUNK - ctx->stream.avail_out;
 
 			// (Re)allocate and copy to destination.
 			*dest_size += have;
 			*dest = realloc(*dest, *dest_size);
 			if(!*dest) {
-				inflateEnd(&strm);
+				SPDYDEBUG("REALLOC FAILED");
+				inflateEnd(&ctx->stream);
 				return -1;
 			}
 			memcpy((*dest)+((*dest_size)-have), out, have);
-		} while (strm.avail_out == 0);
+		} while (ctx->stream.avail_out == 0);
 	} while (ret != Z_STREAM_END);
-	inflateEnd(&strm);
+//	inflateEnd(&ctx->stream);
 	return Z_STREAM_END ? 0 : -1;
 }
 
