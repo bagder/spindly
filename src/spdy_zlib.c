@@ -30,7 +30,7 @@ char *spdy_zlib_dictionary = "optionsgetheadpostputdeletetraceacceptaccept-chars
  * @param src Data to deflate
  * @param length Length of data
  * @param dest Destination of deflated data
- * @param ret_size Pointer to size of deflated data.
+ * @param dest_size Pointer to size of deflated data.
  * @see spdy_zlib_inflate
  * @return 0 on success, -1 on failure.
  */
