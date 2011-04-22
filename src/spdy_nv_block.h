@@ -2,6 +2,7 @@
 #define SPDY_NV_BLOCK_H_ 1
 
 #include <stdint.h>
+#include <stdlib.h>
 
 /**
  * Name/Value Pair
@@ -24,6 +25,7 @@ typedef struct {
 } spdy_nv_block;
 
 int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data);
+int spdy_nv_block_pack(char **dest, size_t *dest_size, spdy_nv_block *nv_block);
 
 #endif
 
