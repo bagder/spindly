@@ -2,7 +2,7 @@
 #
 CC=gcc
 
-CFLAGS += -Werror -Wall -Wextra -Wformat=2 -std=c99 -pedantic
+CFLAGS += -Werror -Wall -Wextra -Wformat=2 -std=c99 -pedantic -DDEBUG
 LDFLAGS +=
 
 SRCS_SPDY =  src/spdy_frame.c
