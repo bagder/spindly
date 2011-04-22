@@ -22,7 +22,7 @@ START_TEST (test_spdy_zlib_inflate)
 	fail_unless(ret == 0, "spdy_zlib_inflate failed.");
 	fail_unless(memcmp(dest, test_nv_block, 436)==0, "Difference to testdata.");
 	spdy_nv_block nv_block;
-	ret = spdy_nv_block_parse(&nv_block, dest);
+	ret = spdy_nv_block_parse(&nv_block, dest,dest_size);
 	fail_unless(ret == 0, "spdy_nv_block_parse failed.");
 	free(dest);
 }
