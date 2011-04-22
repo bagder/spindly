@@ -27,6 +27,18 @@ START_TEST (test_spdy_data_frame_pack_header)
 }
 END_TEST
 
+START_TEST (test_spdy_data_frame_parse_pack)
+{
+	spdy_data_frame frame;
+	char *out;
+	int ret = spdy_data_frame_parse_header(&frame, test_data_frame_header);
+	fail_unless(ret == 0, "spdy_data_frame_parse_header failed.");
+	ret = spdy_data_frame_pack_header(&out, &frame);
+	fail_unless(ret == 0, "spdy_data_frame_pack_header failed.");
+	fail_unless(memcmp(out, test_data_frame_header, 8) == 0, "Packed data is invalid.");
+}
+END_TEST
+
 Suite * spdy_data_frame_suite()
 {
 	Suite *s = suite_create("spdy_data_frame");
@@ -35,6 +47,9 @@ Suite * spdy_data_frame_suite()
 	suite_add_tcase (s, tc_core);
 	tc_core = tcase_create("spdy_data_frame_pack_header");
 	tcase_add_test(tc_core, test_spdy_data_frame_pack_header);
+	suite_add_tcase(s, tc_core);
+	tc_core = tcase_create("spdy_data_frame_parse_pack");
+	tcase_add_test(tc_core, test_spdy_data_frame_parse_pack);
 	suite_add_tcase(s, tc_core);
 	return s;
 }
