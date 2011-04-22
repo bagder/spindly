@@ -8,4 +8,6 @@
  *   - Unittests using Check
  *   - Coverage check using LCOV
  *  - Good documentation: The API documentation itself and the code should be as documented as possible - without cluttering the source.
+ *
+ *  Author: Thomas Roth
  */
