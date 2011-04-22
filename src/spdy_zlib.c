@@ -77,8 +77,8 @@ int spdy_zlib_inflate(char *src, uint32_t length, char **dest) {
 	z_stream strm;
 	unsigned char out[CHUNK];
 	*dest = NULL;
-//	size_t dest_size=0;
-//	size_t dest_size_old=0;
+	size_t dest_size=0;
+	size_t dest_size_old=0;
 
 	strm.zalloc = Z_NULL;
 	strm.zfree = Z_NULL;
@@ -131,6 +131,14 @@ int spdy_zlib_inflate(char *src, uint32_t length, char **dest) {
 			have = CHUNK - strm.avail_out;
 			/* TODO: Optimizie allocation? */
 			(void)dest;
+			dest_size_old = dest_size;
+			dest_size += have;
+			*dest = realloc(*dest, dest_size);
+			if(!*dest) {
+				inflateEnd(&strm);
+				return -1;
+			}
+			memcpy((*dest)+dest_size_old, out, have);
 		} while (strm.avail_out == 0);
 		/* We're done when inflate() says it's done */
 	} while (ret != Z_STREAM_END);
