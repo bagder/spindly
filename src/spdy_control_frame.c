@@ -52,3 +52,33 @@ int spdy_control_frame_pack_header(char **out, spdy_control_frame *frame) {
 	return 0;
 }
 
+/**
+ * Returns the name of the given control frame type.
+ * @param type - Type of which the name is needed.
+ * @return String with type name
+ */
+char *spdy_control_frame_get_type_name(int type) {
+	switch(type) {
+		case SPDY_CTRL_SYN_STREAM:
+			return "SYN_STREAM";
+		case SPDY_CTRL_SYN_REPLY:
+			return "SYN_REPLY";
+		case SPDY_CTRL_RST_STREAM:
+			return "RST_STREAM";
+		case SPDY_CTRL_SETTINGS:
+			return "SETTINGS";
+		case SPDY_CTRL_NOOP:
+			return "NOOP";
+		case SPDY_CTRL_PING:
+			return "PING";
+		case SPDY_CTRL_GOAWAY:
+			return "GOAWAY";
+		case SPDY_CTRL_HEADERS:
+			return "HEADERS";
+		case SPDY_CTRL_WINDOW_UPDATE:
+			return "WINDOW_UPDATE";
+		default:
+			return "UNKNOWN";
+	}
+}
+
