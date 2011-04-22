@@ -1,3 +1,4 @@
+#include "check_spdy_zlib.h"
 #include "check_spdy_frame.h"
 #include "check_spdy_control_frame.h"
 #include "check_spdy_data_frame.h"
@@ -9,6 +10,7 @@ int main() {
 	int number_failed;
 	Suite *spdy_suite = suite_create("spdy");
 	SRunner *sr = srunner_create(spdy_suite);
+	srunner_add_suite(sr, spdy_zlib_suite());
 	srunner_add_suite(sr, spdy_control_frame_suite());
 	srunner_add_suite(sr, spdy_data_frame_suite());
 	srunner_add_suite(sr, spdy_frame_suite());
