@@ -48,8 +48,6 @@ START_TEST (test_spdy_nv_block_pack)
 }
 END_TEST
 
-#include <stdio.h>
-
 START_TEST (test_spdy_nv_block_parse_pack)
 {
 	spdy_nv_block nv_block;
