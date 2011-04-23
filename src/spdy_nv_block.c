@@ -123,6 +123,7 @@ int spdy_nv_block_pack(char **dest, size_t *dest_size, spdy_nv_block *nv_block) 
 	// Allocate memory for dest
 	*dest = malloc(sizeof(char)*(*dest_size));
 	if(!*dest) {
+		SPDYDEBUG("Memoy allocation failed.");
 		return -1;
 	}
 	char *cursor = *dest;
@@ -143,7 +144,7 @@ int spdy_nv_block_pack(char **dest, size_t *dest_size, spdy_nv_block *nv_block) 
 		memcpy(
 				cursor+2,
 				nv_block->pairs[i].values,
-				*((uint16_t*)cursor));
+				length);
 		cursor += length+2;
 	}
 	return 0;
