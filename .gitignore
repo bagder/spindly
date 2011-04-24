@@ -1,3 +1,5 @@
 *.o
 tests/checks
 gource.mp4
+doc/man/
+doc/html/
