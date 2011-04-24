@@ -3,7 +3,10 @@
 
 #include <netinet/in.h>
 
+/* Minimum length of a SYN_STREAM frame. */
 const uint8_t SPDY_SYN_STREAM_MIN_LENGTH = 12;
+/* Minimum length of a SYN_STREAM frame header. (The frame without
+ * the NV block.) */
 const uint8_t SPDY_SYN_STREAM_HEADER_MIN_LENGTH = 10;
 
 /**
@@ -11,14 +14,14 @@ const uint8_t SPDY_SYN_STREAM_HEADER_MIN_LENGTH = 10;
  * This function can be used to parse the header of a SYN_STREAM frame
  * before the whole NV block has been recevied. (Minimum of bytes needed
  * is stored in SPDY_SYN_STREAM_HEADER_MIN_LENGTH.)
- * @param syn_stream - Destination stream.
+ * @param syn_stream - Destination frame.
  * @param data - Data to parse.
  * @param data_length - Length of data.
  * @see SPDY_SYN_STREAM_HEADER_MIN_LENGTH
  * @return 0 on success, -1 on failure.
  */
 int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, char *data, size_t data_length) {
-	if(data_length < 10) {
+	if(data_length < SPDY_SYN_STREAM_HEADER_MIN_LENGTH) {
 		SPDYDEBUG("Not enough data for parsing the header.");
 		return -1;
 	}
@@ -40,18 +43,21 @@ int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, char *data, size_t
 /**
  * Parse a SYN_STREAM control frame.
  * Parses the header of a SYN_STREAM control frame and extracts the
- * NV block (if needed).
- * @param syn_stream - Destination stream.
+ * NV block.
+ * @param syn_stream - Destination frame.
  * @param data - Data to parse.
- * @param data_length = Length of data.
+ * @param data_length - Length of data.
+ * @param zlib_ctx - The zlib context to use.
  * @see SPDY_SYN_STREAM_MIN_LENGTH
  * @return 0 on success, -1 on failure.
  */
 int spdy_syn_stream_parse(spdy_syn_stream *syn_stream, char *data, size_t data_length, spdy_zlib_context *zlib_ctx) {
-	if(data_length < 12) {
+	if(data_length < SPDY_SYN_STREAM_MIN_LENGTH) {
 		SPDYDEBUG("Not enough data for parsing the stream.");
 		return -1;
 	}
+
+	// Parse the frame header.
 	if(spdy_syn_stream_parse_header(syn_stream, data, data_length) < 0) {
 		SPDYDEBUG("Failed to parse header.");
 		return -1;
@@ -65,7 +71,7 @@ int spdy_syn_stream_parse(spdy_syn_stream *syn_stream, char *data, size_t data_l
 	char *inflate = NULL;
 	size_t inflate_size = 0;
 	if(spdy_zlib_inflate(zlib_ctx, data, data_length, &inflate, &inflate_size) < 0) {
-		SPDYDEBUG("Failed to inflate data: Length: %d", data_length);
+		SPDYDEBUG("Failed to inflate data.");
 		return -1;
 	}
 
@@ -83,11 +89,11 @@ int spdy_syn_stream_parse(spdy_syn_stream *syn_stream, char *data, size_t data_l
 		// Clean up.
 		free(inflate);
 		free(syn_stream->nv_block);
-		SPDYDEBUG("Failed to parse nv_block.");
+		SPDYDEBUG("Failed to parse NV block.");
 		return -1;
 	}
 
-	// Only needed during nv_block parsing.
+	// Only needed during parsing of NV block.
 	free(inflate);
 
 	return 0;
