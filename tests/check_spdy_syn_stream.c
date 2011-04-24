@@ -7,7 +7,7 @@ START_TEST (test_spdy_syn_stream_parse_header)
 {
 	int ret;
 	spdy_syn_stream syn_stream;
-	ret = spdy_syn_stream_parse_header(&syn_stream, test_control_frame+8, 288);
+	ret = spdy_syn_stream_parse_header(&syn_stream, test_control_syn_stream_frame+8, 288);
 	fail_unless(ret == 0, "spdy_syn_stream_parse failed.");
 	fail_unless(syn_stream.stream_id == 1, "Stream ID parsing failed.");
 	fail_unless(syn_stream.associated_to == 0, "Associated to parsing failed.");
@@ -22,7 +22,7 @@ START_TEST (test_spdy_syn_stream_parse)
 	spdy_syn_stream syn_stream;
 	ret = spdy_zlib_inflate_init(&zlib_ctx);
 	fail_unless(ret == 0, "spdy_zlib_inflate_init failed.");
-	ret = spdy_syn_stream_parse(&syn_stream, test_control_frame+8, 288, &zlib_ctx);
+	ret = spdy_syn_stream_parse(&syn_stream, test_control_syn_stream_frame+8, 288, &zlib_ctx);
 	fail_unless(ret == 0, "spdy_syn_stream_parse failed.");
 }
 END_TEST

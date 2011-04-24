@@ -21,7 +21,7 @@ START_TEST (test_spdy_zlib_inflate)
 	spdy_zlib_context ctx;
 	int ret = spdy_zlib_inflate_init(&ctx);
 	fail_unless(ret == 0, "spdy_zlib_inflate_init failed.");
-	ret = spdy_zlib_inflate(&ctx, test_control_frame+18, 280, &dest, &dest_size);
+	ret = spdy_zlib_inflate(&ctx, test_control_syn_stream_frame+18, 280, &dest, &dest_size);
 	fail_unless(memcmp(dest, test_nv_block, 436)==0, "Difference to testdata.");
 	spdy_nv_block nv_block;
 	ret = spdy_nv_block_parse(&nv_block, dest,dest_size);
