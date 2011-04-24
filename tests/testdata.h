@@ -3,6 +3,7 @@
 
 extern char *test_control_syn_stream_frame;
 extern char *test_control_syn_reply_frame;
+extern char *test_control_rst_stream_frame;
 extern char *test_data_frame_header;
 extern char *test_nv_block;
 
