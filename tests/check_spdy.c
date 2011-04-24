@@ -5,6 +5,7 @@
 #include "check_spdy_nv_block.h"
 #include "check_spdy_syn_stream.h"
 #include "check_spdy_syn_reply.h"
+#include "check_spdy_rst_stream.h"
 
 #include <stdlib.h>
 
@@ -19,6 +20,7 @@ int main() {
 	srunner_add_suite(sr, spdy_nv_block_suite());
 	srunner_add_suite(sr, spdy_syn_stream_suite());
 	srunner_add_suite(sr, spdy_syn_reply_suite());
+	srunner_add_suite(sr, spdy_rst_stream_suite());
 	srunner_run_all(sr, CK_NORMAL);
 	number_failed = srunner_ntests_failed(sr);
 	return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
