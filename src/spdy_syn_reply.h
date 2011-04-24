@@ -12,6 +12,13 @@ extern const uint8_t SPDY_SYN_REPLY_MIN_LENGTH;
 extern const uint8_t SPDY_SYN_REPLY_HEADER_MIN_LENGTH;
 
 /**
+ * Flags for SYN_REPLY frames.
+ */
+enum SPDY_SYN_REPLY_FLAGS {
+	SPDY_SYN_REPLY_FLAG_FIN = 0x01  /*!< FLAG_FIN */
+};
+
+/**
  * SYN_REPLY control frame
  */
 typedef struct {

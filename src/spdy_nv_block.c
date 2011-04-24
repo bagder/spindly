@@ -1,5 +1,6 @@
 #include "spdy_nv_block.h"
 #include "spdy_log.h"
+#include "spdy_error.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -24,7 +25,7 @@ int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data, size_t data_length)
 	// Data must at least contain the number of NV pairs.
 	if(data_length < 2) {
 		SPDYDEBUG("Data to small.");
-		return -1;
+		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
 
 	// Read the 16 bit integer containing the number of name/value pairs.
@@ -36,7 +37,7 @@ int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data, size_t data_length)
 	// Malloc failed
 	if(!nv_block->pairs) {
 		SPDYDEBUG("Malloc of pairs failed.");
-		return -1;
+		return SPDY_ERROR_MALLOC_FAILED;
 	}
 
 	// Move forward by two bytes.
@@ -48,7 +49,7 @@ int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data, size_t data_length)
 	for(int i=0; i < nv_block->count; i++) {
 		if(data+2 > data_max) {
 			SPDYDEBUG("Data to small.");
-			return -1;
+			return SPDY_ERROR_INSUFFICIENT_DATA;
 		}
 		spdy_nv_pair *pair = &nv_block->pairs[i];
 
@@ -60,12 +61,12 @@ int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data, size_t data_length)
 		size = (sizeof(char)*item_length)+1;
 		if(data+item_length > data_max) {
 			SPDYDEBUG("Data to small.");
-			return -1;
+			return SPDY_ERROR_INSUFFICIENT_DATA;
 		}
 		pair->name = malloc(size);
 		if(!pair->name) {
 			SPDYDEBUG("Pair name malloc failed.");
-			return -1;
+			return SPDY_ERROR_MALLOC_FAILED;
 		}
 		memcpy(pair->name, data, item_length);
 		pair->name[item_length] = '\0';
@@ -75,20 +76,20 @@ int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data, size_t data_length)
 		// Read length of value
 		if(data+2 > data_max) {
 			SPDYDEBUG("Data to small.");
-			return -1;
+			return SPDY_ERROR_INSUFFICIENT_DATA;
 		}
 		item_length = ntohs(*((uint16_t*) data));
 		data += 2;
 		// Allocate space for values
 		size = (sizeof(char)*item_length)+1;
 		if(data+item_length > data_max) {
-			SPDYDEBUG("Data to small: Max: %p Is: %p", data_max, data+item_length);
-			return -1;
+			SPDYDEBUG("Data to small.");
+			return SPDY_ERROR_INSUFFICIENT_DATA;
 		}
 		pair->values = malloc(size);
 		if(!pair->name) {
 			SPDYDEBUG("Pair value malloc failed.");
-			return -1;
+			return SPDY_ERROR_MALLOC_FAILED;
 		}
 		memcpy(pair->values, data, item_length);
 		pair->values[item_length] = '\0';
@@ -124,7 +125,7 @@ int spdy_nv_block_pack(char **dest, size_t *dest_size, spdy_nv_block *nv_block) 
 	*dest = malloc(sizeof(char)*(*dest_size));
 	if(!*dest) {
 		SPDYDEBUG("Memoy allocation failed.");
-		return -1;
+		return SPDY_ERROR_MALLOC_FAILED;
 	}
 	char *cursor = *dest;
 

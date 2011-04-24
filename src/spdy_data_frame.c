@@ -1,4 +1,6 @@
 #include "spdy_data_frame.h"
+#include "spdy_log.h"
+#include "spdy_error.h"
 
 #include <netinet/in.h>
 #include <stdlib.h>
@@ -31,7 +33,8 @@ int spdy_data_frame_pack_header(char **out, spdy_data_frame *frame) {
 	*out = malloc(sizeof(char)*8);
 	char *dat = *out;
 	if(!dat) {
-		return -1;
+		SPDYDEBUG("Allocation of destination buffer failed.");
+		return SPDY_ERROR_MALLOC_FAILED;
 	}
 	*(uint32_t*)dat = htonl(frame->stream_id & 0x8FFFFFFF);
 	dat += 4;

@@ -1,5 +1,6 @@
 #include "spdy_syn_reply.h"
 #include "spdy_log.h"
+#include "spdy_error.h"
 
 #include <netinet/in.h>
 
@@ -22,7 +23,7 @@ const uint8_t SPDY_SYN_REPLY_HEADER_MIN_LENGTH = 6;
 int spdy_syn_reply_parse_header(spdy_syn_reply *syn_reply, char *data, size_t data_length) {
 	if(data_length < SPDY_SYN_REPLY_HEADER_MIN_LENGTH) {
 		SPDYDEBUG("Not enough data for parsing the header.");
-		return -1;
+		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
 
 	// Read the Stream-ID.
@@ -45,15 +46,17 @@ int spdy_syn_reply_parse_header(spdy_syn_reply *syn_reply, char *data, size_t da
  * @return 0 on success, -1 on failure.
  */
 int spdy_syn_reply_parse(spdy_syn_reply *syn_reply, char *data, size_t data_length, spdy_zlib_context *zlib_ctx) {
+	int ret;
 	if(data_length < SPDY_SYN_REPLY_MIN_LENGTH) {
 		SPDYDEBUG("Not enough data for parsing the stream.");
-		return -1;
+		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
 
 	// Parse the frame header.
-	if(spdy_syn_reply_parse_header(syn_reply, data, data_length) < 0) {
+	if((ret = spdy_syn_reply_parse_header(syn_reply, data, data_length)) < 0)
+	{
 		SPDYDEBUG("Failed to parse header.");
-		return -1;
+		return ret;
 	}
 
 	// Skip the (already parsed) header.
@@ -63,9 +66,15 @@ int spdy_syn_reply_parse(spdy_syn_reply *syn_reply, char *data, size_t data_leng
 	// Inflate NV block.
 	char *inflate = NULL;
 	size_t inflate_size = 0;
-	if(spdy_zlib_inflate(zlib_ctx, data, data_length, &inflate, &inflate_size) < 0) {
+	
+	if((ret = spdy_zlib_inflate(
+					zlib_ctx,
+					data,
+					data_length,
+					&inflate,
+					&inflate_size)) < 0) {
 		SPDYDEBUG("Failed to inflate data.");
-		return -1;
+		return ret;
 	}
 
 	// Allocate space for NV block.
@@ -74,16 +83,19 @@ int spdy_syn_reply_parse(spdy_syn_reply *syn_reply, char *data, size_t data_leng
 		// Inflate gets allocated in spdy_zlib_inflate.
 		free(inflate);
 		SPDYDEBUG("Failed to allocate memory for nv_block.");
-		return -1;
+		return SPDY_ERROR_MALLOC_FAILED;
 	}
 
 	// Parse NV block.
-	if(spdy_nv_block_parse(syn_reply->nv_block, inflate, inflate_size) < 0) {
+	if((ret = spdy_nv_block_parse(
+					syn_reply->nv_block,
+					inflate,
+					inflate_size)) < 0) {
 		// Clean up.
 		free(inflate);
 		free(syn_reply->nv_block);
 		SPDYDEBUG("Failed to parse NV block.");
-		return -1;
+		return ret;
 	}
 
 	// Only needed during parsing of NV block.

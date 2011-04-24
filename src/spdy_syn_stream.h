@@ -13,6 +13,14 @@ extern const uint8_t SPDY_SYN_STREAM_MIN_LENGTH;
 extern const uint8_t SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
 
 /**
+ * Flags for SYN_STREAM frames.
+ */
+enum SPDY_SYN_STREAM_FLAGS {
+	SPDY_SYN_STREAM_FLAG_FIN = 0x01,            /*!< FLAG_FIN */
+	SPDY_SYN_STREAM_FLAG_UNIDIRECTIONAL = 0x02  /*!< FLAG_UNIDIRECTIONAL */
+};
+
+/**
  * SYN_STREAM control frame
  */
 typedef struct {

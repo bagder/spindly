@@ -1,5 +1,6 @@
 #include "spdy_zlib.h"
 #include "spdy_log.h"
+#include "spdy_error.h"
 
 #include <zlib.h>
 #include <stdlib.h>
@@ -47,7 +48,8 @@ int spdy_zlib_deflate(char *src, uint32_t length, char **dest, size_t *dest_size
 	strm.opaque = Z_NULL;
 	ret = deflateInit(&strm, -1);
 	if(ret != Z_OK) {
-		return -1;
+		SPDYDEBUG("Deflate init failed.");
+		return SPDY_ERROR_ZLIB_DEFLATE_INIT_FAILED;
 	}
 
 	// The zlib compression in spdy uses a dictionary which is available
@@ -59,7 +61,8 @@ int spdy_zlib_deflate(char *src, uint32_t length, char **dest, size_t *dest_size
 			strlen(spdy_zlib_dictionary)+1);
 	if(ret != Z_OK) {
 		deflateEnd(&strm);
-		return -1;
+		SPDYDEBUG("Deflate set dictionary failed.");
+		return SPDY_ERROR_ZLIB_DEFLATE_DICT_FAILED;
 	}
 
 	// Loop while flush is not Z_FINISH
@@ -96,7 +99,8 @@ int spdy_zlib_deflate(char *src, uint32_t length, char **dest, size_t *dest_size
 			*dest = realloc(*dest, *dest_size);
 			if(!*dest) {
 				deflateEnd(&strm);
-				return -1;
+				SPDYDEBUG("(Re)allocating memory for destination buffer failed.");
+				return SPDY_ERROR_MALLOC_FAILED;
 			}
 			memcpy((*dest)+((*dest_size)-have), out, have);
 
@@ -126,7 +130,7 @@ int spdy_zlib_inflate_init(spdy_zlib_context *ctx) {
 	ctx->stream.next_in = Z_NULL;
 	int ret = inflateInit2(&ctx->stream, 15);
 	if(ret != Z_OK) {
-		return -1;
+		return SPDY_ERROR_ZLIB_INFLATE_INIT_FAILED;
 	}
 	return 0;
 }
@@ -197,18 +201,18 @@ int spdy_zlib_inflate(spdy_zlib_context *ctx, char *src, uint32_t length, char *
 					if(ret != Z_OK) {
 						inflateEnd(&ctx->stream);
 						SPDYDEBUG("inflateSetDictionary failed.");
-						return -1;
+						return SPDY_ERROR_ZLIB_INFLATE_DICT_FAILED;
 					}
 					ret = inflate(&ctx->stream, Z_SYNC_FLUSH);
 					break;
 				case Z_DATA_ERROR:
 					inflateEnd(&ctx->stream);
 					SPDYDEBUG("DATA ERROR");
-					return -1;
+					return SPDY_ERROR_ZLIB_INFLATE_FAILED;
 				case Z_MEM_ERROR:
 					inflateEnd(&ctx->stream);
 					SPDYDEBUG("MEM ERROR");
-					return -1;
+					return SPDY_ERROR_ZLIB_INFLATE_FAILED;
 			}
 			have = CHUNK - ctx->stream.avail_out;
 
@@ -218,7 +222,7 @@ int spdy_zlib_inflate(spdy_zlib_context *ctx, char *src, uint32_t length, char *
 			if(!*dest) {
 				SPDYDEBUG("REALLOC FAILED");
 				inflateEnd(&ctx->stream);
-				return -1;
+				return SPDY_ERROR_MALLOC_FAILED;
 			}
 			memcpy((*dest)+((*dest_size)-have), out, have);
 		} while (ctx->stream.avail_out == 0);

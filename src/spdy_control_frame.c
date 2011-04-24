@@ -1,4 +1,6 @@
 #include "spdy_control_frame.h"
+#include "spdy_log.h"
+#include "spdy_error.h"
 
 #include <netinet/in.h>
 #include <stdlib.h>
@@ -22,7 +24,6 @@ int spdy_control_frame_parse_header(spdy_control_frame *frame, char *data) {
 	frame->flags = data[0];
 	// Read four byte, including the flags byte and removing it with the AND.
 	frame->length = ntohl(*((uint32_t*)data)) & 0x00FFFFFF;
-	frame->data = data + 4;
 	return 0;
 }
 
@@ -31,13 +32,14 @@ int spdy_control_frame_parse_header(spdy_control_frame *frame, char *data) {
  * @param out Target buffer.
  * @param frame Frame to pack.
  * @see spdy_control_frame
- * @return 0 on success, -1 on failure.
+ * @return SPDY_ERRORS
  */
 int spdy_control_frame_pack_header(char **out, spdy_control_frame *frame) {
 	*out = malloc(sizeof(char)*8);
 	char *dat = *out;
 	if(!dat) {
-		return -1;
+		SPDYDEBUG("Allocation of destination buffer failed.");
+		return SPDY_ERROR_MALLOC_FAILED;
 	}
 	// The OR sets the first bit to true, indicating that this is a
 	// control frame.

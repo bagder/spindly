@@ -1,5 +1,6 @@
 #include "spdy_rst_stream.h"
 #include "spdy_log.h"
+#include "spdy_error.h"
 
 #include <netinet/in.h>
 
@@ -19,7 +20,7 @@ const uint8_t SPDY_RST_STREAM_LENGTH = 8;
 int spdy_rst_stream_parse(spdy_rst_stream *rst_stream, char *data, size_t data_length) {
 	if(data_length != SPDY_RST_STREAM_LENGTH) {
 		SPDYDEBUG("Not enough data for parsing the header.");
-		return -1;
+		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
 
 	// Read the Stream-ID.

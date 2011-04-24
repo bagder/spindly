@@ -3,6 +3,12 @@
 
 #include <stdint.h>
 
+/**
+ * Flags of data frames.
+ */
+enum SPDY_DATA_FLAGS {
+	SPDY_DATA_FLAG_FIN = 0x01 /*!< FLAG_FIN */
+};
 
 /**
  * Data frame
