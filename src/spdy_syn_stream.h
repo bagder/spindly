@@ -5,6 +5,7 @@
 #include "spdy_zlib.h"
 
 #include <stdint.h>
+#include <stdlib.h>
 
 // Minimum length of a SYN_STREAM frame.
 extern const uint8_t SPDY_SYN_STREAM_MIN_LENGTH;
