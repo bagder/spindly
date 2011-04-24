@@ -3,7 +3,6 @@
 #include "../src/spdy_nv_block.h"
 
 #include "testdata.h"
-#include <stdio.h>
 
 START_TEST (test_spdy_zlib_deflate)
 {

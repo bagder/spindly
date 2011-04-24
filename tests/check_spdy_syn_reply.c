@@ -12,7 +12,7 @@ START_TEST (test_spdy_syn_reply_parse_header)
 	fail_unless(syn_reply.stream_id == 1, "Stream ID parsing failed.");
 }
 END_TEST
-#include <stdio.h>
+
 START_TEST (test_spdy_syn_reply_parse)
 {
 	int ret;
