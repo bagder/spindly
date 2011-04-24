@@ -11,7 +11,7 @@
 typedef struct {
 	char *name;            /*!< Name of the values */
 	uint16_t values_count; /*!< Number of values */
-	char *values;         /*!< Values */
+	char *values;          /*!< Values */
 } spdy_nv_pair;
 
 /**
