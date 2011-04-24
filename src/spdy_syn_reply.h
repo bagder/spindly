@@ -15,7 +15,7 @@ extern const uint8_t SPDY_SYN_REPLY_HEADER_MIN_LENGTH;
  * SYN_REPLY control frame
  */
 typedef struct {
-	uint16_t stream_id;      /*!< 31 bit stream id */
+	uint32_t stream_id;      /*!< 31 bit stream id */
 	spdy_nv_block *nv_block; /*!< Name/Value block */
 } spdy_syn_reply;
 
