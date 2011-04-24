@@ -16,6 +16,7 @@
 int spdy_frame_parse_header(spdy_frame *frame, char *data) {
 	// Read type bit
 	frame->type = (data[0] & 0x80)>>7;
+	frame->frame = NULL;
 	switch(frame->type) {
 		case SPDY_DATA_FRAME:
 			// Allocate space for data frame.
