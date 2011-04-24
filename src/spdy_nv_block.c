@@ -151,15 +151,20 @@ int spdy_nv_block_pack(char **dest, size_t *dest_size, spdy_nv_block *nv_block) 
 }
 
 /**
- * Frees all the content of an nv_block, does NOT free the nv_block itself.
+ * Frees all the content of an nv_block and the nv_block itself.
  * @param nv_block - NV block to destroy.
  * @todo How to test this?
  */
 void spdy_nv_block_destroy(spdy_nv_block *nv_block) {
-	for(int i=0; i < nv_block->count; i++) {
-		free(nv_block->pairs[i].name);
-		free(nv_block->pairs[i].values);
+	if(nv_block) {
+		if(nv_block->pairs) {
+			for(int i=0; i < nv_block->count; i++) {
+				free(nv_block->pairs[i].name);
+				free(nv_block->pairs[i].values);
+			}
+			free(nv_block->pairs);
+		}
+		free(nv_block);
 	}
-	free(nv_block->pairs);
 }
 
