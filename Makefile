@@ -7,6 +7,7 @@ LDFLAGS +=
 
 SRCS_SPDY =  src/spdy_frame.c
 SRCS_SPDY += src/spdy_control_frame.c
+SRCS_SPDY += src/spdy_syn_stream.c
 SRCS_SPDY += src/spdy_data_frame.c
 SRCS_SPDY += src/spdy_nv_block.c
 SRCS_SPDY += src/spdy_zlib.c
@@ -16,6 +17,7 @@ OBJS_SPDY = $(SRCS_SPDY:.c=.o)
 SRCS_TEST =  tests/check_spdy.c
 SRCS_TEST += tests/check_spdy_frame.c
 SRCS_TEST += tests/check_spdy_control_frame.c
+SRCS_TEST += tests/check_spdy_syn_stream.c
 SRCS_TEST += tests/check_spdy_data_frame.c
 SRCS_TEST += tests/check_spdy_nv_block.c
 SRCS_TEST += tests/check_spdy_zlib.c
@@ -50,6 +52,6 @@ cloc:
 	cloc src/
 
 gource:
-	gource -a 1 --bloom-multiplier 1 --bloom-intensity 2 --hide date --disable-progress --stop-at-end --output-ppm-stream - | ffmpeg -y -b 3000k -r 60 -f image2pipe -vcodec ppm -i - -fpre /usr/share/ffmpeg/libx264-medium.ffpreset -vcodec libx264 gource.mp4
+	gource -1440x900 -a 1 --file-extensions --hide date --disable-progress --stop-at-end --output-ppm-stream - | ffmpeg -y -b 3000k -r 60 -f image2pipe -vcodec ppm -i - -fpre /usr/share/ffmpeg/libx264-medium.ffpreset -vcodec libx264 gource.mp4
 
 .PHONY: doc
