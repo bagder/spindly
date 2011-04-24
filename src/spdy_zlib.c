@@ -116,6 +116,7 @@ int spdy_zlib_deflate(char *src, uint32_t length, char **dest, size_t *dest_size
 /**
  * Initialize an inflate context.
  * @param ctx - Context to initialize
+ * @todo Testcase!
  * @return 0 on success, -1 on failure.
  */
 int spdy_zlib_inflate_init(spdy_zlib_context *ctx) {
@@ -129,6 +130,15 @@ int spdy_zlib_inflate_init(spdy_zlib_context *ctx) {
 		return -1;
 	}
 	return 0;
+}
+
+/**
+ * End an inflate context. (Like on connection close.)
+ * @param ctx - Context to end.
+ * @todo Testcase (including leak check?)
+ */
+void spdy_zlib_inflate_end(spdy_zlib_context *ctx) {
+	inflateEnd(&ctx->stream);
 }
 
 /**
@@ -214,7 +224,7 @@ int spdy_zlib_inflate(spdy_zlib_context *ctx, char *src, uint32_t length, char *
 			memcpy((*dest)+((*dest_size)-have), out, have);
 		} while (ctx->stream.avail_out == 0);
 	} while (ret != Z_STREAM_END);
-//	inflateEnd(&ctx->stream);
+
 	return Z_STREAM_END ? 0 : -1;
 }
 
