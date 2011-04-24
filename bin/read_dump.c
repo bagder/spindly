@@ -25,7 +25,6 @@ int handle_syn_stream_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 		printf("\t\t%s: %s\n", syn_stream.nv_block->pairs[i].name, syn_stream.nv_block->pairs[i].values);
 	}
 	spdy_nv_block_destroy(syn_stream.nv_block);
-	free(syn_stream.nv_block);
 
 	return EXIT_SUCCESS;
 }
@@ -42,7 +41,6 @@ int handle_syn_reply_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 		printf("\t\t%s: %s\n", syn_reply.nv_block->pairs[i].name, syn_reply.nv_block->pairs[i].values);
 	}
 	spdy_nv_block_destroy(syn_reply.nv_block);
-	free(syn_reply.nv_block);
 
 	return EXIT_SUCCESS;
 }
