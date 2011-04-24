@@ -64,7 +64,7 @@ int spdy_syn_reply_parse(spdy_syn_reply *syn_reply, char *data, size_t data_leng
 	char *inflate = NULL;
 	size_t inflate_size = 0;
 	if(spdy_zlib_inflate(zlib_ctx, data, data_length, &inflate, &inflate_size) < 0) {
-		SPDYDEBUG("Failed to infalte data.");
+		SPDYDEBUG("Failed to inflate data.");
 		return -1;
 	}
 
