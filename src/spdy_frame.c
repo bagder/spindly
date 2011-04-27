@@ -8,8 +8,9 @@
 
 /**
  * Parse the header of a frame.
- * @param frame Target frame.
- * @param data Data to parse.
+ * @param frame - Target frame.
+ * @param data - Data to parse.
+ * @param data_length - Length of data.
  * @see spdy_frame
  * @see spdy_control_frame
  * @see spdy_data_frame

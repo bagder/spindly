@@ -11,8 +11,9 @@ const uint8_t SPDY_CONTROL_FRAME_MIN_LENGTH = 8;
 
 /**
  * Parse the header of a control frame.
- * @param frame Target control frame.
- * @param data Data to parse.
+ * @param frame - Target control frame.
+ * @param data - Data to parse.
+ * @param data_length - Length of data to parse.
  * @see spdy_control_frame
  * @todo Evaluate how to store data in the frame.
  * @return 0 on success, -1 on failure.
