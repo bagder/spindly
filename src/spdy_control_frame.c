@@ -52,6 +52,7 @@ int spdy_control_frame_parse(spdy_control_frame *frame, char *data, size_t data_
 				return SPDY_ERROR_MALLOC_FAILED;
 			}
 			if(frame->length > data_length) {
+				free(frame->type_obj);
 				SPDYDEBUG("Insufficient data for SYN_STREAM.");
 				return SPDY_ERROR_INSUFFICIENT_DATA;
 			}
@@ -64,6 +65,7 @@ int spdy_control_frame_parse(spdy_control_frame *frame, char *data, size_t data_
 					frame->length,
 					zlib_ctx);
 			if(ret != SPDY_ERROR_NONE) {
+				free(frame->type_obj);
 				SPDYDEBUG("SYN_STREAM parsing failed.");
 				return ret;
 			}
