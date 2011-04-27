@@ -4,6 +4,7 @@
 #include "spdy_control_frame.h"
 
 #include <stdint.h>
+#include <stdlib.h>
 
 /**
  * Frame type enum
@@ -24,6 +25,6 @@ typedef struct {
 	void *frame;               /*!< Frame */
 } spdy_frame;
 
-int spdy_frame_parse_header(spdy_frame *frame, char *data);
+int spdy_frame_parse_header(spdy_frame *frame, char *data, size_t data_length);
 
 #endif

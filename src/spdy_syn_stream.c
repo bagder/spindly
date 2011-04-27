@@ -49,6 +49,7 @@ int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, char *data, size_t
  * @param data - Data to parse.
  * @param data_length - Length of data.
  * @param zlib_ctx - The zlib context to use.
+ * @see spdy_control_frame
  * @see SPDY_SYN_STREAM_MIN_LENGTH
  * @return 0 on success, -1 on failure.
  */
@@ -63,7 +64,7 @@ int spdy_syn_stream_parse(spdy_syn_stream *syn_stream, char *data, size_t data_l
 	if((ret = spdy_syn_stream_parse_header(
 					syn_stream,
 					data,
-					data_length)) < 0) {
+					data_length)) != SPDY_ERROR_NONE) {
 		SPDYDEBUG("Failed to parse header.");
 		return ret;
 	}

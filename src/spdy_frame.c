@@ -15,7 +15,7 @@
  * @see spdy_data_frame
  * @return 0 on success, -1 on failure.
  */
-int spdy_frame_parse_header(spdy_frame *frame, char *data) {
+int spdy_frame_parse_header(spdy_frame *frame, char *data, size_t data_length) {
 	// Read type bit
 	frame->type = (data[0] & 0x80)>>7;
 	frame->frame = NULL;
@@ -28,7 +28,7 @@ int spdy_frame_parse_header(spdy_frame *frame, char *data) {
 				SPDYDEBUG("Allocating of space for data frame failed.");
 				return SPDY_ERROR_MALLOC_FAILED;
 			}
-			if((ret = spdy_data_frame_parse_header(frame->frame, data)) < 0) {
+			if((ret = spdy_data_frame_parse_header(frame->frame, data)) != SPDY_ERROR_NONE) {
 				free(frame->frame);
 				frame->frame = NULL;
 				return ret;
@@ -42,7 +42,7 @@ int spdy_frame_parse_header(spdy_frame *frame, char *data) {
 				return SPDY_ERROR_MALLOC_FAILED;
 			}
 			// Parse frame header.
-			if((ret = spdy_control_frame_parse_header(frame->frame, data)) < 0) {
+			if((ret = spdy_control_frame_parse_header(frame->frame, data, data_length)) != SPDY_ERROR_NONE) {
 				free(frame->frame);
 				frame->frame = NULL;
 				return ret;

@@ -2,6 +2,12 @@
 #define SPDY_CONTROL_FRAME_H_ 1
 
 #include <stdint.h>
+#include <stdlib.h>
+
+#include "spdy_zlib.h"
+
+// Minimum length of a control frame.
+extern const uint8_t SPDY_CONTROL_FRAME_MIN_LENGTH;
 
 /**
  * SPDY control frame types.
@@ -31,8 +37,13 @@ typedef struct {
 	void *type_obj;     /*!< Frame type object */
 } spdy_control_frame;
 
-int spdy_control_frame_parse_header(spdy_control_frame *frame, char *data);
+int spdy_control_frame_parse_header(spdy_control_frame *frame, char *data, size_t data_length);
 int spdy_control_frame_pack_header(char **out, spdy_control_frame *frame);
+int spdy_control_frame_parse(
+		spdy_control_frame *frame,
+		char *data,
+		size_t data_length,
+		spdy_zlib_context *zlib_ctx);
 char *spdy_control_frame_get_type_name(int type);
 
 #endif

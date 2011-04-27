@@ -6,7 +6,7 @@
 START_TEST (test_spdy_control_frame_parse_header)
 {
 	spdy_control_frame frame;
-	spdy_control_frame_parse_header(&frame, test_control_syn_stream_frame);
+	spdy_control_frame_parse_header(&frame, test_control_syn_stream_frame, 8);
 	fail_unless(frame.version == 2, "Version parsing failed.");
 	fail_unless(frame.type == 1, "Type parsing failed.");
 	fail_unless(frame.flags == 1, "Flag parsing failed.");
@@ -33,7 +33,7 @@ START_TEST (test_spdy_control_frame_parse_pack)
 {
 	spdy_control_frame frame;
 	char *out;
-	int ret = spdy_control_frame_parse_header(&frame, test_control_syn_stream_frame);
+	int ret = spdy_control_frame_parse_header(&frame, test_control_syn_stream_frame, 8);
 	fail_unless(ret == 0, "spdy_control_frame_parse_header failed.");
 	ret =spdy_control_frame_pack_header(&out, &frame);
 	fail_unless(ret == 0, "spdy_control_frame_pack_header failed.");

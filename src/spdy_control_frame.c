@@ -1,9 +1,13 @@
 #include "spdy_control_frame.h"
+#include "spdy_syn_stream.h"
 #include "spdy_log.h"
 #include "spdy_error.h"
 
 #include <netinet/in.h>
 #include <stdlib.h>
+
+// Minimum length of a control frame.
+const uint8_t SPDY_CONTROL_FRAME_MIN_LENGTH = 8;
 
 /**
  * Parse the header of a control frame.
@@ -13,7 +17,11 @@
  * @todo Evaluate how to store data in the frame.
  * @return 0 on success, -1 on failure.
  */
-int spdy_control_frame_parse_header(spdy_control_frame *frame, char *data) {
+int spdy_control_frame_parse_header(spdy_control_frame *frame, char *data, size_t data_length) {
+	if(data_length < SPDY_CONTROL_FRAME_MIN_LENGTH) {
+		SPDYDEBUG("Insufficient data for control frame.");
+		return SPDY_ERROR_INSUFFICIENT_DATA;
+	}
 	// Read SPDY version. (AND is there to remove the first bit
 	// which is used as frame type identifier.
 	frame->version = ntohs(*((uint16_t*) data)) & 0x7FFF;
@@ -25,6 +33,42 @@ int spdy_control_frame_parse_header(spdy_control_frame *frame, char *data) {
 	// Read four byte, including the flags byte and removing it with the AND.
 	frame->length = ntohl(*((uint32_t*)data)) & 0x00FFFFFF;
 	return 0;
+}
+
+int spdy_control_frame_parse(spdy_control_frame *frame, char *data, size_t data_length, spdy_zlib_context *zlib_ctx) {
+	int ret;
+	ret = spdy_control_frame_parse_header(frame, data, data_length);
+	if(ret != SPDY_ERROR_NONE) {
+		SPDYDEBUG("Control frame parse header failed.");
+		return ret;
+	}
+
+	switch(frame->type) {
+		case SPDY_CTRL_SYN_STREAM:
+			frame->type_obj = malloc(sizeof(spdy_syn_stream));
+			if(!frame->type_obj) {
+				SPDYDEBUG("Failed to allocate space for SYN_STREAM.");
+				return SPDY_ERROR_MALLOC_FAILED;
+			}
+			if(frame->length > data_length) {
+				SPDYDEBUG("Insufficient data for SYN_STREAM.");
+				return SPDY_ERROR_INSUFFICIENT_DATA;
+			}
+			ret = spdy_syn_stream_parse(
+					frame->type_obj,
+					data,
+					// Using frame length instead of data length, so that if the
+					// buffer is larger as needed, it won't be handled by zlib
+					// or anything similar.
+					frame->length,
+					zlib_ctx);
+			if(ret != SPDY_ERROR_NONE) {
+				SPDYDEBUG("SYN_STREAM parsing failed.");
+				return ret;
+			}
+			break;
+	}
+	return SPDY_ERROR_NONE;
 }
 
 /**
