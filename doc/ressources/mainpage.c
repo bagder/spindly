@@ -12,6 +12,8 @@
  *   - Coverage check using LCOV
  *  - Compiler independent (C99 support is needed.):
  *   - Tested with gcc and clang
+ *  - Platform independent:
+ *   - Tested on Linux, Mac OS X and Windows 7.
  *  - Good documentation: The API documentation itself and the code should be as documented as possible - without cluttering the source.
  *
  * If you want to learn more about SPDY, check out the official site by Google: http://www.chromium.org/spdy/
