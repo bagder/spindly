@@ -1,1 +1,13 @@
 libspdy - An implementation of Googles SPDY protocol.
+
+You should've received a copy of the 3-clause BSD license with this release.
+
+Directories:
+	bin/
+		Contains usage samples for libspdy.
+	doc/
+		Contains additional documentation and is the Doxygen target.
+	src/
+		Contains the sourcecode of the library
+	tests/
+		Contains Check based unittests.
