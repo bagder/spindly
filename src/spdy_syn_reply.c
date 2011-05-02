@@ -53,7 +53,7 @@ int spdy_syn_reply_parse(spdy_syn_reply *syn_reply, char *data, size_t data_leng
 	}
 
 	// Parse the frame header.
-	if((ret = spdy_syn_reply_parse_header(syn_reply, data, data_length)) < 0)
+	if((ret = spdy_syn_reply_parse_header(syn_reply, data, data_length)) != SPDY_ERROR_NONE)
 	{
 		SPDYDEBUG("Failed to parse header.");
 		return ret;
@@ -72,7 +72,7 @@ int spdy_syn_reply_parse(spdy_syn_reply *syn_reply, char *data, size_t data_leng
 					data,
 					data_length,
 					&inflate,
-					&inflate_size)) < 0) {
+					&inflate_size)) != SPDY_ERROR_NONE) {
 		SPDYDEBUG("Failed to inflate data.");
 		return ret;
 	}
@@ -90,7 +90,7 @@ int spdy_syn_reply_parse(spdy_syn_reply *syn_reply, char *data, size_t data_leng
 	if((ret = spdy_nv_block_parse(
 					syn_reply->nv_block,
 					inflate,
-					inflate_size)) < 0) {
+					inflate_size)) != SPDY_ERROR_NONE) {
 		// Clean up.
 		free(inflate);
 		free(syn_reply->nv_block);
