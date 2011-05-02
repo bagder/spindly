@@ -59,3 +59,47 @@ int spdy_frame_parse_header(
 	return 0;
 }
 
+/**
+ * Parse a frame.
+ * @param frame - Target frame.
+ * @param data - Data to parse.
+ * @param data_length - Length of data to parse.
+ * @param zlib_ctx - zlib context to use.
+ * @see spdy_frame
+ * @return Errorcode
+ */
+int spdy_frame_parse(
+		spdy_frame *frame,
+		char *data,
+		size_t data_length,
+		spdy_zlib_context *zlib_ctx) {
+	int ret;
+	ret = spdy_frame_parse_header(frame, data, data_length);
+	if(ret != SPDY_ERROR_NONE) {
+		SPDYDEBUG("Frame parse header failed.");
+		return ret;
+	}
+	switch(frame->type) {
+		case SPDY_CONTROL_FRAME:
+			frame->frame = malloc(sizeof(spdy_control_frame));
+			if(!frame->frame) {
+				SPDYDEBUG("Control frame malloc failed.");
+				return SPDY_ERROR_MALLOC_FAILED;
+			}
+
+			ret = spdy_control_frame_parse(frame->frame, data, data_length, zlib_ctx);
+			if(ret != SPDY_ERROR_NONE) {
+				SPDYDEBUG("Control frame parse failed.");
+				return ret;
+			}
+			break;
+		case SPDY_DATA_FRAME:
+			SPDYDEBUG("WHOT");
+			break;
+		default:
+			SPDYDEBUG("UNSUPPORTED");
+			break;
+	}
+	return SPDY_ERROR_NONE;
+}
+

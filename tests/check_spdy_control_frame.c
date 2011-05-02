@@ -50,6 +50,10 @@ START_TEST (test_spdy_control_frame_parse)
 	spdy_control_frame frame;
 	int ret = spdy_control_frame_parse(&frame, test_control_syn_stream_frame, 296, &zlib_ctx);
 	fail_unless(ret == SPDY_ERROR_NONE, "spdy_control_frame_parse failed.");
+	fail_unless(frame.version == 2, "Version failed.");
+	fail_unless(frame.type == 1, "Type failed.");
+	fail_unless(frame.flags == 1, "Flag failed.");
+	fail_unless(frame.length == 288, "Length failed.");
 }
 END_TEST
 

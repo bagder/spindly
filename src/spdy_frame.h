@@ -29,5 +29,10 @@ int spdy_frame_parse_header(
 		spdy_frame *frame,
 		char *data,
 		size_t data_length);
+int spdy_frame_parse(
+		spdy_frame *frame,
+		char *data,
+		size_t data_length,
+		spdy_zlib_context *zlib_ctx);
 
 #endif
