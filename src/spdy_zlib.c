@@ -224,6 +224,9 @@ int spdy_zlib_inflate(spdy_zlib_context *ctx, char *src, uint32_t length, char *
 				inflateEnd(&ctx->stream);
 				return SPDY_ERROR_MALLOC_FAILED;
 			}
+			// Copy to destination + size of the destination.
+			// As dest_size has always been increased by 'have', we need
+			// to decrease it.
 			memcpy((*dest)+((*dest_size)-have), out, have);
 		} while (ctx->stream.avail_out == 0);
 	} while (ret != Z_STREAM_END);
