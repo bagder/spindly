@@ -81,7 +81,7 @@ int spdy_syn_stream_parse(spdy_syn_stream *syn_stream, char *data, size_t data_l
 					data,
 					data_length,
 					&inflate,
-					&inflate_size)) < 0) {
+					&inflate_size)) != SPDY_ERROR_NONE) {
 		SPDYDEBUG("Failed to inflate data.");
 		return ret;
 	}
@@ -99,7 +99,7 @@ int spdy_syn_stream_parse(spdy_syn_stream *syn_stream, char *data, size_t data_l
 	if((ret = spdy_nv_block_parse(
 					syn_stream->nv_block,
 					inflate,
-					inflate_size)) < 0) {
+					inflate_size)) < SPDY_ERROR_NONE) {
 		// Clean up.
 		free(inflate);
 		free(syn_stream->nv_block);

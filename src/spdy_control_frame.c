@@ -50,7 +50,11 @@ int spdy_control_frame_parse_header(
  * @see spdy_control_frame
  * @return Errorcode
  */
-int spdy_control_frame_parse(spdy_control_frame *frame, char *data, size_t data_length, spdy_zlib_context *zlib_ctx) {
+int spdy_control_frame_parse(
+		spdy_control_frame *frame,
+		char *data,
+		size_t data_length,
+		spdy_zlib_context *zlib_ctx) {
 	int ret;
 	ret = spdy_control_frame_parse_header(frame, data, data_length);
 	if(ret != SPDY_ERROR_NONE) {
@@ -59,6 +63,7 @@ int spdy_control_frame_parse(spdy_control_frame *frame, char *data, size_t data_
 	}
 	// Remove the header length from data_length.
 	data_length -= SPDY_CONTROL_FRAME_MIN_LENGTH;
+	data += SPDY_CONTROL_FRAME_MIN_LENGTH;
 
 	switch(frame->type) {
 		case SPDY_CTRL_SYN_STREAM:
