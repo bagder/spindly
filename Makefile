@@ -13,6 +13,7 @@ SRCS_SPDY += src/spdy_rst_stream.c
 SRCS_SPDY += src/spdy_data_frame.c
 SRCS_SPDY += src/spdy_nv_block.c
 SRCS_SPDY += src/spdy_zlib.c
+SRCS_SPDY += src/spdy_stream.c
 HDRS_SPDY = $(SRCS_SPDY,.c=.h)
 OBJS_SPDY = $(SRCS_SPDY:.c=.o)
 
@@ -54,6 +55,9 @@ clean:
 
 cloc:
 	cloc src/
+
+tags:
+	ctags -R src/
 
 gource:
 	gource -1440x900 -a 1 --file-extensions --hide date --disable-progress --stop-at-end --output-ppm-stream - | ffmpeg -y -b 3000k -r 60 -f image2pipe -vcodec ppm -i - -fpre /usr/share/ffmpeg/libx264-medium.ffpreset -vcodec libx264 gource.mp4
