@@ -16,7 +16,10 @@
  * @see spdy_data_frame
  * @return 0 on success, -1 on failure.
  */
-int spdy_frame_parse_header(spdy_frame *frame, char *data, size_t data_length) {
+int spdy_frame_parse_header(
+		spdy_frame *frame,
+		char *data,
+		size_t data_length) {
 	// Read type bit
 	frame->type = (data[0] & 0x80)>>7;
 	frame->frame = NULL;

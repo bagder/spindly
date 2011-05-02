@@ -20,7 +20,10 @@ const uint8_t SPDY_CONTROL_FRAME_MIN_LENGTH = 8;
  * @todo Evaluate how to store data in the frame.
  * @return 0 on success, -1 on failure.
  */
-int spdy_control_frame_parse_header(spdy_control_frame *frame, char *data, size_t data_length) {
+int spdy_control_frame_parse_header(
+		spdy_control_frame *frame,
+		char *data,
+		size_t data_length) {
 	if(data_length < SPDY_CONTROL_FRAME_MIN_LENGTH) {
 		SPDYDEBUG("Insufficient data for control frame.");
 		return SPDY_ERROR_INSUFFICIENT_DATA;

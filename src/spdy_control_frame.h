@@ -37,7 +37,10 @@ typedef struct {
 	void *type_obj;     /*!< Frame type object */
 } spdy_control_frame;
 
-int spdy_control_frame_parse_header(spdy_control_frame *frame, char *data, size_t data_length);
+int spdy_control_frame_parse_header(
+		spdy_control_frame *frame,
+		char *data,
+		size_t data_length);
 int spdy_control_frame_pack_header(char **out, spdy_control_frame *frame);
 int spdy_control_frame_parse(
 		spdy_control_frame *frame,

@@ -18,7 +18,10 @@
  * @todo Multiple value support.
  * @return 0 on success, -1 on failure.
  */
-int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data, size_t data_length) {
+int spdy_nv_block_parse(
+		spdy_nv_block *nv_block,
+		char *data,
+		size_t data_length) {
 	// The bounds of data.
 	char *data_max = data + data_length;
 
@@ -109,7 +112,10 @@ int spdy_nv_block_parse(spdy_nv_block *nv_block, char *data, size_t data_length)
  * @todo Multiple value support.
  * @return 0 on succes, -1 on failure.
  */
-int spdy_nv_block_pack(char **dest, size_t *dest_size, spdy_nv_block *nv_block) {
+int spdy_nv_block_pack(
+		char **dest,
+		size_t *dest_size,
+		spdy_nv_block *nv_block) {
 	*dest = NULL;
 
 	// Two bytes for the number of pairs.
