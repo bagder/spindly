@@ -1,5 +1,6 @@
 #include "check_spdy_control_frame.h"
 #include "../src/spdy_control_frame.h"
+#include "../src/spdy_error.h"
 
 #include "testdata.h"
 
@@ -29,7 +30,7 @@ START_TEST (test_spdy_control_frame_pack_header)
 }
 END_TEST
 
-START_TEST (test_spdy_control_frame_parse_pack)
+START_TEST (test_spdy_control_frame_parse_pack_header)
 {
 	spdy_control_frame frame;
 	char *out;
@@ -38,6 +39,17 @@ START_TEST (test_spdy_control_frame_parse_pack)
 	ret =spdy_control_frame_pack_header(&out, &frame);
 	fail_unless(ret == 0, "spdy_control_frame_pack_header failed.");
 	fail_unless(memcmp(out, test_control_syn_stream_frame, 8) == 0, "Input is different than repacked frame.");
+}
+END_TEST
+
+START_TEST (test_spdy_control_frame_parse)
+{
+	spdy_zlib_context zlib_ctx;
+	spdy_zlib_inflate_init(&zlib_ctx);
+
+	spdy_control_frame frame;
+	int ret = spdy_control_frame_parse(&frame, test_control_syn_stream_frame, 296, &zlib_ctx);
+	fail_unless(ret == SPDY_ERROR_NONE, "spdy_control_frame_parse failed.");
 }
 END_TEST
 
@@ -50,8 +62,11 @@ Suite * spdy_control_frame_suite()
 	tc_core = tcase_create("spdy_control_frame_pack_header");
 	tcase_add_test(tc_core, test_spdy_control_frame_pack_header);
 	suite_add_tcase(s, tc_core);
-	tc_core = tcase_create("spdy_control_frame_parse_pack");
-	tcase_add_test(tc_core, test_spdy_control_frame_parse_pack);
+	tc_core = tcase_create("spdy_control_frame_parse_pack_header");
+	tcase_add_test(tc_core, test_spdy_control_frame_parse_pack_header);
+	suite_add_tcase(s, tc_core);
+	tc_core = tcase_create("spdy_control_frame_parse");
+	tcase_add_test(tc_core, test_spdy_control_frame_parse);
 	suite_add_tcase(s, tc_core);
 	return s;
 }
