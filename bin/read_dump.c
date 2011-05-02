@@ -12,6 +12,7 @@
 spdy_zlib_context ctx[2];
 
 int handle_syn_stream_frame(spdy_control_frame *frame, char *payload, FILE *f) {
+	(void)f;
 	spdy_syn_stream syn_stream;
 	if(spdy_syn_stream_parse(&syn_stream, payload, frame->length, &ctx[0]) < 0) {
 		printf("Failed to parse SYN_STREAM.\n");
@@ -30,6 +31,7 @@ int handle_syn_stream_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 }
 
 int handle_syn_reply_frame(spdy_control_frame *frame, char *payload, FILE *f) {
+	(void)f;
 	spdy_syn_reply syn_reply;
 	if(spdy_syn_reply_parse(&syn_reply, payload, frame->length, &ctx[1]) < 0) {
 		printf("Failed to parse SYN_REPLY.\n");

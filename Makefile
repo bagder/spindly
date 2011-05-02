@@ -45,6 +45,9 @@ checks: checks_build
 $(EXEC_TEST): $(OBJS_SPDY) $(OBJS_TEST)
 	$(CC) $(CFLAGS) $(LDFLAGS) -g $(OBJS_SPDY) $(OBJS_TEST) $(LIBS_TEST) -o $(EXEC_TEST)
 
+read_dump: spdy
+	$(CC) $(CFLAGS) $(LDFLAGS) -g $(OBJS_SPDY) -Isrc/ `pkg-config --libs zlib` bin/read_dump.c -o bin/$@
+
 doc:
 	doxygen Doxyfile
 
