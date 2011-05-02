@@ -8,13 +8,14 @@
 #include "spdy_data_frame.h"
 #include "spdy_nv_block.h"
 #include "spdy_zlib.h"
+#include "spdy_error.h"
 
 spdy_zlib_context ctx[2];
 
 int handle_syn_stream_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 	(void)f;
 	spdy_syn_stream syn_stream;
-	if(spdy_syn_stream_parse(&syn_stream, payload, frame->length, &ctx[0]) < 0) {
+	if(spdy_syn_stream_parse(&syn_stream, payload, frame->length, &ctx[0]) != SPDY_ERROR_NONE) {
 		printf("Failed to parse SYN_STREAM.\n");
 		return EXIT_FAILURE;
 	}
@@ -33,7 +34,7 @@ int handle_syn_stream_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 int handle_syn_reply_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 	(void)f;
 	spdy_syn_reply syn_reply;
-	if(spdy_syn_reply_parse(&syn_reply, payload, frame->length, &ctx[1]) < 0) {
+	if(spdy_syn_reply_parse(&syn_reply, payload, frame->length, &ctx[1]) != SPDY_ERROR_NONE) {
 		printf("Failed to parse SYN_REPLY.\n");
 		return EXIT_FAILURE;
 	}
@@ -119,11 +120,11 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	if(spdy_zlib_inflate_init(&ctx[0]) < 0) {
+	if(spdy_zlib_inflate_init(&ctx[0]) != SPDY_ERROR_NONE) {
 		printf("Failed to inflate-init");
 		return EXIT_FAILURE;
 	}
-	if(spdy_zlib_inflate_init(&ctx[1]) < 0) {
+	if(spdy_zlib_inflate_init(&ctx[1]) != SPDY_ERROR_NONE) {
 		printf("Failed to inflate-init");
 		return EXIT_FAILURE;
 	}
@@ -137,7 +138,7 @@ int main(int argc, char *argv[]) {
 			return EXIT_FAILURE;
 		}
 		spdy_frame frame;
-		if(spdy_frame_parse_header(&frame, pkg,  8) < 0) {
+		if(spdy_frame_parse_header(&frame, pkg,  8) != SPDY_ERROR_NONE) {
 			free(frame.frame);
 			end_zlib_contexts();
 			printf("Failed to parse frame header.\n");
