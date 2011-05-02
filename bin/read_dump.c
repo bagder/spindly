@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
 			return EXIT_FAILURE;
 		}
 		spdy_frame frame;
-		if(spdy_frame_parse_header(&frame, pkg) < 0) {
+		if(spdy_frame_parse_header(&frame, pkg,  8) < 0) {
 			free(frame.frame);
 			end_zlib_contexts();
 			printf("Failed to parse frame header.\n");
