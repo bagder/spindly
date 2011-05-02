@@ -33,7 +33,7 @@ char *spdy_zlib_dictionary = "optionsgetheadpostputdeletetraceacceptaccept-chars
  * @param dest - Destination of deflated data
  * @param dest_size - Pointer to size of deflated data.
  * @see spdy_zlib_inflate
- * @return 0 on success, -1 on failure.
+ * @return Errorcode
  */
 int spdy_zlib_deflate(char *src, uint32_t length, char **dest, size_t *dest_size) {
 	z_stream strm;
@@ -120,7 +120,7 @@ int spdy_zlib_deflate(char *src, uint32_t length, char **dest, size_t *dest_size
  * Initialize an inflate context.
  * @param ctx - Context to initialize
  * @todo Testcase!
- * @return 0 on success, -1 on failure.
+ * @return Errorcode
  */
 int spdy_zlib_inflate_init(spdy_zlib_context *ctx) {
 	ctx->stream.zalloc = Z_NULL;
@@ -152,7 +152,7 @@ void spdy_zlib_inflate_end(spdy_zlib_context *ctx) {
  * @param dest - Destination of inflated data
  * @param dest_size - Pointer to size of inflated data.
  * @see spdy_zlib_deflate
- * @return 0 on success, -1 on failure.
+ * @return Errorcode
  */
 int spdy_zlib_inflate(spdy_zlib_context *ctx, char *src, uint32_t length, char **dest, size_t *dest_size) {
 	int ret;
@@ -231,6 +231,6 @@ int spdy_zlib_inflate(spdy_zlib_context *ctx, char *src, uint32_t length, char *
 		} while (ctx->stream.avail_out == 0);
 	} while (ret != Z_STREAM_END);
 
-	return Z_STREAM_END ? 0 : -1;
+	return Z_STREAM_END ? SPDY_ERROR_NONE : SPDY_ERROR_ZLIB_INFLATE_FAILED;
 }
 
