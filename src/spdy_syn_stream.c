@@ -48,14 +48,18 @@ int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, char *data, size_t
  * @param syn_stream - Destination frame.
  * @param data - Data to parse.
  * @param data_length - Length of data.
+ * @param data_used - Amount of data that was parsed.
  * @param zlib_ctx - The zlib context to use.
  * @see spdy_control_frame
  * @see SPDY_SYN_STREAM_MIN_LENGTH
  * @return 0 on success, -1 on failure.
  */
-int spdy_syn_stream_parse(spdy_syn_stream *syn_stream, char *data, size_t data_length, spdy_zlib_context *zlib_ctx) {
+int spdy_syn_stream_parse(spdy_syn_stream *syn_stream, char *data, size_t data_length, size_t *data_used, spdy_zlib_context *zlib_ctx) {
 	int ret;
 	if(data_length < SPDY_SYN_STREAM_MIN_LENGTH) {
+		// On insufficient data, data_used should contain the amount of data
+		// that is needed to perform successful parsing.
+		*data_used = SPDY_SYN_STREAM_MIN_LENGTH;
 		SPDYDEBUG("Not enough data for parsing the stream.");
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
@@ -72,6 +76,7 @@ int spdy_syn_stream_parse(spdy_syn_stream *syn_stream, char *data, size_t data_l
 	// Skip the (already parsed) header.
 	data += SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
 	data_length -= SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
+	*data_used += SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
 
 	// Inflate NV block.
 	char *inflate = NULL;

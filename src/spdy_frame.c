@@ -64,6 +64,9 @@ int spdy_frame_parse_header(
  * @param frame - Target frame.
  * @param data - Data to parse.
  * @param data_length - Length of data to parse.
+ * @param data_used - Amount of data that was parsed.
+ *                    On insufficient data it will contain the maount of
+ *                    data that is still needed.
  * @param zlib_ctx - zlib context to use.
  * @see spdy_frame
  * @return Errorcode
@@ -72,6 +75,7 @@ int spdy_frame_parse(
 		spdy_frame *frame,
 		char *data,
 		size_t data_length,
+		size_t *data_used,
 		spdy_zlib_context *zlib_ctx) {
 	int ret;
 	ret = spdy_frame_parse_header(frame, data, data_length);
@@ -87,14 +91,19 @@ int spdy_frame_parse(
 				return SPDY_ERROR_MALLOC_FAILED;
 			}
 
-			ret = spdy_control_frame_parse(frame->frame, data, data_length, zlib_ctx);
+			ret = spdy_control_frame_parse(
+					frame->frame,
+					data,
+					data_length,
+					data_used,
+					zlib_ctx);
 			if(ret != SPDY_ERROR_NONE) {
 				SPDYDEBUG("Control frame parse failed.");
 				return ret;
 			}
 			break;
 		case SPDY_DATA_FRAME:
-			SPDYDEBUG("WHOT");
+			SPDYDEBUG("DATAFRAME NOT SUPPORTED YET.");
 			break;
 		default:
 			SPDYDEBUG("UNSUPPORTED");

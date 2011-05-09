@@ -46,6 +46,9 @@ int spdy_control_frame_parse_header(
  * @param frame - Target control fame.
  * @param data - Data to parse.
  * @param data_length - Length of data to parse.
+ * @param data_used - Amount of data that was parsed.
+ *                    On insufficient data it will contain the amount of
+ *                    data that is still needed.
  * @param zlib_ctx - zlib context to use.
  * @see spdy_control_frame
  * @return Errorcode
@@ -54,6 +57,7 @@ int spdy_control_frame_parse(
 		spdy_control_frame *frame,
 		char *data,
 		size_t data_length,
+		size_t *data_used,
 		spdy_zlib_context *zlib_ctx) {
 	int ret;
 	ret = spdy_control_frame_parse_header(frame, data, data_length);
@@ -64,13 +68,20 @@ int spdy_control_frame_parse(
 	// Remove the header length from data_length.
 	data_length -= SPDY_CONTROL_FRAME_MIN_LENGTH;
 	data += SPDY_CONTROL_FRAME_MIN_LENGTH;
+	// Used data is incremented by the minimum size of a control frame.
+	*data_used += SPDY_CONTROL_FRAME_MIN_LENGTH;
+
+	if(frame->length > data_length) {
+		// On insufficient data, data_used will contain the amount
+		// of data that is needed.
+		*data_used = frame->length - data_length;
+		SPDYDEBUG("Insufficient data for frame..");
+		return SPDY_ERROR_INSUFFICIENT_DATA;
+	}
 
 	switch(frame->type) {
+		// SYN_STREAM HANDLING
 		case SPDY_CTRL_SYN_STREAM:
-			if(frame->length > data_length) {
-				SPDYDEBUG("Insufficient data for SYN_STREAM.");
-				return SPDY_ERROR_INSUFFICIENT_DATA;
-			}
 			frame->type_obj = malloc(sizeof(spdy_syn_stream));
 			if(!frame->type_obj) {
 				SPDYDEBUG("Failed to allocate space for SYN_STREAM.");
@@ -83,6 +94,7 @@ int spdy_control_frame_parse(
 					// buffer is larger as needed, it won't be handled by zlib
 					// or anything similar.
 					frame->length,
+					data_used,
 					zlib_ctx);
 			if(ret != SPDY_ERROR_NONE) {
 				free(frame->type_obj);
@@ -90,11 +102,9 @@ int spdy_control_frame_parse(
 				return ret;
 			}
 			break;
+
+			// SYN_REPLY HANDLING
 		case SPDY_CTRL_SYN_REPLY:
-			if(frame->length > data_length) {
-				SPDYDEBUG("Insufficient data for SYN_REPLY.");
-				return SPDY_ERROR_INSUFFICIENT_DATA;
-			}
 			frame->type_obj = malloc(sizeof(spdy_syn_reply));
 			if(!frame->type_obj) {
 				SPDYDEBUG("Failed to allocate space for SYN_REPLY.");
@@ -111,11 +121,9 @@ int spdy_control_frame_parse(
 				return ret;
 			}
 			break;
+
+		// RST_STREAM HANDLING
 		case SPDY_CTRL_RST_STREAM:
-			if(frame->length > data_length) {
-				SPDYDEBUG("Insufficient data for RST_STREAM.");
-				return SPDY_ERROR_INSUFFICIENT_DATA;
-			}
 			frame->type_obj = malloc(sizeof(spdy_rst_stream));
 			if(!frame->type_obj) {
 				SPDYDEBUG("Failed to allocate space for RST_STREAM.");

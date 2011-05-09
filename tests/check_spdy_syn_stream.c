@@ -20,9 +20,10 @@ START_TEST (test_spdy_syn_stream_parse)
 	int ret;
 	spdy_zlib_context zlib_ctx;
 	spdy_syn_stream syn_stream;
+	size_t data_used=0;
 	ret = spdy_zlib_inflate_init(&zlib_ctx);
 	fail_unless(ret == 0, "spdy_zlib_inflate_init failed.");
-	ret = spdy_syn_stream_parse(&syn_stream, test_control_syn_stream_frame+8, 288, &zlib_ctx);
+	ret = spdy_syn_stream_parse(&syn_stream, test_control_syn_stream_frame+8, 288, &data_used, &zlib_ctx);
 	fail_unless(ret == 0, "spdy_syn_stream_parse failed.");
 }
 END_TEST

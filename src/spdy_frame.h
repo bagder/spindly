@@ -33,6 +33,7 @@ int spdy_frame_parse(
 		spdy_frame *frame,
 		char *data,
 		size_t data_length,
+		size_t *data_used,
 		spdy_zlib_context *zlib_ctx);
 
 #endif

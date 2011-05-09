@@ -22,7 +22,8 @@ START_TEST (test_spdy_frame_parse)
 	spdy_zlib_context zlib_ctx;
 	spdy_zlib_inflate_init(&zlib_ctx);
 	spdy_frame frame;
-	ret = spdy_frame_parse(&frame, test_control_syn_stream_frame, 296, &zlib_ctx);
+	size_t data_used=0;
+	ret = spdy_frame_parse(&frame, test_control_syn_stream_frame, 296, &data_used, &zlib_ctx);
 	fail_unless(ret == SPDY_ERROR_NONE, "spdy_frame_parse failed.");
 }
 END_TEST
