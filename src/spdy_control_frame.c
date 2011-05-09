@@ -114,6 +114,7 @@ int spdy_control_frame_parse(
 					frame->type_obj,
 					data,
 					frame->length,
+					data_used,
 					zlib_ctx);
 			if(ret != SPDY_ERROR_NONE) {
 				free(frame->type_obj);

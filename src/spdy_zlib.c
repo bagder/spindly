@@ -32,10 +32,11 @@ char *spdy_zlib_dictionary = "optionsgetheadpostputdeletetraceacceptaccept-chars
  * @param length - Length of data
  * @param dest - Destination of deflated data
  * @param dest_size - Pointer to size of deflated data.
+ * @param data_used - Amount of data used by zlib.
  * @see spdy_zlib_inflate
  * @return Errorcode
  */
-int spdy_zlib_deflate(char *src, uint32_t length, char **dest, size_t *dest_size) {
+int spdy_zlib_deflate(char *src, uint32_t length, size_t *data_used, char **dest, size_t *dest_size) {
 	z_stream strm;
 	int ret, flush;
 	unsigned int have;
@@ -78,6 +79,7 @@ int spdy_zlib_deflate(char *src, uint32_t length, char **dest, size_t *dest_size
 			strm.avail_in = length;
 			flush = Z_FINISH;
 		}
+		*data_used += strm.avail_in;
 
 		strm.next_in = (unsigned char*)src;
 
@@ -149,12 +151,13 @@ void spdy_zlib_inflate_end(spdy_zlib_context *ctx) {
  * @param ctx - Compression context
  * @param src - Data to inflate
  * @param length - Length of data
+ * @param data_used - Amount of data parsed.
  * @param dest - Destination of inflated data
  * @param dest_size - Pointer to size of inflated data.
  * @see spdy_zlib_deflate
  * @return Errorcode
  */
-int spdy_zlib_inflate(spdy_zlib_context *ctx, char *src, uint32_t length, char **dest, size_t *dest_size) {
+int spdy_zlib_inflate(spdy_zlib_context *ctx, char *src, uint32_t length, size_t *data_used, char **dest, size_t *dest_size) {
 	int ret;
 	unsigned int have;
 	//z_stream strm;
@@ -174,6 +177,7 @@ int spdy_zlib_inflate(spdy_zlib_context *ctx, char *src, uint32_t length, char *
 			ctx->stream.avail_in = length;
 			length = 0;
 		}
+		*data_used += ctx->stream.avail_in;
 
 		// Determine if we actually have data for inflate.
 		if(ctx->stream.avail_in == 0)

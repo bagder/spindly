@@ -85,6 +85,7 @@ int spdy_syn_stream_parse(spdy_syn_stream *syn_stream, char *data, size_t data_l
 					zlib_ctx,
 					data,
 					data_length,
+					data_used,
 					&inflate,
 					&inflate_size)) != SPDY_ERROR_NONE) {
 		SPDYDEBUG("Failed to inflate data.");
