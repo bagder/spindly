@@ -24,7 +24,7 @@
  */
 char *spdy_zlib_dictionary = "optionsgetheadpostputdeletetraceacceptaccept-charsetaccept-encodingaccept-languageauthorizationexpectfromhostif-modified-sinceif-matchif-none-matchif-rangeif-unmodifiedsincemax-forwardsproxy-authorizationrangerefererteuser-agent100101200201202203204205206300301302303304305306307400401402403404405406407408409410411412413414415416417500501502503504505accept-rangesageetaglocationproxy-authenticatepublicretry-afterservervarywarningwww-authenticateallowcontent-basecontent-encodingcache-controlconnectiondatetrailertransfer-encodingupgradeviawarningcontent-languagecontent-lengthcontent-locationcontent-md5content-rangecontent-typeetagexpireslast-modifiedset-cookieMondayTuesdayWednesdayThursdayFridaySaturdaySundayJanFebMarAprMayJunJulAugSepOctNovDecchunkedtext/htmlimage/pngimage/jpgimage/gifapplication/xmlapplication/xhtmltext/plainpublicmax-agecharset=iso-8859-1utf-8gzipdeflateHTTP/1.1statusversionurl";
 
-#define CHUNK 16384 // TODO: Is this smart enough?
+#define SPDY_ZLIB_CHUNK 16384 // TODO: Is this smart enough?
 
 /**
  * Deflate data as used in the header compression of spdy.
@@ -39,7 +39,7 @@ int spdy_zlib_deflate(char *src, uint32_t length, char **dest, size_t *dest_size
 	z_stream strm;
 	int ret, flush;
 	unsigned int have;
-	unsigned char out[CHUNK];
+	unsigned char out[SPDY_ZLIB_CHUNK];
 	*dest = NULL;
 	*dest_size=0;
 
@@ -67,9 +67,9 @@ int spdy_zlib_deflate(char *src, uint32_t length, char **dest, size_t *dest_size
 
 	// Loop while flush is not Z_FINISH
 	do {
-		if(length > CHUNK) {
-			strm.avail_in = CHUNK;
-			length -= CHUNK;
+		if(length > SPDY_ZLIB_CHUNK) {
+			strm.avail_in = SPDY_ZLIB_CHUNK;
+			length -= SPDY_ZLIB_CHUNK;
 
 			// flush is used to detect if we still need to supply additional
 			// data to the stream via avail_in and next_in.
@@ -83,7 +83,7 @@ int spdy_zlib_deflate(char *src, uint32_t length, char **dest, size_t *dest_size
 
 		// Loop while output data is available
 		do {
-			strm.avail_out = CHUNK;
+			strm.avail_out = SPDY_ZLIB_CHUNK;
 			strm.next_out = out;
 
 			// No need to check return value of deflate.
@@ -92,7 +92,7 @@ int spdy_zlib_deflate(char *src, uint32_t length, char **dest, size_t *dest_size
 			// Should only happen if some other part of the application
 			// clobbered the memory of the stream.
 			assert(ret != Z_STREAM_ERROR);
-			have = CHUNK - strm.avail_out;
+			have = SPDY_ZLIB_CHUNK - strm.avail_out;
 
 			// (Re)allocate memory for dest and keep track of it's size.
 			*dest_size += have;
@@ -158,7 +158,7 @@ int spdy_zlib_inflate(spdy_zlib_context *ctx, char *src, uint32_t length, char *
 	int ret;
 	unsigned int have;
 	//z_stream strm;
-	unsigned char out[CHUNK];
+	unsigned char out[SPDY_ZLIB_CHUNK];
 	*dest = NULL;
 	*dest_size=0;
 
@@ -167,9 +167,9 @@ int spdy_zlib_inflate(spdy_zlib_context *ctx, char *src, uint32_t length, char *
 
 		// Only read CHUNK amount of data if supplied data is bigger then
 		// CHUNK.
-		if(length > CHUNK) {
-			ctx->stream.avail_in = CHUNK;
-			length -= CHUNK;
+		if(length > SPDY_ZLIB_CHUNK) {
+			ctx->stream.avail_in = SPDY_ZLIB_CHUNK;
+			length -= SPDY_ZLIB_CHUNK;
 		} else {
 			ctx->stream.avail_in = length;
 			length = 0;
@@ -183,7 +183,7 @@ int spdy_zlib_inflate(spdy_zlib_context *ctx, char *src, uint32_t length, char *
 
 		// Loop while output data is available
 		do {
-			ctx->stream.avail_out = CHUNK;
+			ctx->stream.avail_out = SPDY_ZLIB_CHUNK;
 			ctx->stream.next_out = out;
 			ret = inflate(&ctx->stream, Z_SYNC_FLUSH);
 
@@ -214,7 +214,7 @@ int spdy_zlib_inflate(spdy_zlib_context *ctx, char *src, uint32_t length, char *
 					SPDYDEBUG("MEM ERROR");
 					return SPDY_ERROR_ZLIB_INFLATE_FAILED;
 			}
-			have = CHUNK - ctx->stream.avail_out;
+			have = SPDY_ZLIB_CHUNK - ctx->stream.avail_out;
 
 			// (Re)allocate and copy to destination.
 			*dest_size += have;
