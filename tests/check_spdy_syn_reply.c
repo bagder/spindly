@@ -18,10 +18,13 @@ START_TEST (test_spdy_syn_reply_parse)
 	int ret;
 	spdy_zlib_context zlib_ctx;
 	spdy_syn_reply syn_reply;
-	size_t data_used=0;
+	spdy_data data;
 	ret = spdy_zlib_inflate_init(&zlib_ctx);
 	fail_unless(ret == 0, "spdy_zlib_inflate_init failed.");
-	ret = spdy_syn_reply_parse(&syn_reply, test_control_syn_reply_frame+8, 55, &data_used, &zlib_ctx);
+	ret = spdy_syn_reply_parse(
+			&syn_reply,
+			spdy_data_use(&data, test_control_syn_reply_frame+8, 55),
+			&zlib_ctx);
 	fail_unless(ret == 0, "spdy_syn_reply_parse failed.");
 }
 END_TEST

@@ -1,4 +1,5 @@
 #include "check_spdy_frame.h"
+#include "../src/spdy_data.h"
 #include "../src/spdy_frame.h"
 #include "../src/spdy_control_frame.h"
 #include "../src/spdy_zlib.h"
@@ -22,8 +23,11 @@ START_TEST (test_spdy_frame_parse)
 	spdy_zlib_context zlib_ctx;
 	spdy_zlib_inflate_init(&zlib_ctx);
 	spdy_frame frame;
-	size_t data_used=0;
-	ret = spdy_frame_parse(&frame, test_control_syn_stream_frame, 296, &data_used, &zlib_ctx);
+	spdy_data data;
+	ret = spdy_frame_parse(
+			&frame,
+			spdy_data_use(&data, test_control_syn_stream_frame, 296),
+			&zlib_ctx);
 	fail_unless(ret == SPDY_ERROR_NONE, "spdy_frame_parse failed.");
 }
 END_TEST
