@@ -5,7 +5,8 @@ CC=gcc
 CFLAGS += -Werror -Wall -Wextra -Wformat=2 -std=c99 -pedantic -DDEBUG
 LDFLAGS +=
 
-SRCS_SPDY =  src/spdy_frame.c
+SRCS_SPDY += src/spdy_data.c
+SRCS_SPDY += src/spdy_frame.c
 SRCS_SPDY += src/spdy_control_frame.c
 SRCS_SPDY += src/spdy_syn_stream.c
 SRCS_SPDY += src/spdy_syn_reply.c
@@ -63,6 +64,6 @@ tags:
 	ctags -R src/
 
 gource:
-	gource -1440x900 -a 1 --file-extensions --hide date --disable-progress --stop-at-end --output-ppm-stream - | ffmpeg -y -b 3000k -r 60 -f image2pipe -vcodec ppm -i - -fpre /usr/share/ffmpeg/libx264-medium.ffpreset -vcodec libx264 gource.mp4
+	gource -640x480 -a 1 --hide date --disable-progress --stop-at-end --output-ppm-stream - | ffmpeg -y -b 3000k -r 60 -f image2pipe -vcodec ppm -i - -fpre /usr/share/ffmpeg/libx264-medium.ffpreset -vcodec libx264 gource.mp4
 
 .PHONY: doc
