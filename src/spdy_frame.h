@@ -1,6 +1,7 @@
 #ifndef SPDY_FRAME_H_
 #define SPDY_FRAME_H_ 1
 
+#include "spdy_data.h"
 #include "spdy_control_frame.h"
 
 #include <stdint.h>
@@ -31,9 +32,7 @@ int spdy_frame_parse_header(
 		size_t data_length);
 int spdy_frame_parse(
 		spdy_frame *frame,
-		char *data,
-		size_t data_length,
-		size_t *data_used,
+		spdy_data *data,
 		spdy_zlib_context *zlib_ctx);
 
 #endif

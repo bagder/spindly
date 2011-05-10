@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "spdy_data.h"
 #include "spdy_zlib.h"
 
 // Minimum length of a control frame.
@@ -44,9 +45,7 @@ int spdy_control_frame_parse_header(
 int spdy_control_frame_pack_header(char **out, spdy_control_frame *frame);
 int spdy_control_frame_parse(
 		spdy_control_frame *frame,
-		char *data,
-		size_t data_length,
-		size_t *data_used,
+		spdy_data *data,
 		spdy_zlib_context *zlib_ctx);
 char *spdy_control_frame_get_type_name(int type);
 

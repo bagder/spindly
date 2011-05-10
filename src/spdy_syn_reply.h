@@ -1,6 +1,7 @@
 #ifndef SPDY_SYN_REPLY_H_
 #define SPDY_SYN_REPLY_H_ 1
 
+#include "spdy_data.h"
 #include "spdy_nv_block.h"
 #include "spdy_zlib.h"
 
@@ -27,7 +28,10 @@ typedef struct {
 } spdy_syn_reply;
 
 int spdy_syn_reply_parse_header(spdy_syn_reply *syn_reply, char *data, size_t data_length);
-int spdy_syn_reply_parse(spdy_syn_reply *syn_reply, char *data, size_t data_length, size_t *data_used ,spdy_zlib_context *zlib_ctx);
+int spdy_syn_reply_parse(
+		spdy_syn_reply *syn_reply,
+		spdy_data *data,
+		spdy_zlib_context *zlib_ctx);
 
 #endif
 

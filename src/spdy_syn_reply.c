@@ -40,29 +40,30 @@ int spdy_syn_reply_parse_header(spdy_syn_reply *syn_reply, char *data, size_t da
  * NV block.
  * @param syn_reply - Destination frame.
  * @param data - Data to parse.
- * @param data_length - Length of data.
- * @param data_used - Amount of data that was parsed.
  * @param zlib_ctx - The zlib context to use.
  * @see SPDY_SYN_STREAM_MIN_LENGTH
  * @return 0 on success, -1 on failure.
  */
-int spdy_syn_reply_parse(spdy_syn_reply *syn_reply, char *data, size_t data_length, size_t *data_used, spdy_zlib_context *zlib_ctx) {
+int spdy_syn_reply_parse(
+		spdy_syn_reply *syn_reply,
+		spdy_data *data,
+		spdy_zlib_context *zlib_ctx) {
 	int ret;
-	if(data_length < SPDY_SYN_REPLY_MIN_LENGTH) {
+	if(data->length < SPDY_SYN_REPLY_MIN_LENGTH) {
 		SPDYDEBUG("Not enough data for parsing the stream.");
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
 
 	// Parse the frame header.
-	if((ret = spdy_syn_reply_parse_header(syn_reply, data, data_length)) != SPDY_ERROR_NONE)
+	if((ret = spdy_syn_reply_parse_header(syn_reply, data->data, data->length)) != SPDY_ERROR_NONE)
 	{
 		SPDYDEBUG("Failed to parse header.");
 		return ret;
 	}
 
 	// Skip the (already parsed) header.
-	data += SPDY_SYN_REPLY_HEADER_MIN_LENGTH;
-	data_length -= SPDY_SYN_REPLY_HEADER_MIN_LENGTH;
+	data->data += SPDY_SYN_REPLY_HEADER_MIN_LENGTH;
+	data->length -= SPDY_SYN_REPLY_HEADER_MIN_LENGTH;
 
 	// Inflate NV block.
 	char *inflate = NULL;
@@ -70,9 +71,9 @@ int spdy_syn_reply_parse(spdy_syn_reply *syn_reply, char *data, size_t data_leng
 	
 	if((ret = spdy_zlib_inflate(
 					zlib_ctx,
-					data,
-					data_length,
-					data_used,
+					data->data,
+					data->length,
+					&data->used,
 					&inflate,
 					&inflate_size)) != SPDY_ERROR_NONE) {
 		SPDYDEBUG("Failed to inflate data.");

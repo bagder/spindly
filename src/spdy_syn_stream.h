@@ -1,6 +1,7 @@
 #ifndef SPDY_SYN_STREAM_H_
 #define SPDY_SYN_STREAM_H_ 1
 
+#include "spdy_data.h"
 #include "spdy_nv_block.h"
 #include "spdy_zlib.h"
 
@@ -33,9 +34,7 @@ typedef struct {
 int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, char *data, size_t data_length);
 int spdy_syn_stream_parse(
 		spdy_syn_stream *syn_stream,
-		char *data,
-		size_t data_length,
-		size_t *data_used,
+		spdy_data *data,
 		spdy_zlib_context *zlib_ctx);
 
 #endif

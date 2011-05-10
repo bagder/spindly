@@ -47,19 +47,18 @@ int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, char *data, size_t
  * NV block.
  * @param syn_stream - Destination frame.
  * @param data - Data to parse.
- * @param data_length - Length of data.
- * @param data_used - Amount of data that was parsed.
  * @param zlib_ctx - The zlib context to use.
  * @see spdy_control_frame
  * @see SPDY_SYN_STREAM_MIN_LENGTH
  * @return 0 on success, -1 on failure.
  */
-int spdy_syn_stream_parse(spdy_syn_stream *syn_stream, char *data, size_t data_length, size_t *data_used, spdy_zlib_context *zlib_ctx) {
+int spdy_syn_stream_parse(
+		spdy_syn_stream *syn_stream,
+		spdy_data *data,
+		spdy_zlib_context *zlib_ctx) {
 	int ret;
-	if(data_length < SPDY_SYN_STREAM_MIN_LENGTH) {
-		// On insufficient data, data_used should contain the amount of data
-		// that is needed to perform successful parsing.
-		*data_used = SPDY_SYN_STREAM_MIN_LENGTH;
+	if(data->length < SPDY_SYN_STREAM_MIN_LENGTH) {
+		data->needed = SPDY_SYN_STREAM_MIN_LENGTH;
 		SPDYDEBUG("Not enough data for parsing the stream.");
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
@@ -67,25 +66,25 @@ int spdy_syn_stream_parse(spdy_syn_stream *syn_stream, char *data, size_t data_l
 	// Parse the frame header.
 	if((ret = spdy_syn_stream_parse_header(
 					syn_stream,
-					data,
-					data_length)) != SPDY_ERROR_NONE) {
+					data->data,
+					data->length)) != SPDY_ERROR_NONE) {
 		SPDYDEBUG("Failed to parse header.");
 		return ret;
 	}
 
 	// Skip the (already parsed) header.
-	data += SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
-	data_length -= SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
-	*data_used += SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
+	data->data += SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
+	data->length -= SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
+	data->used += SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
 
 	// Inflate NV block.
 	char *inflate = NULL;
 	size_t inflate_size = 0;
 	if((ret = spdy_zlib_inflate(
 					zlib_ctx,
-					data,
-					data_length,
-					data_used,
+					data->data,
+					data->length,
+					&data->used,
 					&inflate,
 					&inflate_size)) != SPDY_ERROR_NONE) {
 		SPDYDEBUG("Failed to inflate data.");

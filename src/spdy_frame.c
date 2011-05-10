@@ -63,22 +63,16 @@ int spdy_frame_parse_header(
  * Parse a frame.
  * @param frame - Target frame.
  * @param data - Data to parse.
- * @param data_length - Length of data to parse.
- * @param data_used - Amount of data that was parsed.
- *                    On insufficient data it will contain the maount of
- *                    data that is still needed.
  * @param zlib_ctx - zlib context to use.
  * @see spdy_frame
  * @return Errorcode
  */
 int spdy_frame_parse(
 		spdy_frame *frame,
-		char *data,
-		size_t data_length,
-		size_t *data_used,
+		spdy_data *data,
 		spdy_zlib_context *zlib_ctx) {
 	int ret;
-	ret = spdy_frame_parse_header(frame, data, data_length);
+	ret = spdy_frame_parse_header(frame, data->data, data->length);
 	if(ret != SPDY_ERROR_NONE) {
 		SPDYDEBUG("Frame parse header failed.");
 		return ret;
@@ -94,8 +88,6 @@ int spdy_frame_parse(
 			ret = spdy_control_frame_parse(
 					frame->frame,
 					data,
-					data_length,
-					data_used,
 					zlib_ctx);
 			if(ret != SPDY_ERROR_NONE) {
 				SPDYDEBUG("Control frame parse failed.");

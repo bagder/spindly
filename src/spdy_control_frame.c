@@ -45,36 +45,27 @@ int spdy_control_frame_parse_header(
  * Parse a control frame.
  * @param frame - Target control fame.
  * @param data - Data to parse.
- * @param data_length - Length of data to parse.
- * @param data_used - Amount of data that was parsed.
- *                    On insufficient data it will contain the amount of
- *                    data that is still needed.
  * @param zlib_ctx - zlib context to use.
  * @see spdy_control_frame
  * @return Errorcode
  */
 int spdy_control_frame_parse(
 		spdy_control_frame *frame,
-		char *data,
-		size_t data_length,
-		size_t *data_used,
+		spdy_data *data,
 		spdy_zlib_context *zlib_ctx) {
 	int ret;
-	ret = spdy_control_frame_parse_header(frame, data, data_length);
+	ret = spdy_control_frame_parse_header(frame, data->data, data->length);
 	if(ret != SPDY_ERROR_NONE) {
 		SPDYDEBUG("Control frame parse header failed.");
 		return ret;
 	}
 	// Remove the header length from data_length.
-	data_length -= SPDY_CONTROL_FRAME_MIN_LENGTH;
-	data += SPDY_CONTROL_FRAME_MIN_LENGTH;
-	// Used data is incremented by the minimum size of a control frame.
-	*data_used += SPDY_CONTROL_FRAME_MIN_LENGTH;
+	data->length -= SPDY_CONTROL_FRAME_MIN_LENGTH;
+	data->data += SPDY_CONTROL_FRAME_MIN_LENGTH;
+	data->used += SPDY_CONTROL_FRAME_MIN_LENGTH;
 
-	if(frame->length > data_length) {
-		// On insufficient data, data_used will contain the amount
-		// of data that is needed.
-		*data_used = frame->length - data_length;
+	if(frame->length > data->length) {
+		data->needed = frame->length - data->length;
 		SPDYDEBUG("Insufficient data for frame..");
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
@@ -87,14 +78,13 @@ int spdy_control_frame_parse(
 				SPDYDEBUG("Failed to allocate space for SYN_STREAM.");
 				return SPDY_ERROR_MALLOC_FAILED;
 			}
-			ret = spdy_syn_stream_parse(
-					frame->type_obj,
-					data,
+					// TODO TODO TODO
 					// Using frame length instead of data length, so that if the
 					// buffer is larger as needed, it won't be handled by zlib
 					// or anything similar.
-					frame->length,
-					data_used,
+			ret = spdy_syn_stream_parse(
+					frame->type_obj,
+					data,
 					zlib_ctx);
 			if(ret != SPDY_ERROR_NONE) {
 				free(frame->type_obj);
@@ -113,8 +103,6 @@ int spdy_control_frame_parse(
 			ret = spdy_syn_reply_parse(
 					frame->type_obj,
 					data,
-					frame->length,
-					data_used,
 					zlib_ctx);
 			if(ret != SPDY_ERROR_NONE) {
 				free(frame->type_obj);
@@ -132,7 +120,7 @@ int spdy_control_frame_parse(
 			}
 			ret = spdy_rst_stream_parse(
 					frame->type_obj,
-					data,
+					data->data,
 					frame->length);
 			if(ret != SPDY_ERROR_NONE) {
 				free(frame->type_obj);
