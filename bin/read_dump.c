@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "spdy_data.h"
 #include "spdy_frame.h"
 #include "spdy_control_frame.h"
 #include "spdy_syn_stream.h"
@@ -15,7 +16,11 @@ spdy_zlib_context ctx[2];
 int handle_syn_stream_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 	(void)f;
 	spdy_syn_stream syn_stream;
-	if(spdy_syn_stream_parse(&syn_stream, payload, frame->length, &ctx[0]) != SPDY_ERROR_NONE) {
+	spdy_data data;
+	if(spdy_syn_stream_parse(
+				&syn_stream,
+				spdy_data_use(&data, payload, frame->length),
+				&ctx[0]) != SPDY_ERROR_NONE) {
 		printf("Failed to parse SYN_STREAM.\n");
 		return EXIT_FAILURE;
 	}
@@ -34,7 +39,11 @@ int handle_syn_stream_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 int handle_syn_reply_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 	(void)f;
 	spdy_syn_reply syn_reply;
-	if(spdy_syn_reply_parse(&syn_reply, payload, frame->length, &ctx[1]) != SPDY_ERROR_NONE) {
+	spdy_data data;
+	if(spdy_syn_reply_parse(
+				&syn_reply,
+				spdy_data_use(&data, payload, frame->length),
+				&ctx[1]) != SPDY_ERROR_NONE) {
 		printf("Failed to parse SYN_REPLY.\n");
 		return EXIT_FAILURE;
 	}
