@@ -157,7 +157,12 @@ void spdy_zlib_inflate_end(spdy_zlib_context *ctx) {
  * @see spdy_zlib_deflate
  * @return Errorcode
  */
-int spdy_zlib_inflate(spdy_zlib_context *ctx, char *src, uint32_t length, size_t *data_used, char **dest, size_t *dest_size) {
+int spdy_zlib_inflate(
+		spdy_zlib_context *ctx,
+		char *src,
+		uint32_t length,
+		char **dest,
+		size_t *dest_size) {
 	int ret;
 	unsigned int have;
 	//z_stream strm;
@@ -177,7 +182,6 @@ int spdy_zlib_inflate(spdy_zlib_context *ctx, char *src, uint32_t length, size_t
 			ctx->stream.avail_in = length;
 			length = 0;
 		}
-		*data_used += ctx->stream.avail_in;
 
 		// Determine if we actually have data for inflate.
 		if(ctx->stream.avail_in == 0)
