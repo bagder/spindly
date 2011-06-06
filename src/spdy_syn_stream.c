@@ -84,12 +84,13 @@ int spdy_syn_stream_parse(
 					zlib_ctx,
 					data->data,
 					data->length,
-					&data->used,
 					&inflate,
 					&inflate_size)) != SPDY_ERROR_NONE) {
 		SPDYDEBUG("Failed to inflate data.");
 		return ret;
 	}
+
+	data->used += data->length;
 
 	// Allocate space for NV block.
 	syn_stream->nv_block = malloc(sizeof(spdy_nv_block));

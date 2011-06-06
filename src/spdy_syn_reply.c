@@ -73,7 +73,6 @@ int spdy_syn_reply_parse(
 					zlib_ctx,
 					data->data,
 					data->length,
-					&data->used,
 					&inflate,
 					&inflate_size)) != SPDY_ERROR_NONE) {
 		SPDYDEBUG("Failed to inflate data.");
