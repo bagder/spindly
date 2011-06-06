@@ -151,7 +151,6 @@ void spdy_zlib_inflate_end(spdy_zlib_context *ctx) {
  * @param ctx - Compression context
  * @param src - Data to inflate
  * @param length - Length of data
- * @param data_used - Amount of data parsed.
  * @param dest - Destination of inflated data
  * @param dest_size - Pointer to size of inflated data.
  * @see spdy_zlib_deflate
