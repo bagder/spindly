@@ -165,7 +165,6 @@ int spdy_zlib_inflate(
 		size_t *dest_size) {
 	int ret;
 	unsigned int have;
-	//z_stream strm;
 	unsigned char out[SPDY_ZLIB_CHUNK];
 	*dest = NULL;
 	*dest_size=0;
