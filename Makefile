@@ -11,6 +11,7 @@ SRCS_SPDY += src/spdy_control_frame.c
 SRCS_SPDY += src/spdy_syn_stream.c
 SRCS_SPDY += src/spdy_syn_reply.c
 SRCS_SPDY += src/spdy_rst_stream.c
+SRCS_SPDY += src/spdy_headers.c
 SRCS_SPDY += src/spdy_data_frame.c
 SRCS_SPDY += src/spdy_nv_block.c
 SRCS_SPDY += src/spdy_zlib.c
@@ -61,7 +62,7 @@ clean:
 	rm $(EXEC_TEST)||true
 
 cloc:
-	cloc src/
+	cloc bin/ src/ tests/
 
 tags:
 	ctags -R src/
