@@ -19,6 +19,7 @@ int spdy_stream_init(
 		spdy_stream *stream,
 		_Bool store_received_data,
 		_Bool store_frames) {
+	/* TODO memset? */
 	stream->store_received_data = store_received_data;
 	stream->store_frames = store_frames;
 	stream->stream_id = 0;
@@ -38,6 +39,12 @@ int spdy_stream_init(
 	return 0;
 }
 
+/**
+ * Handle frame on stream.
+ * @param stream - Target stream.
+ * @param frame - Frame to handle.
+ * @return Errorcode
+ */
 int spdy_stream_handle_frame(spdy_stream *stream, spdy_frame *frame) {
 	if(stream->fin_received) {
 		SPDYDEBUG("Already received FIN.");
@@ -78,6 +85,12 @@ int spdy_stream_handle_frame(spdy_stream *stream, spdy_frame *frame) {
 	return 0;
 }
 
+/**
+ * Handle data frame on stream.
+ * @param stream - Target stream.
+ * @param frame - Data frame to handle.
+ * @return Errorcode
+ */
 int spdy_stream_handle_data_frame(
 		spdy_stream *stream,
 		spdy_data_frame *frame) {
