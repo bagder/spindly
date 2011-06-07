@@ -48,6 +48,11 @@ int main(int argc, char *argv[]) {
 				&frm,
 				spdy_data_use(&data, pkg, ptr),
 				&zlib_ctx);
+		if(frm.type == SPDY_DATA_FRAME) {
+			printf("Dataframe: %*s",
+					((spdy_data_frame*)frm.frame)->length,
+					((spdy_data_frame*)frm.frame)->data);
+		}
 	}
 	printf("DONE\n");
 	return EXIT_SUCCESS;
