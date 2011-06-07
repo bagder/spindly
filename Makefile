@@ -69,4 +69,4 @@ tags:
 gource:
 	gource -640x480 -a 1 --hide date --disable-progress --stop-at-end --output-ppm-stream - | ffmpeg -y -b 3000k -r 60 -f image2pipe -vcodec ppm -i - -fpre /usr/share/ffmpeg/libx264-medium.ffpreset -vcodec libx264 gource.mp4
 
-.PHONY: doc
+.PHONY: doc tags
