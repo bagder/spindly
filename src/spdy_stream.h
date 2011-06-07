@@ -38,6 +38,8 @@ int spdy_stream_handle_frame(spdy_stream *stream, spdy_frame *frame);
 int spdy_stream_handle_data_frame(
 		spdy_stream *stream,
 		spdy_data_frame *frame);
-
+int spdy_stream_handle_control_frame(
+		spdy_stream *stream,
+		spdy_control_frame *frame);
 #endif
 
