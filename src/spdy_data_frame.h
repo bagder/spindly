@@ -2,6 +2,9 @@
 #define SPDY_DATA_FRAME_H_
 
 #include <stdint.h>
+#include <stdlib.h>
+
+#include "spdy_data.h"
 
 /**
  * Flags of data frames.
@@ -21,7 +24,13 @@ typedef struct {
 	char *data;          /*!< Frame payload */
 } spdy_data_frame;
 
-int spdy_data_frame_parse_header(spdy_data_frame *frame, char *data);
+int spdy_data_frame_parse_header(
+		spdy_data_frame *frame,
+		char *data,
+		size_t data_length);
+int spdy_data_frame_parse(
+		spdy_data_frame *frame,
+		spdy_data *data);
 int spdy_data_frame_pack_header(char **out, spdy_data_frame *frame);
 
 #endif
