@@ -102,6 +102,51 @@ int spdy_nv_block_parse(
 	return 0;
 }
 
+int spdy_nv_block_inflate_parse(
+		spdy_nv_block *nv_block,
+		char *data,
+		size_t data_length,
+		spdy_zlib_context *zlib_ctx) {
+	int ret;
+
+	// Inflate NV block.
+	char *inflate = NULL;
+	size_t inflate_size = 0;
+	
+	if((ret = spdy_zlib_inflate(
+					zlib_ctx,
+					data,
+					data_length,
+					&inflate,
+					&inflate_size)) != SPDY_ERROR_NONE) {
+		SPDYDEBUG("Failed to inflate data.");
+		return ret;
+	}
+
+	// Allocate space for NV block.
+	nv_block = malloc(sizeof(spdy_nv_block));
+	if(!nv_block) {
+		// Inflate gets allocated in spdy_zlib_inflate.
+		free(inflate);
+		SPDYDEBUG("Failed to allocate memory for nv_block.");
+		return SPDY_ERROR_MALLOC_FAILED;
+	}
+
+	// Parse NV block.
+	if((ret = spdy_nv_block_parse(
+					nv_block,
+					inflate,
+					inflate_size)) != SPDY_ERROR_NONE) {
+		// Clean up.
+		free(inflate);
+		free(nv_block);
+		SPDYDEBUG("Failed to parse NV block.");
+		return ret;
+	}
+
+	return SPDY_ERROR_NONE;
+}
+
 /**
  * Pack a Name/Value block into a payload for transmitting.
  * @param dest - Destination buffer.
