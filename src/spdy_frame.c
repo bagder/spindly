@@ -32,7 +32,10 @@ int spdy_frame_parse_header(
 				SPDYDEBUG("Allocating of space for data frame failed.");
 				return SPDY_ERROR_MALLOC_FAILED;
 			}
-			if((ret = spdy_data_frame_parse_header(frame->frame, data)) != SPDY_ERROR_NONE) {
+			if((ret = spdy_data_frame_parse_header(
+							frame->frame,
+							data,
+							data_length)) != SPDY_ERROR_NONE) {
 				free(frame->frame);
 				frame->frame = NULL;
 				return ret;
@@ -95,7 +98,19 @@ int spdy_frame_parse(
 			}
 			break;
 		case SPDY_DATA_FRAME:
-			SPDYDEBUG("DATAFRAME NOT SUPPORTED YET.");
+			frame->frame = malloc(sizeof(spdy_data_frame));
+			if(!frame->frame) {
+				SPDYDEBUG("Data frame malloc failed.");
+				return SPDY_ERROR_MALLOC_FAILED;
+			}
+
+			ret = spdy_data_frame_parse(
+					frame->frame,
+					data);
+			if(ret != SPDY_ERROR_NONE) {
+				SPDYDEBUG("Data frame parse failed.");
+				return ret;
+			}
 			break;
 		default:
 			SPDYDEBUG("UNSUPPORTED");
