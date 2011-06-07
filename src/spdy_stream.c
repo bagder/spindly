@@ -36,7 +36,7 @@ int spdy_stream_init(
 	stream->frames_count = 0;
 	stream->frames = NULL;
 
-	return 0;
+	return SPDY_ERROR_NONE;
 }
 
 /**
@@ -76,13 +76,14 @@ int spdy_stream_handle_frame(spdy_stream *stream, spdy_frame *frame) {
 			return spdy_stream_handle_data_frame(stream, frame->frame);
 			break;
 		case SPDY_CONTROL_FRAME:
+			return spdy_stream_handle_control_frame(stream, frame->frame);
 			break;
 		default:
 			// Should _never_ happen.
 			return SPDY_ERROR_INVALID_DATA;
 	}
 
-	return 0;
+	return SPDY_ERROR_NONE;
 }
 
 /**
@@ -117,28 +118,17 @@ int spdy_stream_handle_data_frame(
 	// Check if FIN was received.
 	stream->fin_received = (frame->flags & SPDY_DATA_FLAG_FIN);
 
-	return 0;
+	return SPDY_ERROR_NONE;
 }
 
 int spdy_stream_handle_control_frame(
 		spdy_stream *stream,
 		spdy_control_frame *frame) {
-	int ret;
+	//int ret;
 	(void)stream;
 	// Handle control frame types
 	switch(frame->type) {
 		case SPDY_CTRL_SYN_STREAM:
-			frame->type_obj = malloc(sizeof(spdy_syn_stream));
-			if(!frame->type_obj) {
-				SPDYDEBUG("Failed to allocate space for SYN_STREAM.");
-				return SPDY_ERROR_MALLOC_FAILED;
-			}
-	/*			ret = spdy_syn_stream_parse(
-					frame->type_obj,
-					frame->length,
-					frame->data,
-					frame->length);*/
-			(void)ret;
 			break;
 		case SPDY_CTRL_SYN_REPLY:
 			break;
@@ -153,6 +143,6 @@ int spdy_stream_handle_control_frame(
 			SPDYDEBUG("Unhandled control frame type.");
 			return SPDY_ERROR_INVALID_DATA;
 	}
-	return 0;
+	return SPDY_ERROR_NONE;
 }
 
