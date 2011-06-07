@@ -11,8 +11,9 @@ const uint8_t SPDY_DATA_FRAME_MIN_LENGTH = 8;
 
 /**
  * Parse the header of a data frame.
- * @param frame Target data frame.
- * @param data Data to parse.
+ * @param frame - Target data frame.
+ * @param data - Data to parse.
+ * @param data_length - Length of data.
  * @see spdy_data_frame
  * @return Errorcode
  */
