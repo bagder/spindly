@@ -2,6 +2,7 @@
 #include "spdy_syn_stream.h"
 #include "spdy_syn_reply.h"
 #include "spdy_rst_stream.h"
+#include "spdy_headers.h"
 #include "spdy_log.h"
 #include "spdy_error.h"
 
@@ -126,6 +127,21 @@ int spdy_control_frame_parse(
 				free(frame->type_obj);
 				SPDYDEBUG("RST_STREAM parsing failed.");
 				return ret;
+			}
+			break;
+		case SPDY_CTRL_HEADERS:
+			frame->type_obj = malloc(sizeof(spdy_headers));
+			if(!frame->type_obj) {
+				SPDYDEBUG("Failed to allocate space for HEADERS.");
+				return SPDY_ERROR_MALLOC_FAILED;
+			}
+			ret = spdy_headers_parse(
+					frame->type_obj,
+					data,
+					zlib_ctx);
+			if(ret != SPDY_ERROR_NONE) {
+				free(frame->type_obj);
+				SPDYDEBUG("HEADERS parsing failed.");
 			}
 			break;
 	}
