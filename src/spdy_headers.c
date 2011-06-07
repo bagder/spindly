@@ -45,40 +45,17 @@ int spdy_headers_parse(
 	data->length -= SPDY_HEADERS_MIN_LENGTH;
 	data->used += SPDY_HEADERS_MIN_LENGTH;
 
-	// Inflate NV block.
-	char *inflate = NULL;
-	size_t inflate_size = 0;
-	
-	if((ret = spdy_zlib_inflate(
-					zlib_ctx,
+	// Parse NV block.
+	if((ret = spdy_nv_block_inflate_parse(
+					headers->nv_block,
 					data->data,
 					data->length,
-					&inflate,
-					&inflate_size)) != SPDY_ERROR_NONE) {
-		SPDYDEBUG("Failed to inflate data.");
-		return ret;
-	}
-
-	// Allocate space for NV block.
-	headers->nv_block = malloc(sizeof(spdy_nv_block));
-	if(!headers->nv_block) {
-		// Inflate gets allocated in spdy_zlib_inflate.
-		free(inflate);
-		SPDYDEBUG("Failed to allocate memory for nv_block.");
-		return SPDY_ERROR_MALLOC_FAILED;
-	}
-
-	// Parse NV block.
-	if((ret = spdy_nv_block_parse(
-					headers->nv_block,
-					inflate,
-					inflate_size)) != SPDY_ERROR_NONE) {
+					zlib_ctx)) != SPDY_ERROR_NONE) {
 		// Clean up.
-		free(inflate);
-		free(headers->nv_block);
 		SPDYDEBUG("Failed to parse NV block.");
 		return ret;
 	}
+	data->used += data->length;
 
 	return SPDY_ERROR_NONE;
 }
