@@ -66,7 +66,7 @@ int spdy_control_frame_parse(
 
 	if(frame->length > data->length) {
 		data->needed = frame->length - data->length;
-		SPDYDEBUG("Insufficient data for frame..");
+		SPDYDEBUG("Insufficient data for control frame.");
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
 

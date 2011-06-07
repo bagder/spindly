@@ -4,7 +4,7 @@
 
 #include <netinet/in.h>
 
-/* Length of a RST_STREAM frame. (Not minimum length - the length
+/* Length of a RST_STREAM frame. (No minimum length - the length
  * of a RST_STREAM frame is always 8. */
 const uint8_t SPDY_RST_STREAM_LENGTH = 8;
 

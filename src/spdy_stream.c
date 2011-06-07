@@ -8,6 +8,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * Initialize a spdy_stream to null values.
+ * @param stream - Stream to initialize.
+ * @param store_received_data - Whether to store received data.
+ * @param store_frames - Store frames of the stream.
+ * @return Errorcode
+ */
 int spdy_stream_init(
 		spdy_stream *stream,
 		_Bool store_received_data,
