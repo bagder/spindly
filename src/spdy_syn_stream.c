@@ -19,7 +19,7 @@ const uint8_t SPDY_SYN_STREAM_HEADER_MIN_LENGTH = 10;
  * @param data - Data to parse.
  * @param data_length - Length of data.
  * @see SPDY_SYN_STREAM_HEADER_MIN_LENGTH
- * @return 0 on success, -1 on failure.
+ * @return Errorcode
  */
 int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, char *data, size_t data_length) {
 	if(data_length < SPDY_SYN_STREAM_HEADER_MIN_LENGTH) {
@@ -38,7 +38,7 @@ int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, char *data, size_t
 	// Skip the unused block.
 	data += 2;
 
-	return 0;
+	return SPDY_ERROR_NONE;
 }
 
 /**
