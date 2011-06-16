@@ -35,7 +35,7 @@ typedef struct {
 	uint16_t type;      /*!< 16 bit type */
 	uint8_t flags;      /*!< 8 bit flags */
 	uint32_t length;    /*!< 24 bit length */
-	void *type_obj;     /*!< Frame type object */
+	/*@null@*/void *type_obj;     /*!< Frame type object */
 } spdy_control_frame;
 
 int spdy_control_frame_parse_header(
