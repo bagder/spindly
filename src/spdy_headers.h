@@ -13,6 +13,7 @@ typedef struct {
 int spdy_headers_parse(
 		spdy_headers *headers,
 		spdy_data *data,
+		uint32_t frame_length,
 		spdy_zlib_context *zlib_ctx);
 
 #endif

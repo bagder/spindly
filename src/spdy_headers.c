@@ -24,9 +24,10 @@ int spdy_headers_parse_header(
 int spdy_headers_parse(
 		spdy_headers *headers,
 		spdy_data *data,
+		uint32_t frame_length,
 		spdy_zlib_context *zlib_ctx) {
 	int ret;
-	if(data->length < SPDY_HEADERS_MIN_LENGTH) {
+	if(frame_length < SPDY_HEADERS_MIN_LENGTH) {
 		data->needed = SPDY_HEADERS_MIN_LENGTH;
 		SPDYDEBUG("Not enough data for parsing the frame.");
 		return SPDY_ERROR_INSUFFICIENT_DATA;
@@ -49,13 +50,13 @@ int spdy_headers_parse(
 	if((ret = spdy_nv_block_inflate_parse(
 					headers->nv_block,
 					data->data,
-					data->length,
+					frame_length,
 					zlib_ctx)) != SPDY_ERROR_NONE) {
 		// Clean up.
 		SPDYDEBUG("Failed to parse NV block.");
 		return ret;
 	}
-	data->used += data->length;
+	data->used += frame_length-SPDY_HEADERS_MIN_LENGTH;
 
 	return SPDY_ERROR_NONE;
 }
