@@ -35,7 +35,7 @@ EXEC_TEST = tests/checks
 
 AUX += $(HDRS_SPDY)
 
-all: spdy 
+all: spdy
 
 spdy: $(OBJS_SPDY)
 
@@ -61,6 +61,9 @@ clean:
 	rm $(OBJS_TEST)||true
 	rm $(EXEC_TEST)||true
 
+splint:
+	splint +posixlib src/*.c
+
 cloc:
 	cloc bin/ src/ tests/
 
@@ -68,6 +71,6 @@ tags:
 	ctags -R src/
 
 gource:
-	gource -640x480 -a 1 --hide date --disable-progress --stop-at-end --output-ppm-stream - | ffmpeg -y -b 3000k -r 60 -f image2pipe -vcodec ppm -i - -fpre /usr/share/ffmpeg/libx264-medium.ffpreset -vcodec libx264 gource.mp4
+	gource -640x480 -a 1 --file-idle-time 0 --hide date --disable-progress --stop-at-end --output-ppm-stream - | ffmpeg -y -b 3000k -r 60 -f image2pipe -vcodec ppm -i - -fpre /usr/share/ffmpeg/libx264-medium.ffpreset -vcodec libx264 gource.mp4
 
 .PHONY: doc tags
