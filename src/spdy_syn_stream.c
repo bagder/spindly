@@ -47,6 +47,7 @@ int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, char *data, size_t
  * NV block.
  * @param syn_stream - Destination frame.
  * @param data - Data to parse.
+ * @param frame_length - Length of the frame.
  * @param zlib_ctx - The zlib context to use.
  * @see spdy_control_frame
  * @see SPDY_SYN_STREAM_MIN_LENGTH

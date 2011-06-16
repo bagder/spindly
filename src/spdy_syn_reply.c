@@ -40,6 +40,7 @@ int spdy_syn_reply_parse_header(spdy_syn_reply *syn_reply, char *data, size_t da
  * NV block.
  * @param syn_reply - Destination frame.
  * @param data - Data to parse.
+ * @param frame_length - Length of the frame.
  * @param zlib_ctx - The zlib context to use.
  * @see SPDY_SYN_STREAM_MIN_LENGTH
  * @return 0 on success, -1 on failure.
