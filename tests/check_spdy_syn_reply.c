@@ -24,6 +24,7 @@ START_TEST (test_spdy_syn_reply_parse)
 	ret = spdy_syn_reply_parse(
 			&syn_reply,
 			spdy_data_use(&data, test_control_syn_reply_frame+8, 55),
+			55,
 			&zlib_ctx);
 	fail_unless(ret == 0, "spdy_syn_reply_parse failed.");
 }

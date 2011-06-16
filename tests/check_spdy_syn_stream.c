@@ -26,6 +26,7 @@ START_TEST (test_spdy_syn_stream_parse)
 	ret = spdy_syn_stream_parse(
 			&syn_stream,
 			spdy_data_use(&data, test_control_syn_stream_frame+8, 288),
+			288,
 			&zlib_ctx);
 	fail_unless(ret == 0, "spdy_syn_stream_parse failed.");
 }
