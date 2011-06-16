@@ -55,8 +55,15 @@ int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, char *data, size_t
 int spdy_syn_stream_parse(
 		spdy_syn_stream *syn_stream,
 		spdy_data *data,
+		uint32_t frame_length,
 		spdy_zlib_context *zlib_ctx) {
 	int ret;
+	if(data->length < frame_length) {
+		data->needed = frame_length - data->length;
+		SPDYDEBUG("Not enough data for parsing the stream.");
+		return SPDY_ERROR_INSUFFICIENT_DATA;
+	}
+	//TODO: Optimize the double length check away.
 	if(data->length < SPDY_SYN_STREAM_MIN_LENGTH) {
 		data->needed = SPDY_SYN_STREAM_MIN_LENGTH;
 		SPDYDEBUG("Not enough data for parsing the stream.");
@@ -81,13 +88,13 @@ int spdy_syn_stream_parse(
 	if((ret = spdy_nv_block_inflate_parse(
 					syn_stream->nv_block,
 					data->data,
-					data->length,
+					frame_length,
 					zlib_ctx)) != SPDY_ERROR_NONE) {
 		// Clean up.
 		SPDYDEBUG("Failed to parse NV block.");
 		return ret;
 	}
-	data->used += data->length;
+	data->used += frame_length-SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
 
 	return SPDY_ERROR_NONE;
 }

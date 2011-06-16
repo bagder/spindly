@@ -35,6 +35,7 @@ int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, char *data, size_t
 int spdy_syn_stream_parse(
 		spdy_syn_stream *syn_stream,
 		spdy_data *data,
+		uint32_t frame_length,
 		spdy_zlib_context *zlib_ctx);
 
 #endif
