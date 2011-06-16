@@ -47,6 +47,7 @@ int spdy_syn_reply_parse_header(spdy_syn_reply *syn_reply, char *data, size_t da
 int spdy_syn_reply_parse(
 		spdy_syn_reply *syn_reply,
 		spdy_data *data,
+		uint32_t frame_length,
 		spdy_zlib_context *zlib_ctx) {
 	int ret;
 	if(data->length < SPDY_SYN_REPLY_MIN_LENGTH) {
@@ -55,7 +56,10 @@ int spdy_syn_reply_parse(
 	}
 
 	// Parse the frame header.
-	if((ret = spdy_syn_reply_parse_header(syn_reply, data->data, data->length)) != SPDY_ERROR_NONE)
+	if((ret = spdy_syn_reply_parse_header(
+					syn_reply,
+					data->data,
+					data->length)) != SPDY_ERROR_NONE)
 	{
 		SPDYDEBUG("Failed to parse header.");
 		return ret;
@@ -64,18 +68,19 @@ int spdy_syn_reply_parse(
 	// Skip the (already parsed) header.
 	data->data += SPDY_SYN_REPLY_HEADER_MIN_LENGTH;
 	data->length -= SPDY_SYN_REPLY_HEADER_MIN_LENGTH;
+	data->used += SPDY_SYN_REPLY_HEADER_MIN_LENGTH;
 
 	// Parse NV block.
 	if((ret = spdy_nv_block_inflate_parse(
 					syn_reply->nv_block,
 					data->data,
-					data->length,
+					frame_length,
 					zlib_ctx)) != SPDY_ERROR_NONE) {
 		// Clean up.
 		SPDYDEBUG("Failed to parse NV block.");
 		return ret;
 	}
-	data->used += data->length;
+	data->used += frame_length-SPDY_SYN_REPLY_HEADER_MIN_LENGTH;
 
 	return 0;
 }

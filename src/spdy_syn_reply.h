@@ -31,6 +31,7 @@ int spdy_syn_reply_parse_header(spdy_syn_reply *syn_reply, char *data, size_t da
 int spdy_syn_reply_parse(
 		spdy_syn_reply *syn_reply,
 		spdy_data *data,
+		uint32_t frame_length,
 		spdy_zlib_context *zlib_ctx);
 
 #endif
