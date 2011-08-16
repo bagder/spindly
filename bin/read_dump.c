@@ -20,6 +20,7 @@ int handle_syn_stream_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 	if(spdy_syn_stream_parse(
 				&syn_stream,
 				spdy_data_use(&data, payload, frame->length),
+				frame->length,
 				&ctx[0]) != SPDY_ERROR_NONE) {
 		printf("Failed to parse SYN_STREAM.\n");
 		return EXIT_FAILURE;
@@ -31,7 +32,7 @@ int handle_syn_stream_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 	for(int i=0; i < syn_stream.nv_block->count; i++) {
 		printf("\t\t%s: %s\n", syn_stream.nv_block->pairs[i].name, syn_stream.nv_block->pairs[i].values);
 	}
-	spdy_nv_block_destroy(syn_stream.nv_block);
+	//spdy_nv_block_destroy(syn_stream.nv_block);
 
 	return EXIT_SUCCESS;
 }
@@ -43,6 +44,7 @@ int handle_syn_reply_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 	if(spdy_syn_reply_parse(
 				&syn_reply,
 				spdy_data_use(&data, payload, frame->length),
+				frame->length,
 				&ctx[1]) != SPDY_ERROR_NONE) {
 		printf("Failed to parse SYN_REPLY.\n");
 		return EXIT_FAILURE;
@@ -52,7 +54,7 @@ int handle_syn_reply_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 	for(int i=0; i < syn_reply.nv_block->count; i++) {
 		printf("\t\t%s: %s\n", syn_reply.nv_block->pairs[i].name, syn_reply.nv_block->pairs[i].values);
 	}
-	spdy_nv_block_destroy(syn_reply.nv_block);
+	//spdy_nv_block_destroy(syn_reply.nv_block);
 
 	return EXIT_SUCCESS;
 }
@@ -142,7 +144,7 @@ int main(int argc, char *argv[]) {
 	char pkg[8];
 	while(1) {
 		if(fread(pkg, 1, 8, f) != 8) {
-			printf("Couldn't read header.\n");
+			printf("EOF.\n");
 			end_zlib_contexts();
 			return EXIT_FAILURE;
 		}
