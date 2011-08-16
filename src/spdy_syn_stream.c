@@ -85,6 +85,13 @@ int spdy_syn_stream_parse(
 	data->length -= SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
 	data->used += SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
 
+	// Allocate memory of NV block.
+	syn_stream->nv_block = malloc(sizeof(spdy_nv_block));
+	if(!syn_stream->nv_block) {
+		SPDYDEBUG("Allocating space for NV block failed.");
+		return SPDY_ERROR_MALLOC_FAILED;
+	}
+
 	// Parse NV block.
 	if((ret = spdy_nv_block_inflate_parse(
 					syn_stream->nv_block,

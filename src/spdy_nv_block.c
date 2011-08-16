@@ -16,7 +16,7 @@
  * @todo Replace mallocs with a single one. (Speed up!)
  * @todo Freeing in the loop.
  * @todo Multiple value support.
- * @return 0 on success, -1 on failure.
+ * @return Errorcode
  */
 int spdy_nv_block_parse(
 		spdy_nv_block *nv_block,
@@ -86,7 +86,7 @@ int spdy_nv_block_parse(
 		// Allocate space for values
 		size = (sizeof(char)*item_length)+1;
 		if(data+item_length > data_max) {
-			SPDYDEBUG("Data to small.");
+			SPDYDEBUG("Insufficient data for block parse.");
 			return SPDY_ERROR_INSUFFICIENT_DATA;
 		}
 		pair->values = malloc(size);
@@ -124,13 +124,13 @@ int spdy_nv_block_inflate_parse(
 	}
 
 	// Allocate space for NV block.
-	nv_block = malloc(sizeof(spdy_nv_block));
+	/*nv_block = malloc(sizeof(spdy_nv_block));
 	if(!nv_block) {
 		// Inflate gets allocated in spdy_zlib_inflate.
 		free(inflate);
 		SPDYDEBUG("Failed to allocate memory for nv_block.");
 		return SPDY_ERROR_MALLOC_FAILED;
-	}
+	}*/
 
 	// Parse NV block.
 	if((ret = spdy_nv_block_parse(
