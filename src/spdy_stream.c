@@ -19,21 +19,16 @@ int spdy_stream_init(
 		spdy_stream *stream,
 		_Bool store_received_data,
 		_Bool store_frames) {
-	/* TODO memset? */
+	memset(&stream, 0, sizeof(stream));
+
 	stream->store_received_data = store_received_data;
 	stream->store_frames = store_frames;
-	stream->stream_id = 0;
-	stream->associated_to = 0;
-	stream->unidirectional = 0;
-	stream->data_received_length = 0;
-	stream->data_sent_length = 0;
+
+	/* The C standard doesn't guarantee that 0 == 0x00000000, so we have to
+	 * NULL the pointers explicitely.
+	 */
 	stream->data_received = NULL;
 	stream->data_sent = NULL;
-	stream->fin_received = 0;
-	stream->fin_sent = 0;
-	stream->rst_received = 0;
-	stream->rst_sent = 0;
-	stream->frames_count = 0;
 	stream->frames = NULL;
 
 	return SPDY_ERROR_NONE;
