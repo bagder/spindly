@@ -123,15 +123,6 @@ int spdy_nv_block_inflate_parse(
 		return ret;
 	}
 
-	// Allocate space for NV block.
-	/*nv_block = malloc(sizeof(spdy_nv_block));
-	if(!nv_block) {
-		// Inflate gets allocated in spdy_zlib_inflate.
-		free(inflate);
-		SPDYDEBUG("Failed to allocate memory for nv_block.");
-		return SPDY_ERROR_MALLOC_FAILED;
-	}*/
-
 	// Parse NV block.
 	if((ret = spdy_nv_block_parse(
 					nv_block,
