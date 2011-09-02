@@ -5,3 +5,5 @@ doc/man/
 doc/html/
 tags
 bin/read_dump
+bin/read_stream
+bin/create_nv_block
