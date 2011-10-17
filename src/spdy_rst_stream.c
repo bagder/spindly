@@ -23,9 +23,9 @@ int spdy_rst_stream_parse(spdy_rst_stream *rst_stream, char *data, size_t data_l
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
 
-	// Read the Stream-ID.
+	/* Read the Stream-ID. */
 	rst_stream->stream_id = ntohl(*((uint32_t*)data)) & 0x7FFFFFFF;
-	// Read the status code.
+	/* Read the status code. */
 	rst_stream->status_code = ntohl(*((uint32_t*)data));
 
 	return 0;

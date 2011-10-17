@@ -19,18 +19,19 @@
 int spdy_frame_parse_header(
 		spdy_frame *frame,
 		char *data,
-		size_t data_length) {
-
-	// Read the type bit
-	// (The mask equals 0x10000000, filtering all but the first bit. Then
-	//  we shift it over by 7 digits, giving us a char with a value which
-	//  either is 0 or 1.)
+		size_t data_length)
+{
+	/* Read the type bit
+         * (The mask equals 0x10000000, filtering all but the first bit. Then
+         * we shift it over by 7 digits, giving us a char with a value which
+         * either is 0 or 1.)
+         */
+	int ret;
 	frame->type = (data[0] & 0x80)>>7;
 	frame->frame = NULL;
-	int ret;
 	switch(frame->type) {
 		case SPDY_DATA_FRAME:
-			// Allocate space for data frame.
+                  /* Allocate space for data frame. */
 			frame->frame = malloc(sizeof(spdy_data_frame));
 			if(!frame->frame) {
 				SPDYDEBUG("Allocating of space for data frame failed.");
@@ -46,13 +47,13 @@ int spdy_frame_parse_header(
 			}
 			break;
 		case SPDY_CONTROL_FRAME:
-			// Allocate space for control frame.
+			/* Allocate space for control frame. */
 			frame->frame = malloc(sizeof(spdy_control_frame));
 			if(!frame->frame) {
 				SPDYDEBUG("Allocation of space for control frame failed.");
 				return SPDY_ERROR_MALLOC_FAILED;
 			}
-			// Parse frame header.
+			/* Parse frame header. */
 			if((ret = spdy_control_frame_parse_header(frame->frame, data, data_length)) != SPDY_ERROR_NONE) {
 				free(frame->frame);
 				frame->frame = NULL;
@@ -60,7 +61,7 @@ int spdy_frame_parse_header(
 			}
 			break;
 		default:
-			// This should never happen.
+			/* This should never happen. */
 			return SPDY_ERROR_INVALID_DATA;
 	}
 	return 0;

@@ -2,7 +2,7 @@
 #
 CC=gcc
 
-CFLAGS += -Werror -Wall -Wextra -Wformat=2 -std=c99 -pedantic -DDEBUG
+CFLAGS += -Werror -Wall -Wextra -Wformat=2 -std=c89 -pedantic -DDEBUG -Wno-error=overlength-strings
 LDFLAGS +=
 
 SRCS_SPDY += src/spdy_data.c

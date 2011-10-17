@@ -49,12 +49,12 @@ int spdy_stream_handle_frame(spdy_stream *stream, spdy_frame *frame) {
 		return SPDY_ERROR_STREAM_RST;
 	}
 	if(stream->store_frames) {
-		// Reallocate space for frames pointer.
+          /* Reallocate space for frames pointer. */
 		spdy_frame **frames_new = realloc(
 				stream->frames,
 				sizeof(spdy_stream*)*(stream->frames_count+1));
 
-		// If allocation failed, we return but keep the frames pointer untouched.
+		/* If allocation failed, we return but keep the frames pointer untouched. */
 		if(!frames_new) {
 			SPDYDEBUG("Reallocating space for frames pointer failed.");
 			return SPDY_ERROR_MALLOC_FAILED;
@@ -63,7 +63,7 @@ int spdy_stream_handle_frame(spdy_stream *stream, spdy_frame *frame) {
 		stream->frames[stream->frames_count] = frame;
 	}
 
-	// Keep the number of frames used in the stream.
+	/* Keep the number of frames used in the stream. */
 	stream->frames_count++;
 
 	switch(frame->type) {
@@ -74,7 +74,7 @@ int spdy_stream_handle_frame(spdy_stream *stream, spdy_frame *frame) {
 			return spdy_stream_handle_control_frame(stream, frame->frame);
 			break;
 		default:
-			// Should _never_ happen.
+                  /* Should _never_ happen. */
 			return SPDY_ERROR_INVALID_DATA;
 	}
 
@@ -91,9 +91,9 @@ int spdy_stream_handle_data_frame(
 		spdy_stream *stream,
 		spdy_data_frame *frame) {
 
-	// Store received data?
+  /* Store received data? */
 	if(stream->store_received_data) {
-		// Reallocate buffer for received data
+          /* Reallocate buffer for received data */
 		char *data_received_new = realloc(
 				stream->data_received,
 				sizeof(char)*(stream->data_received_length+frame->length));
@@ -102,7 +102,7 @@ int spdy_stream_handle_data_frame(
 			return SPDY_ERROR_MALLOC_FAILED;
 		}
 		stream->data_received = data_received_new;
-		// Copy frame data to end of data_received
+		/* Copy frame data to end of data_received */
 		memcpy(
 				stream->data_received+stream->data_received_length,
 				frame->data,
@@ -110,7 +110,7 @@ int spdy_stream_handle_data_frame(
 		stream->data_received_length += frame->length;
 	}
 
-	// Check if FIN was received.
+	/* Check if FIN was received. */
 	stream->fin_received = (frame->flags & SPDY_DATA_FLAG_FIN);
 
 	return SPDY_ERROR_NONE;
@@ -119,9 +119,9 @@ int spdy_stream_handle_data_frame(
 int spdy_stream_handle_control_frame(
 		spdy_stream *stream,
 		spdy_control_frame *frame) {
-	//int ret;
+  /*int ret; */
 	(void)stream;
-	// Handle control frame types
+	/* Handle control frame types */
 	switch(frame->type) {
 		case SPDY_CTRL_SYN_STREAM:
 			break;

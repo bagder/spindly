@@ -22,9 +22,9 @@
 /**
  * This is the dictionary that is used by the zlib compression in SPDY.
  */
-char *spdy_zlib_dictionary = "optionsgetheadpostputdeletetraceacceptaccept-charsetaccept-encodingaccept-languageauthorizationexpectfromhostif-modified-sinceif-matchif-none-matchif-rangeif-unmodifiedsincemax-forwardsproxy-authorizationrangerefererteuser-agent100101200201202203204205206300301302303304305306307400401402403404405406407408409410411412413414415416417500501502503504505accept-rangesageetaglocationproxy-authenticatepublicretry-afterservervarywarningwww-authenticateallowcontent-basecontent-encodingcache-controlconnectiondatetrailertransfer-encodingupgradeviawarningcontent-languagecontent-lengthcontent-locationcontent-md5content-rangecontent-typeetagexpireslast-modifiedset-cookieMondayTuesdayWednesdayThursdayFridaySaturdaySundayJanFebMarAprMayJunJulAugSepOctNovDecchunkedtext/htmlimage/pngimage/jpgimage/gifapplication/xmlapplication/xhtmltext/plainpublicmax-agecharset=iso-8859-1utf-8gzipdeflateHTTP/1.1statusversionurl";
+static char *spdy_zlib_dictionary = "optionsgetheadpostputdeletetraceacceptaccept-charsetaccept-encodingaccept-languageauthorizationexpectfromhostif-modified-sinceif-matchif-none-matchif-rangeif-unmodifiedsincemax-forwardsproxy-authorizationrangerefererteuser-agent100101200201202203204205206300301302303304305306307400401402403404405406407408409410411412413414415416417500501502503504505accept-rangesageetaglocationproxy-authenticatepublicretry-afterservervarywarningwww-authenticateallowcontent-basecontent-encodingcache-controlconnectiondatetrailertransfer-encodingupgradeviawarningcontent-languagecontent-lengthcontent-locationcontent-md5content-rangecontent-typeetagexpireslast-modifiedset-cookieMondayTuesdayWednesdayThursdayFridaySaturdaySundayJanFebMarAprMayJunJulAugSepOctNovDecchunkedtext/htmlimage/pngimage/jpgimage/gifapplication/xmlapplication/xhtmltext/plainpublicmax-agecharset=iso-8859-1utf-8gzipdeflateHTTP/1.1statusversionurl";
 
-#define SPDY_ZLIB_CHUNK 16384 // TODO: Is this smart enough?
+#define SPDY_ZLIB_CHUNK 16384 /* TODO: Is this smart enough? */
 
 /**
  * Deflate data as used in the header compression of spdy.
@@ -53,9 +53,9 @@ int spdy_zlib_deflate(char *src, uint32_t length, size_t *data_used, char **dest
 		return SPDY_ERROR_ZLIB_DEFLATE_INIT_FAILED;
 	}
 
-	// The zlib compression in spdy uses a dictionary which is available
-	// in spdy_zlib_dictionary. Please note that the termination NUL-byte
-	// is used. (May changes in a future version of SPDY.)
+	/* The zlib compression in spdy uses a dictionary which is available */
+	/* in spdy_zlib_dictionary. Please note that the termination NUL-byte */
+	/* is used. (May changes in a future version of SPDY.) */
 	ret = deflateSetDictionary(
 			&strm,
 			(unsigned char*)spdy_zlib_dictionary,
@@ -66,14 +66,14 @@ int spdy_zlib_deflate(char *src, uint32_t length, size_t *data_used, char **dest
 		return SPDY_ERROR_ZLIB_DEFLATE_DICT_FAILED;
 	}
 
-	// Loop while flush is not Z_FINISH
+	/* Loop while flush is not Z_FINISH */
 	do {
 		if(length > SPDY_ZLIB_CHUNK) {
 			strm.avail_in = SPDY_ZLIB_CHUNK;
 			length -= SPDY_ZLIB_CHUNK;
 
-			// flush is used to detect if we still need to supply additional
-			// data to the stream via avail_in and next_in.
+			/* flush is used to detect if we still need to supply additional */
+			/* data to the stream via avail_in and next_in. */
 			flush = Z_NO_FLUSH;
 		} else {
 			strm.avail_in = length;
@@ -83,20 +83,20 @@ int spdy_zlib_deflate(char *src, uint32_t length, size_t *data_used, char **dest
 
 		strm.next_in = (unsigned char*)src;
 
-		// Loop while output data is available
+		/* Loop while output data is available */
 		do {
 			strm.avail_out = SPDY_ZLIB_CHUNK;
 			strm.next_out = out;
 
-			// No need to check return value of deflate.
-			// (See zlib documentation at http://www.zlib.net/zlib_how.html
+			/* No need to check return value of deflate. */
+			/* (See zlib documentation at http://www.zlib.net/zlib_how.html */
 			ret = deflate(&strm, flush);
-			// Should only happen if some other part of the application
-			// clobbered the memory of the stream.
+			/* Should only happen if some other part of the application */
+			/* clobbered the memory of the stream. */
 			assert(ret != Z_STREAM_ERROR);
 			have = SPDY_ZLIB_CHUNK - strm.avail_out;
 
-			// (Re)allocate memory for dest and keep track of it's size.
+			/* (Re)allocate memory for dest and keep track of it's size. */
 			*dest_size += have;
 			*dest = realloc(*dest, *dest_size);
 			if(!*dest) {
@@ -107,11 +107,11 @@ int spdy_zlib_deflate(char *src, uint32_t length, size_t *data_used, char **dest
 			memcpy((*dest)+((*dest_size)-have), out, have);
 
 		} while (strm.avail_out == 0);
-		// At this point, all of the input data should already
-		// have been used.
+		/* At this point, all of the input data should already */
+		/* have been used. */
 		assert(strm.avail_in == 0);
 	} while (flush != Z_FINISH);
-	// If the stream is not complete, something went very wrong.
+	/* If the stream is not complete, something went very wrong. */
 	assert(ret == Z_STREAM_END);
 
 	deflateEnd(&strm);
@@ -124,13 +124,15 @@ int spdy_zlib_deflate(char *src, uint32_t length, size_t *data_used, char **dest
  * @todo Testcase!
  * @return Errorcode
  */
-int spdy_zlib_inflate_init(spdy_zlib_context *ctx) {
+int spdy_zlib_inflate_init(spdy_zlib_context *ctx)
+{
+	int ret;
 	ctx->stream.zalloc = Z_NULL;
 	ctx->stream.zfree = Z_NULL;
 	ctx->stream.opaque = Z_NULL;
 	ctx->stream.avail_in = 0;
 	ctx->stream.next_in = Z_NULL;
-	int ret = inflateInit2(&ctx->stream, 15);
+	ret = inflateInit2(&ctx->stream, 15);
 	if(ret != Z_OK) {
 		return SPDY_ERROR_ZLIB_INFLATE_INIT_FAILED;
 	}
@@ -168,11 +170,11 @@ int spdy_zlib_inflate(
 	*dest = NULL;
 	*dest_size=0;
 
-	// Loop while inflate return is not Z_STREAM_END
+	/* Loop while inflate return is not Z_STREAM_END */
 	do {
 
-		// Only read CHUNK amount of data if supplied data is bigger then
-		// CHUNK.
+          /* Only read CHUNK amount of data if supplied data is bigger then */
+          /* CHUNK. */
 		if(length > SPDY_ZLIB_CHUNK) {
 			ctx->stream.avail_in = SPDY_ZLIB_CHUNK;
 			length -= SPDY_ZLIB_CHUNK;
@@ -181,25 +183,25 @@ int spdy_zlib_inflate(
 			length = 0;
 		}
 
-		// Determine if we actually have data for inflate.
+		/* Determine if we actually have data for inflate. */
 		if(ctx->stream.avail_in == 0)
 			break;
 
 		ctx->stream.next_in = (unsigned char*)src;
 
-		// Loop while output data is available
+		/* Loop while output data is available */
 		do {
 			ctx->stream.avail_out = SPDY_ZLIB_CHUNK;
 			ctx->stream.next_out = out;
 			ret = inflate(&ctx->stream, Z_SYNC_FLUSH);
 
-			// Should only happen if some other part of the application
-			// clobbered the memory of the stream.
+			/* Should only happen if some other part of the application */
+			/* clobbered the memory of the stream. */
 			assert(ret != Z_STREAM_ERROR); /* state not clobbered */
 
 			switch(ret) {
 				case Z_NEED_DICT:
-					// Setting the dictionary for the SPDY zlib compression.
+                                  /* Setting the dictionary for the SPDY zlib compression. */
 					ret = inflateSetDictionary(
 							&ctx->stream,
 							(unsigned char*)spdy_zlib_dictionary,
@@ -222,7 +224,7 @@ int spdy_zlib_inflate(
 			}
 			have = SPDY_ZLIB_CHUNK - ctx->stream.avail_out;
 
-			// (Re)allocate and copy to destination.
+			/* (Re)allocate and copy to destination. */
 			*dest_size += have;
 			*dest = realloc(*dest, *dest_size);
 			if(!*dest) {
@@ -230,9 +232,9 @@ int spdy_zlib_inflate(
 				inflateEnd(&ctx->stream);
 				return SPDY_ERROR_MALLOC_FAILED;
 			}
-			// Copy to destination + size of the destination.
-			// As dest_size has always been increased by 'have', we need
-			// to decrease it.
+			/* Copy to destination + size of the destination. */
+			/* As dest_size has always been increased by 'have', we need */
+			/* to decrease it. */
 			memcpy((*dest)+((*dest_size)-have), out, have);
 		} while (ctx->stream.avail_out == 0);
 	} while (ret != Z_STREAM_END);

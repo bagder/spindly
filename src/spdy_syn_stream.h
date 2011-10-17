@@ -8,9 +8,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-// Minimum length of a SYN_STREAM frame.
+/* Minimum length of a SYN_STREAM frame. */
 extern const uint8_t SPDY_SYN_STREAM_MIN_LENGTH;
-// Minimum length of a SYN_STREAM frame header.
+/* Minimum length of a SYN_STREAM frame header. */
 extern const uint8_t SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
 
 /**
