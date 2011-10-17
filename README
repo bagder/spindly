@@ -1,3 +1,25 @@
+spindly  October 17th 2011, Daniel Stenberg
+=======
+
+I've imported the libspdy git repository as a foundation for further work and
+research. My goal is to create a good, solid and portable C89 library to do
+SPDY transfers. I've not been able to establish contact with libspdy's author.
+
+I'm not satisfied with the current API but as the code seems to do SPDY
+transfers already it should be a decent base to start with.
+
+I've already converted the code to be C89 compliant and next I'll work on
+improving the API and then writing test cases to work against an existing
+(separate) SPDY server implementation.
+
+I've used a different name already to make it distinctly clear that I do not
+intend to stay with many of the original libspdy concepts/designs.
+
+I welcome help, suggestions and ideas from fellow hackers. Speak up and we'll
+start a mailing list and whatever to get going.
+
+The original README follows below:
+------------------------------------------------------------------------
 libspdy - An implementation of Googles SPDY protocol.
 
 You should've received a copy of the 3-clause BSD license with this release.
