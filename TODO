@@ -1,0 +1,24 @@
+
+*  As soon as a few more intersted souls pop in, start a mailing list
+   and setup an initial site for this library.
+
+1. jot up a modified API, some important details:
+
+   A - keep internal data/structs private and hidden from the apps
+   B - support both ends of SPDY connections eually fine
+
+2. write up two test applications that use the new API, one client and
+   one server
+
+3. establish and make use of new source indentation setup and style,
+   - convert typedef'ed struct back to real structs
+   - change _Bool to something nicer
+
+4. implement the new API and document it in man pages
+
+5. make test cases for the new API
+
+6. introduce autoconf + automake
+
+7. create a public spindly.h header in a separate include/ directory
+
