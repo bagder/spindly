@@ -22,22 +22,24 @@ const uint8_t SPDY_SYN_STREAM_HEADER_MIN_LENGTH = 10;
  * @see SPDY_SYN_STREAM_HEADER_MIN_LENGTH
  * @return Errorcode
  */
-int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, char *data, size_t data_length) {
-	if(data_length < SPDY_SYN_STREAM_HEADER_MIN_LENGTH) {
+int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, spdy_data *data) {
+	size_t length = data->data_end - data->cursor;
+	if(length < SPDY_SYN_STREAM_HEADER_MIN_LENGTH) {
 		SPDYDEBUG("Not enough data for parsing the header.");
+		data->needed = SPDY_SYN_STREAM_HEADER_MIN_LENGTH - length;
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
 
 	/* Read the Stream-ID. */
-	syn_stream->stream_id = BE_LOAD_32(data) & 0x7FFFFFFF;
-	data += 4;
+	syn_stream->stream_id = BE_LOAD_32(data->cursor) & 0x7FFFFFFF;
+	data->cursor += 4;
 	/* Read the 'Associated-To-Stream-ID'. */
-	syn_stream->associated_to = BE_LOAD_32(data) & 0x7FFFFFFF;
-	data += 4;
+	syn_stream->associated_to = BE_LOAD_32(data->cursor) & 0x7FFFFFFF;
+	data->cursor += 4;
 	/* Read the two priority bits. */
-	syn_stream->priority = (data[0] & 0xC0) >> 6;
+	syn_stream->priority = (data->cursor[0] & 0xC0) >> 6;
 	/* Skip the unused block. */
-	data += 2;
+	data->cursor += 2;
 
 	return SPDY_ERROR_NONE;
 }
@@ -60,14 +62,15 @@ int spdy_syn_stream_parse(
 		uint32_t frame_length,
 		spdy_zlib_context *zlib_ctx) {
 	int ret;
-	if(data->length < frame_length) {
-		data->needed = frame_length - data->length;
+	size_t length = data->data_end - data->cursor;
+	if(length < frame_length) {
+		data->needed = frame_length - length;
 		SPDYDEBUG("Not enough data for parsing the stream.");
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
 	/* TODO: Optimize the double length check away. */
-	if(data->length < SPDY_SYN_STREAM_MIN_LENGTH) {
-		data->needed = SPDY_SYN_STREAM_MIN_LENGTH;
+	if(length < SPDY_SYN_STREAM_MIN_LENGTH) {
+		data->needed = SPDY_SYN_STREAM_MIN_LENGTH - length;
 		SPDYDEBUG("Not enough data for parsing the stream.");
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
@@ -75,35 +78,28 @@ int spdy_syn_stream_parse(
 	/* Parse the frame header. */
 	if((ret = spdy_syn_stream_parse_header(
 					syn_stream,
-					data->data,
-					data->length)) != SPDY_ERROR_NONE) {
+					data)) != SPDY_ERROR_NONE) {
 		SPDYDEBUG("Failed to parse header.");
 		return ret;
 	}
 
-	/* Skip the (already parsed) header. */
-	data->data += SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
-	data->length -= SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
-	data->used += SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
-
-	/* Allocate memory of NV block. */
-	syn_stream->nv_block = malloc(sizeof(spdy_nv_block));
-	if(!syn_stream->nv_block) {
-		SPDYDEBUG("Allocating space for NV block failed.");
-		return SPDY_ERROR_MALLOC_FAILED;
+	/* Create NV block. */
+	ret = spdy_nv_block_create(&syn_stream->nv_block);
+	if(ret) {
+		return ret;
 	}
 
 	/* Parse NV block. */
 	if((ret = spdy_nv_block_inflate_parse(
 					syn_stream->nv_block,
-					data->data,
+					data->cursor,
 					frame_length,
 					zlib_ctx)) != SPDY_ERROR_NONE) {
 		/* Clean up. */
 		SPDYDEBUG("Failed to parse NV block.");
 		return ret;
 	}
-	data->used += frame_length-SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
+	data->cursor += frame_length-SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
 
 	return SPDY_ERROR_NONE;
 }

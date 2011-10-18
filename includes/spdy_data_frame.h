@@ -26,8 +26,7 @@ typedef struct {
 
 int spdy_data_frame_parse_header(
 		spdy_data_frame *frame,
-		char *data,
-		size_t data_length);
+		spdy_data *data);
 int spdy_data_frame_parse(
 		spdy_data_frame *frame,
 		spdy_data *data);

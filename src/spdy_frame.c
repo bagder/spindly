@@ -18,9 +18,7 @@
  */
 int spdy_frame_parse_header(
 		spdy_frame *frame,
-		char *data,
-		size_t data_length) {
-	int ret;
+		spdy_data *data) {
 
 	/**
 	 * Read the type bit
@@ -28,8 +26,9 @@ int spdy_frame_parse_header(
 	 * we shift it over by 7 digits, giving us a char with a value which
 	 * either is 0 or 1.)
 	 */
-	frame->type = (data[0] & 0x80)>>7;
+	frame->type = (data->cursor[0] & 0x80)>>7;
 	frame->frame = NULL;
+#if 0
 	switch(frame->type) {
 		case SPDY_DATA_FRAME:
 			/** Allocate space for data frame. */
@@ -40,8 +39,7 @@ int spdy_frame_parse_header(
 			}
 			if((ret = spdy_data_frame_parse_header(
 							frame->frame,
-							data,
-							data_length)) != SPDY_ERROR_NONE) {
+							data)) != SPDY_ERROR_NONE) {
 				free(frame->frame);
 				frame->frame = NULL;
 				return ret;
@@ -54,8 +52,9 @@ int spdy_frame_parse_header(
 				SPDYDEBUG("Allocation of space for control frame failed.");
 				return SPDY_ERROR_MALLOC_FAILED;
 			}
+			spdy_control_frame_init(frame->frame);
 			/** Parse frame header. */
-			if((ret = spdy_control_frame_parse_header(frame->frame, data, data_length)) != SPDY_ERROR_NONE) {
+			if((ret = spdy_control_frame_parse_header(frame->frame, data)) != SPDY_ERROR_NONE) {
 				free(frame->frame);
 				frame->frame = NULL;
 				return ret;
@@ -65,6 +64,7 @@ int spdy_frame_parse_header(
 			/** This should never happen. */
 			return SPDY_ERROR_INVALID_DATA;
 	}
+#endif
 	return SPDY_ERROR_NONE;
 }
 
@@ -81,7 +81,7 @@ int spdy_frame_parse(
 		spdy_data *data,
 		spdy_zlib_context *zlib_ctx) {
 	int ret;
-	ret = spdy_frame_parse_header(frame, data->data, data->length);
+	ret = spdy_frame_parse_header(frame, data);
 	if(ret != SPDY_ERROR_NONE) {
 		SPDYDEBUG("Frame parse header failed.");
 		return ret;
@@ -93,7 +93,7 @@ int spdy_frame_parse(
 				SPDYDEBUG("Control frame malloc failed.");
 				return SPDY_ERROR_MALLOC_FAILED;
 			}
-
+			spdy_control_frame_init(frame->frame);
 			ret = spdy_control_frame_parse(
 					frame->frame,
 					data,

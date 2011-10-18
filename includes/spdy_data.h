@@ -10,6 +10,7 @@
  * function returned SPDY_ERROR_INSUFFICIENT_DATA.
  * @see SPDY_ERROR_INSUFFICIENT_DATA
  */
+#if 0
 typedef struct {
 	char *data_in;    /*!< Beginning of data block. */
 	char *data;       /*!< Datalocation. */
@@ -20,6 +21,13 @@ typedef struct {
 	size_t needed;    /*!< Only use after SPDY_ERROR_INSUFFICIENT_DATA.
 	                       Contains the amount of data that is needed for a
 	                       function to continue. */
+} spdy_data;
+#endif
+typedef struct {
+	char *data;
+	char *data_end;
+	char *cursor;
+	size_t needed;
 } spdy_data;
 
 spdy_data *spdy_data_use(

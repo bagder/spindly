@@ -7,7 +7,12 @@
 START_TEST (test_spdy_data_frame_parse_header)
 {
 	spdy_data_frame frame;
-	spdy_data_frame_parse_header(&frame, test_data_frame_header, 8);
+	spdy_data data;
+
+	/* stream_id _must_ be 0. */
+	frame.stream_id = 0;
+	spdy_data_frame_parse_header(&frame,
+			spdy_data_use(&data, test_data_frame_header, 8));
 	fail_unless(frame.stream_id == 1, "Stream ID parsing failed.");
 	fail_unless(frame.flags == 1, "Flag parsing failed.");
 	fail_unless(frame.length == 0, "Length parsing failed.");
@@ -19,6 +24,8 @@ START_TEST (test_spdy_data_frame_parse)
 	int ret;
 	spdy_data_frame frame;
 	spdy_data data;
+	/* stream_id _must_ be 0. */
+	frame.stream_id = 0;
 	ret = spdy_data_frame_parse(
 			&frame,
 			spdy_data_use(&data, test_data_frame, 23));
@@ -52,7 +59,11 @@ START_TEST (test_spdy_data_frame_parse_pack)
 {
 	spdy_data_frame frame;
 	char *out;
-	int ret = spdy_data_frame_parse_header(&frame, test_data_frame_header, 8);
+	spdy_data data;
+	int ret;
+	frame.stream_id = 0;
+	ret = spdy_data_frame_parse_header(&frame,
+			spdy_data_use(&data, test_data_frame_header, 8));
 	fail_unless(ret == 0, "spdy_data_frame_parse_header failed.");
 	ret = spdy_data_frame_pack_header(&out, &frame);
 	fail_unless(ret == 0, "spdy_data_frame_pack_header failed.");

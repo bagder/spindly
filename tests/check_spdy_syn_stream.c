@@ -7,7 +7,9 @@ START_TEST (test_spdy_syn_stream_parse_header)
 {
 	int ret;
 	spdy_syn_stream syn_stream;
-	ret = spdy_syn_stream_parse_header(&syn_stream, test_control_syn_stream_frame+8, 288);
+	spdy_data data;
+	ret = spdy_syn_stream_parse_header(&syn_stream,
+			spdy_data_use(&data, test_control_syn_stream_frame+8, 288));
 	fail_unless(ret == 0, "spdy_syn_stream_parse failed.");
 	fail_unless(syn_stream.stream_id == 1, "Stream ID parsing failed.");
 	fail_unless(syn_stream.associated_to == 0, "Associated to parsing failed.");

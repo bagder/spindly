@@ -13,6 +13,11 @@
 /** Minimum length of a control frame. */
 const uint8_t SPDY_CONTROL_FRAME_MIN_LENGTH = 8;
 
+int spdy_control_frame_init(spdy_control_frame *frame) {
+	frame->_header_parsed = 0;
+	return SPDY_ERROR_NONE;
+}
+
 /**
  * Parse the header of a control frame.
  * @param frame - Target control frame.
@@ -24,22 +29,28 @@ const uint8_t SPDY_CONTROL_FRAME_MIN_LENGTH = 8;
  */
 int spdy_control_frame_parse_header(
 		spdy_control_frame *frame,
-		char *data,
-		size_t data_length) {
-	if(data_length < SPDY_CONTROL_FRAME_MIN_LENGTH) {
+		spdy_data *data) {
+	size_t length;
+	/* Check if the header has already been parsed. */
+	if(frame->_header_parsed) return SPDY_ERROR_NONE;
+
+	length = data->data_end - data->cursor;
+	if(length < SPDY_CONTROL_FRAME_MIN_LENGTH) {
 		SPDYDEBUG("Insufficient data for control frame.");
+		data->needed = SPDY_CONTROL_FRAME_MIN_LENGTH - length;
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
 	/* Read SPDY version. (AND is there to remove the first bit
 	 * which is used as frame type identifier. */
-	frame->version = BE_LOAD_16(data) & 0x7FFF;
-	data += 2;
-	frame->type = BE_LOAD_16(data);
-	data += 2;
+	frame->version = BE_LOAD_16(data->cursor) & 0x7FFF;
+	data->cursor += 2;
+	frame->type = BE_LOAD_16(data->cursor);
+	data->cursor += 2;
 	/* Read one byte */
-	frame->flags = (uint8_t)data[0];
+	frame->flags = (uint8_t)data->cursor[0];
 	/* Read four byte, including the flags byte and removing it with the AND. */
-	frame->length = BE_LOAD_32(data) & 0x00FFFFFF;
+	frame->length = BE_LOAD_32(data->cursor) & 0x00FFFFFF;
+	data->cursor += 4;
 	return SPDY_ERROR_NONE;
 }
 
@@ -56,19 +67,19 @@ int spdy_control_frame_parse(
 		spdy_data *data,
 		spdy_zlib_context *zlib_ctx) {
 	int ret;
-	ret = spdy_control_frame_parse_header(frame, data->data, data->length);
-	if(ret != SPDY_ERROR_NONE) {
-		SPDYDEBUG("Control frame parse header failed.");
-		return ret;
+	size_t length;
+	if(!frame->_header_parsed) {
+		ret = spdy_control_frame_parse_header(frame, data);
+		if(ret != SPDY_ERROR_NONE) {
+			SPDYDEBUG("Control frame parse header failed.");
+			return ret;
+		}
 	}
-	/* Remove the header length from data_length. */
-	data->length -= SPDY_CONTROL_FRAME_MIN_LENGTH;
-	data->data += SPDY_CONTROL_FRAME_MIN_LENGTH;
-	data->used += SPDY_CONTROL_FRAME_MIN_LENGTH;
 
 	/* TODO: Check if control_frame_min_length is contained in length or not */
-	if(frame->length > data->length) {
-		data->needed = frame->length - data->length;
+	length = data->data_end - data->cursor;
+	if(frame->length > length) {
+		data->needed = frame->length - length;
 		SPDYDEBUG("Insufficient data for control frame.");
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
@@ -121,7 +132,7 @@ int spdy_control_frame_parse(
 			}
 			ret = spdy_rst_stream_parse(
 					frame->type_obj,
-					data->data,
+					data->cursor,
 					frame->length);
 			if(ret != SPDY_ERROR_NONE) {
 				free(frame->type_obj);

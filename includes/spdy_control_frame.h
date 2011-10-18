@@ -32,6 +32,7 @@ enum SPDY_CTRL_TYPES {
  * - Contains all data (including the data payload) of a data frame.
  */
 typedef struct {
+	_Bool _header_parsed;/*!< Determines if the header has been parsed. */
 	uint16_t version;   /*!< 15 bit version */
 	uint16_t type;      /*!< 16 bit type */
 	uint8_t flags;      /*!< 8 bit flags */
@@ -39,10 +40,11 @@ typedef struct {
 	/*@null@*/void *type_obj;     /*!< Frame type object */
 } spdy_control_frame;
 
+int spdy_control_frame_init(spdy_control_frame *frame);
+
 int spdy_control_frame_parse_header(
 		spdy_control_frame *frame,
-		char *data,
-		size_t data_length);
+		spdy_data *data);
 int spdy_control_frame_pack_header(char **out, spdy_control_frame *frame);
 int spdy_control_frame_parse(
 		spdy_control_frame *frame,

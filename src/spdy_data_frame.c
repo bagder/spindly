@@ -20,17 +20,24 @@ const uint8_t SPDY_DATA_FRAME_MIN_LENGTH = 8;
  */
 int spdy_data_frame_parse_header(
 		spdy_data_frame *frame,
-		char *data,
-		size_t data_length) {
-	if(data_length < SPDY_DATA_FRAME_MIN_LENGTH) {
-		SPDYDEBUG("Insufficient data for data frame.");
-		return SPDY_ERROR_INSUFFICIENT_DATA;
+		spdy_data *data) {
+
+	/* Check if the frame header has already been parsed. */
+	if(!frame->stream_id) {
+		size_t length = data->data_end - data->cursor;
+		if(length < SPDY_DATA_FRAME_MIN_LENGTH) {
+			SPDYDEBUG("Insufficient data for data frame.");
+			data->needed = SPDY_DATA_FRAME_MIN_LENGTH - length;
+			return SPDY_ERROR_INSUFFICIENT_DATA;
+		}
+
+		/* Read stream id. (AND removes the first type bit.) */
+		frame->stream_id = BE_LOAD_32(data->cursor) & 0x7FFFFFFF;
+		data->cursor += 4;
+		frame->flags = data->cursor[0];
+		frame->length = BE_LOAD_32(data->cursor) & 0x00FFFFFF;
+		data->cursor += 4;
 	}
-	/* Read stream id. (AND removes the first type bit.) */
-	frame->stream_id = BE_LOAD_32(data) & 0x7FFFFFFF;
-	data += 4;
-	frame->flags = data[0];
-	frame->length = BE_LOAD_32(data) & 0x00FFFFFF;
 	return SPDY_ERROR_NONE;
 }
 
@@ -45,18 +52,15 @@ int spdy_data_frame_parse(
 		spdy_data_frame *frame,
 		spdy_data *data) {
 	int ret;
-	ret = spdy_data_frame_parse_header(frame, data->data, data->length);
+	size_t length;
+	ret = spdy_data_frame_parse_header(frame, data);
 	if(ret != SPDY_ERROR_NONE) {
-		SPDYDEBUG("Data frame parse header failed.");
 		return ret;
 	}
 
-	data->length -= SPDY_DATA_FRAME_MIN_LENGTH;
-	data->data += SPDY_DATA_FRAME_MIN_LENGTH;
-	data->used += SPDY_DATA_FRAME_MIN_LENGTH;
-
-	if(frame->length > data->length) {
-		data->needed = frame->length - data->length;
+	length = data->data_end - data->cursor;
+	if(frame->length > length) {
+		data->needed = frame->length - length;
 		SPDYDEBUG("Insufficient data for data frame.");
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
@@ -66,10 +70,8 @@ int spdy_data_frame_parse(
 		SPDYDEBUG("Frame payload malloc failed.");
 		return SPDY_ERROR_MALLOC_FAILED;
 	}
-	memcpy(frame->data, data->data, frame->length);
-	data->length -= frame->length;
-	data->data += frame->length;
-	data->used += frame->length;
+	memcpy(frame->data, data->cursor, frame->length);
+	data->cursor += frame->length;
 
 	return SPDY_ERROR_NONE;
 }

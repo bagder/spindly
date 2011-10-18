@@ -27,7 +27,7 @@ typedef struct {
 	spdy_nv_block *nv_block; /*!< Name/Value block */
 } spdy_syn_reply;
 
-int spdy_syn_reply_parse_header(spdy_syn_reply *syn_reply, char *data, size_t data_length);
+int spdy_syn_reply_parse_header(spdy_syn_reply *syn_reply, spdy_data *data);
 int spdy_syn_reply_parse(
 		spdy_syn_reply *syn_reply,
 		spdy_data *data,

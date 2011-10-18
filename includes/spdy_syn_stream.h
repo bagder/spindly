@@ -31,7 +31,7 @@ typedef struct {
 	spdy_nv_block *nv_block; /*!< Name/Value block */
 } spdy_syn_stream;
 
-int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, char *data, size_t data_length);
+int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, spdy_data *data);
 int spdy_syn_stream_parse(
 		spdy_syn_stream *syn_stream,
 		spdy_data *data,

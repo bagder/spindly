@@ -14,11 +14,9 @@ spdy_data *spdy_data_use(
 		spdy_data *data,
 		char *data_in,
 		size_t length) {
-	data->data_in = data_in;
 	data->data = data_in;
-	data->length_in = length;
-	data->length = length;
-	data->used = 0;
+	data->data_end = data_in + length;
+	data->cursor = data->data;
 	data->needed = 0;
 	return data;
 }
@@ -27,6 +25,7 @@ spdy_data *spdy_data_use(
  * Copy the data from one spdy_data structure into another.
  * @param data_out - Target spdy_data object.
  * @param data_in  - Source spdy_data object.
+ * @todo Check if this is really portable.
  * @return Void. Can't fail.
  */
 void spdy_data_copy(
