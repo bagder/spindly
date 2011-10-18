@@ -115,7 +115,7 @@ int spdy_zlib_deflate(char *src, uint32_t length, size_t *data_used, char **dest
 	assert(ret == Z_STREAM_END);
 
 	deflateEnd(&strm);
-	return 0;
+	return SPDY_ERROR_NONE;
 }
 
 /**
@@ -135,7 +135,7 @@ int spdy_zlib_inflate_init(spdy_zlib_context *ctx) {
 	if(ret != Z_OK) {
 		return SPDY_ERROR_ZLIB_INFLATE_INIT_FAILED;
 	}
-	return 0;
+	return SPDY_ERROR_NONE;
 }
 
 /**

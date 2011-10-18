@@ -65,7 +65,7 @@ int spdy_frame_parse_header(
 			/** This should never happen. */
 			return SPDY_ERROR_INVALID_DATA;
 	}
-	return 0;
+	return SPDY_ERROR_NONE;
 }
 
 /**

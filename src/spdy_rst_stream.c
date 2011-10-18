@@ -29,6 +29,6 @@ int spdy_rst_stream_parse(spdy_rst_stream *rst_stream, char *data, size_t data_l
 	/* Read the status code. */
 	rst_stream->status_code = BE_LOAD_32(data);
 
-	return 0;
+	return SPDY_ERROR_NONE;
 }
 

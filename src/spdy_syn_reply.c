@@ -32,7 +32,7 @@ int spdy_syn_reply_parse_header(spdy_syn_reply *syn_reply, char *data, size_t da
 	/* Skip Stream-ID and 2 bytes of unused space. */
 	data += 6;
 
-	return 0;
+	return SPDY_ERROR_NONE;
 }
 
 /**
@@ -84,6 +84,6 @@ int spdy_syn_reply_parse(
 	}
 	data->used += frame_length-SPDY_SYN_REPLY_HEADER_MIN_LENGTH;
 
-	return 0;
+	return SPDY_ERROR_NONE;
 }
 

@@ -39,6 +39,7 @@ int spdy_nv_block_parse(
 
 	/* Read the 16 bit integer containing the number of name/value pairs. */
 	nv_block->count = BE_LOAD_16(data);
+	/* TODO: Fix this. There shouldn't be any asserts in the code! */
 	assert(nv_block->count > 0);
 
 	/* Allocate memory for Name/Value pairs. */
@@ -104,9 +105,10 @@ int spdy_nv_block_parse(
 		data += item_length;
 	}
 
-	return 0;
+	return SPDY_ERROR_NONE;
 }
 
+/* TODO: Test & documentation. Do not use yet! */
 int spdy_nv_block_inflate_parse(
 		spdy_nv_block *nv_block,
 		char *data,
@@ -176,12 +178,18 @@ int spdy_nv_block_pack(
 		SPDYDEBUG("Memoy allocation failed.");
 		return SPDY_ERROR_MALLOC_FAILED;
 	}
+	/* Cursor always points to the location in dest where we're working. */
 	cursor = *dest;
 
+	/* 2-bytes for the number of NV-pairs that follow. */
 	BE_STORE_16(cursor, nv_block->count);
 	cursor += 2;
+
 	for(i=0; i < nv_block->count; i++) {
 		uint16_t length;
+
+		/* Read the length and copy the data of each name/value into the
+		 * destination buffer. */
 		length = strlen(nv_block->pairs[i].name);
 		BE_STORE_16(cursor, length);
 		memcpy(
@@ -197,7 +205,7 @@ int spdy_nv_block_pack(
 				length);
 		cursor += length+2;
 	}
-	return 0;
+	return SPDY_ERROR_NONE;
 }
 
 /**

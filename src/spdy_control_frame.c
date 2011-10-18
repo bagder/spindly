@@ -40,7 +40,7 @@ int spdy_control_frame_parse_header(
 	frame->flags = (uint8_t)data[0];
 	/* Read four byte, including the flags byte and removing it with the AND. */
 	frame->length = BE_LOAD_32(data) & 0x00FFFFFF;
-	return 0;
+	return SPDY_ERROR_NONE;
 }
 
 /**
@@ -177,7 +177,7 @@ int spdy_control_frame_pack_header(char **out, spdy_control_frame *frame) {
 	/* The flags are set after the length is written, because elsewise
 	 * the flags would get overwritten by the length. */
 	dat[0] = frame->flags;
-	return 0;
+	return SPDY_ERROR_NONE;
 }
 
 /**
