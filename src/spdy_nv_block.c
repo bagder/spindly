@@ -9,6 +9,88 @@
 #include <assert.h>
 
 /**
+ * Allocate and initialize an NV pair.
+ *
+ * @param pair - Pair to create
+ * @see spdy_nv_pair
+ * @return Errorcode
+ */
+int spdy_nv_pair_create(spdy_nv_pair **pair) {
+	*pair = malloc(sizeof(spdy_nv_pair));
+	if(!(*pair)) {
+		return SPDY_ERROR_MALLOC_FAILED;
+	}
+
+	return spdy_nv_pair_init(*pair);
+}
+
+/**
+ * Initialize an already allocated NV pair with sane default values.
+ *
+ * @param pair - Pair to initialize
+ * @see spdy_nv_pair
+ * @return Errorcode
+ */
+int spdy_nv_pair_init(spdy_nv_pair *pair) {
+	pair->name = NULL;
+	pair->values_count = 0;
+	pair->values = NULL;
+	return SPDY_ERROR_NONE;
+}
+
+/**
+ * Destroy and free an NV pair created by spdy_nv_pair_create.
+ *
+ * @param pair - Pair to destroy
+ * @see spdy_nv_pair
+ * @return Errorcode
+ */
+int spdy_nv_pair_destroy(spdy_nv_pair **pair) {
+	/* Free name & values */
+	if((*pair)->name) {
+		free((*pair)->name);
+	}
+	if((*pair)->values) {
+		free((*pair)->values);
+	}
+
+	free(*pair);
+	*pair = NULL;
+	return SPDY_ERROR_NONE;
+}
+
+/**
+ * Allocate and initialize an NV block.
+ *
+ * @param block - Block to initialize
+ * @see spdy_nv_block
+ * @return Errorcode
+ */
+int spdy_nv_block_create(spdy_nv_block **block) {
+	*block = malloc(sizeof(spdy_nv_block));
+	if(!(*block)) {
+		return SPDY_ERROR_MALLOC_FAILED;
+	}
+
+	return spdy_nv_block_init(*block);
+}
+
+/**
+ * Initialize an NV block.
+ *
+ * @param block - NV block to initialize
+ * @see spdy_nv_block
+ * @return Errorcode
+ */
+int spdy_nv_block_init(spdy_nv_block *block) {
+	block->has_count = 0;
+	block->count = 0;
+	block->pairs_parsed = 0;
+	block->pairs = NULL;
+	return SPDY_ERROR_NONE;
+}
+
+/**
  * Parse a Name/Value block payload.
  * @param nv_block - Target block.
  * @param data - Data to parse.
@@ -20,89 +102,105 @@
  * @return Errorcode
  */
 int spdy_nv_block_parse(
-		spdy_nv_block *nv_block,
+		spdy_nv_block *block,
 		char *data,
 		size_t data_length) {
 	/* The bounds of data. */
 	char *data_max = data + data_length;
 
 	/* For the for-loop: */
-	int i;
-	uint16_t item_length;
-	size_t size;
 
-	/* Data must at least contain the number of NV pairs. */
-	if(data_length < 2) {
-		SPDYDEBUG("Data to small.");
-		return SPDY_ERROR_INSUFFICIENT_DATA;
+	/* Parsing block pair count */
+	if(!block->has_count) {
+		/* Data must at least contain the number of NV pairs. */
+		if(data_length < 2) {
+			SPDYDEBUG("Data to small.");
+			return SPDY_ERROR_INSUFFICIENT_DATA;
+		}
+
+		/* Read the 16 bit integer containing the number of name/value pairs. */
+		block->count = BE_LOAD_16(data);
+		block->has_count = 1;
+		block->pairs_parsed = 0;
+		/* Move forward by two bytes. */
+		data += 2;
+		if(block->count == 0) {
+			block->pairs = NULL;
+			return SPDY_ERROR_NONE;
+		}
+
+		/* Allocate memory for Name/Value pairs. */
+		block->pairs = calloc(block->count, sizeof(spdy_nv_pair));
+		/* Malloc failed */
+		if(!block->pairs) {
+			SPDYDEBUG("Malloc of pairs failed.");
+			return SPDY_ERROR_MALLOC_FAILED;
+		}
 	}
+	/* End of parsing block pair count */
 
-	/* Read the 16 bit integer containing the number of name/value pairs. */
-	nv_block->count = BE_LOAD_16(data);
-	/* TODO: Fix this. There shouldn't be any asserts in the code! */
-	assert(nv_block->count > 0);
-
-	/* Allocate memory for Name/Value pairs. */
-	nv_block->pairs = calloc(nv_block->count, sizeof(spdy_nv_pair));
-	/* Malloc failed */
-	if(!nv_block->pairs) {
-		SPDYDEBUG("Malloc of pairs failed.");
-		return SPDY_ERROR_MALLOC_FAILED;
-	}
-
-	/* Move forward by two bytes. */
-	data += 2;
 
 	/* Loop through all pairs */
-	for(i=0; i < nv_block->count; i++) {
+	for(; block->pairs_parsed < block->count; block->pairs_parsed++) {
+		size_t size;
 		spdy_nv_pair *pair;
+		uint16_t tmp_item_length;
+
 		if(data+2 > data_max) {
 			SPDYDEBUG("Data to small.");
 			return SPDY_ERROR_INSUFFICIENT_DATA;
 		}
-		pair = &nv_block->pairs[i];
+
+		pair = &block->pairs[block->pairs_parsed];
 
 		/* Read Name */
 		/* Read length of name */
-		item_length = BE_LOAD_16(data);
+		tmp_item_length = BE_LOAD_16(data);
 		data += 2;
 		/* Allocate space for name */
-		size = (sizeof(char)*item_length)+1;
-		if(data+item_length > data_max) {
+		size = (sizeof(char) * tmp_item_length) + 1;
+		if(data+tmp_item_length > data_max) {
 			SPDYDEBUG("Data to small.");
 			return SPDY_ERROR_INSUFFICIENT_DATA;
 		}
+
 		pair->name = malloc(size);
 		if(!pair->name) {
 			SPDYDEBUG("Pair name malloc failed.");
 			return SPDY_ERROR_MALLOC_FAILED;
 		}
-		memcpy(pair->name, data, item_length);
-		pair->name[item_length] = '\0';
-		data += item_length;
+		memcpy(pair->name, data, tmp_item_length);
+		pair->name[tmp_item_length] = '\0';
+		data += tmp_item_length;
+		/* End of read name */
 
 		/* Read Values */
+		/* TODO: Support multiple values. */
 		/* Read length of value */
 		if(data+2 > data_max) {
 			SPDYDEBUG("Data to small.");
+			free(pair->name);
 			return SPDY_ERROR_INSUFFICIENT_DATA;
 		}
-		item_length = BE_LOAD_16(data);
+		tmp_item_length = BE_LOAD_16(data);
 		data += 2;
 		/* Allocate space for values */
-		size = (sizeof(char)*item_length)+1;
-		if(data+item_length > data_max) {
+		size = (sizeof(char)*tmp_item_length)+1;
+		if(data+tmp_item_length > data_max) {
 			SPDYDEBUG("Insufficient data for block parse.");
+			free(pair->name);
 			return SPDY_ERROR_INSUFFICIENT_DATA;
 		}
 		pair->values = malloc(size);
-		if(!pair->name) {
+		if(!pair->values) {
 			SPDYDEBUG("Pair value malloc failed.");
+			free(pair->name);
 			return SPDY_ERROR_MALLOC_FAILED;
 		}
-		memcpy(pair->values, data, item_length);
-		pair->values[item_length] = '\0';
-		data += item_length;
+		memcpy(pair->values, data, tmp_item_length);
+		pair->values[tmp_item_length] = '\0';
+		data += tmp_item_length;
+		/* End of read value */
 	}
 
 	return SPDY_ERROR_NONE;

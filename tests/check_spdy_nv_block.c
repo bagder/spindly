@@ -1,5 +1,6 @@
 #include "check_spdy_nv_block.h"
 #include "spdy_nv_block.h"
+#include "spdy_error.h"
 #include <string.h>
 
 #include "testdata.h"
@@ -21,8 +22,19 @@ spdy_nv_pair test_nv_pairs[] = {
 START_TEST (test_spdy_nv_block_parse)
 {
 	spdy_nv_block nv_block;
-	int ret = spdy_nv_block_parse(&nv_block, test_nv_block,436);
+	int ret = spdy_nv_block_parse(&nv_block, test_nv_block,400);
 	int i;
+
+	spdy_nv_block_init(&nv_block);
+	/* Test with insufficient data. */
+	/* TODO: Check pairs_parsed count etc. */
+	ret = spdy_nv_block_parse(&nv_block, test_nv_block,400);
+	fail_unless(ret == SPDY_ERROR_INSUFFICIENT_DATA,
+			"Couldn't determine that data was insufficient.");
+
+	spdy_nv_block_init(&nv_block);
+	/* Test with right amount of data. */
+	ret = spdy_nv_block_parse(&nv_block, test_nv_block,436);
 	/* Check return value */
 	fail_unless(ret == 0, "spdy_nv_block_parse failed.");
 	/* Check pair number */

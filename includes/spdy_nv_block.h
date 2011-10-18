@@ -6,25 +6,39 @@
 
 #include "spdy_zlib.h"
 
+typedef struct spdy_nv_pair spdy_nv_pair;
+typedef struct spdy_nv_block spdy_nv_block;
+
 /**
  * Name/Value Pair
  * Contains the name and the values of a single Name/Value pair.
  */
-typedef struct {
+struct spdy_nv_pair{
 	char *name;            /*!< Name of the values */
 	uint16_t values_count; /*!< Number of values */
 	char *values;          /*!< Values */
-} spdy_nv_pair;
+};
 
 /**
  * Name/Value Header Block
  * Structure for holding data from a name/value header like in
  * in SYN_STREAM and SYN_REPLY.
  */
-typedef struct {
+struct spdy_nv_block {
+	_Bool has_count;     /*!< Determines if the count has been parsed. */
 	uint16_t count;      /*!< Number of Name/Value pairs */
+	uint16_t pairs_parsed; /*!< Number of pairs that have been parsed. */
 	spdy_nv_pair *pairs; /*!< Array of Name/Value pairs */
-} spdy_nv_block;
+};
+
+/* NV pair functions */
+int spdy_nv_pair_create(spdy_nv_pair **pair);
+int spdy_nv_pair_init(spdy_nv_pair *pair);
+int spdy_nv_pair_destroy(spdy_nv_pair **pair);
+
+/* NV block functions */
+int spdy_nv_block_create(spdy_nv_block **block);
+int spdy_nv_block_init(spdy_nv_block *block);
 
 int spdy_nv_block_parse(
 		spdy_nv_block *nv_block,
