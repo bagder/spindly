@@ -36,13 +36,13 @@ END_TEST
 
 START_TEST (test_spdy_data_frame_pack_header)
 {
-	spdy_data_frame frame = {
-		.stream_id = 1,
-		.flags = 1,
-		.length = 0
-	};
-	char *out=NULL;
-	int ret = spdy_data_frame_pack_header(&out, &frame);
+	spdy_data_frame frame;
+	char *out = NULL;
+	int ret;
+	frame.stream_id = 1;
+	frame.flags = 1;
+	frame.length = 0;
+	ret = spdy_data_frame_pack_header(&out, &frame);
 	fail_unless(ret == 0, "spdy_data_frame_pack_header failed.");
 	fail_unless(memcmp(out, test_data_frame_header, 8) == 0, "Packed data is invalid.");
 }

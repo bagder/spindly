@@ -22,12 +22,13 @@ START_TEST (test_spdy_nv_block_parse)
 {
 	spdy_nv_block nv_block;
 	int ret = spdy_nv_block_parse(&nv_block, test_nv_block,436);
-	// Check return value
+	int i;
+	/* Check return value */
 	fail_unless(ret == 0, "spdy_nv_block_parse failed.");
-	// Check pair number
+	/* Check pair number */
 	fail_unless(nv_block.count == 11, "Number of pairs is wrong.");
-	// Check names and values
-	for(int i=0;i< nv_block.count;i++) {
+	/* Check names and values */
+	for(i=0;i< nv_block.count;i++) {
 		fail_unless(strcmp(nv_block.pairs[i].name, test_nv_pairs[i].name) == 0, "Valuename is wrong.");
 		fail_unless(strcmp(nv_block.pairs[i].values, test_nv_pairs[i].values) == 0, "Value is wrong.");
 	}
@@ -37,13 +38,13 @@ END_TEST
 START_TEST (test_spdy_nv_block_pack)
 {
 
-	spdy_nv_block nv_block = {
-		.count = 3,
-		.pairs = test_nv_pairs
-	};
+	spdy_nv_block nv_block;
 	char *dest;
 	size_t dest_size;
-	int ret = spdy_nv_block_pack(&dest, &dest_size, &nv_block);
+	int ret;
+	nv_block.count = 3;
+	nv_block.pairs = test_nv_pairs;
+	ret = spdy_nv_block_pack(&dest, &dest_size, &nv_block);
 	fail_unless(ret == 0, "spdy_nv_block_pack failed.");
 }
 END_TEST
