@@ -10,9 +10,9 @@
  * Can be used with a format string, logs file line and function if
  * compiled with -DDEBUG.
  */
-#define SPDYDEBUG(...) \
+#define SPDYDEBUG(msg) \
 	fprintf(stderr, "%s:%d:%s: ", __FILE__, __LINE__, __func__); \
-	fprintf(stderr, __VA_ARGS__); \
+	fprintf(stderr, msg); \
 	fprintf(stderr, "\n");
 #else
 #define SPDYDEBUG(...)

@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-// Length of a RST_STREAM frame.
+/** Length of a RST_STREAM frame. */
 extern const uint8_t SPDY_RST_STREAM_LENGTH;
 
 /**

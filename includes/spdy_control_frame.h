@@ -7,7 +7,7 @@
 #include "spdy_data.h"
 #include "spdy_zlib.h"
 
-// Minimum length of a control frame.
+/** Minimum length of a control frame.*/
 extern const uint8_t SPDY_CONTROL_FRAME_MIN_LENGTH;
 
 /**

@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Minimum length of a data frame.
+/* Minimum length of a data frame. */
 const uint8_t SPDY_DATA_FRAME_MIN_LENGTH = 8;
 
 /**
@@ -26,7 +26,7 @@ int spdy_data_frame_parse_header(
 		SPDYDEBUG("Insufficient data for data frame.");
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
-	// Read stream id. (AND removes the first type bit.)
+	/* Read stream id. (AND removes the first type bit.) */
 	frame->stream_id = BE_LOAD_32(data) & 0x7FFFFFFF;
 	data += 4;
 	frame->flags = data[0];
@@ -82,8 +82,9 @@ int spdy_data_frame_parse(
  * @return Errorcode
  */
 int spdy_data_frame_pack_header(char **out, spdy_data_frame *frame) {
+	char *dat;
 	*out = malloc(sizeof(char)*8);
-	char *dat = *out;
+	dat = *out;
 	if(!dat) {
 		SPDYDEBUG("Allocation of destination buffer failed.");
 		return SPDY_ERROR_MALLOC_FAILED;
@@ -91,8 +92,8 @@ int spdy_data_frame_pack_header(char **out, spdy_data_frame *frame) {
 	BE_STORE_32(dat, (frame->stream_id & 0x8FFFFFFF));
 	dat += 4;
 	BE_STORE_32(dat, frame->length);
-	// The flags are set after the legnth is writte, because
-	// elsewise the flags would get overwritten by the length.
+	/* The flags are set after the legnth is writte, because
+	 * elsewise the flags would get overwritten by the length. */
 	dat[0] = frame->flags;
 	return SPDY_ERROR_NONE;
 }

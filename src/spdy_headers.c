@@ -42,18 +42,18 @@ int spdy_headers_parse(
 		return ret;
 	}
 
-	// Skip the (already parsed) header.
+	/* Skip the (already parsed) header. */
 	data->data += SPDY_HEADERS_MIN_LENGTH;
 	data->length -= SPDY_HEADERS_MIN_LENGTH;
 	data->used += SPDY_HEADERS_MIN_LENGTH;
 
-	// Parse NV block.
+	/* Parse NV block. */
 	if((ret = spdy_nv_block_inflate_parse(
 					headers->nv_block,
 					data->data,
 					frame_length,
 					zlib_ctx)) != SPDY_ERROR_NONE) {
-		// Clean up.
+		/* Clean up. */
 		SPDYDEBUG("Failed to parse NV block.");
 		return ret;
 	}

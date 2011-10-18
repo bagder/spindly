@@ -24,9 +24,9 @@ int spdy_rst_stream_parse(spdy_rst_stream *rst_stream, char *data, size_t data_l
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
 
-	// Read the Stream-ID.
+	/* Read the Stream-ID. */
 	rst_stream->stream_id = BE_LOAD_32(data) & 0x7FFFFFFF;
-	// Read the status code.
+	/* Read the status code. */
 	rst_stream->status_code = BE_LOAD_32(data);
 
 	return 0;

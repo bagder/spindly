@@ -23,45 +23,49 @@ int spdy_nv_block_parse(
 		spdy_nv_block *nv_block,
 		char *data,
 		size_t data_length) {
-	// The bounds of data.
+	/* The bounds of data. */
 	char *data_max = data + data_length;
 
-	// Data must at least contain the number of NV pairs.
+	/* For the for-loop: */
+	int i;
+	uint16_t item_length;
+	size_t size;
+
+	/* Data must at least contain the number of NV pairs. */
 	if(data_length < 2) {
 		SPDYDEBUG("Data to small.");
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
 
-	// Read the 16 bit integer containing the number of name/value pairs.
+	/* Read the 16 bit integer containing the number of name/value pairs. */
 	nv_block->count = BE_LOAD_16(data);
 	assert(nv_block->count > 0);
 
-	// Allocate memory for Name/Value pairs.
+	/* Allocate memory for Name/Value pairs. */
 	nv_block->pairs = calloc(nv_block->count, sizeof(spdy_nv_pair));
-	// Malloc failed
+	/* Malloc failed */
 	if(!nv_block->pairs) {
 		SPDYDEBUG("Malloc of pairs failed.");
 		return SPDY_ERROR_MALLOC_FAILED;
 	}
 
-	// Move forward by two bytes.
+	/* Move forward by two bytes. */
 	data += 2;
 
-	uint16_t item_length;
-	size_t size;
-	// Loop through all pairs
-	for(int i=0; i < nv_block->count; i++) {
+	/* Loop through all pairs */
+	for(i=0; i < nv_block->count; i++) {
+		spdy_nv_pair *pair;
 		if(data+2 > data_max) {
 			SPDYDEBUG("Data to small.");
 			return SPDY_ERROR_INSUFFICIENT_DATA;
 		}
-		spdy_nv_pair *pair = &nv_block->pairs[i];
+		pair = &nv_block->pairs[i];
 
-		// Read Name
-		// Read length of name
+		/* Read Name */
+		/* Read length of name */
 		item_length = BE_LOAD_16(data);
 		data += 2;
-		// Allocate space for name
+		/* Allocate space for name */
 		size = (sizeof(char)*item_length)+1;
 		if(data+item_length > data_max) {
 			SPDYDEBUG("Data to small.");
@@ -76,15 +80,15 @@ int spdy_nv_block_parse(
 		pair->name[item_length] = '\0';
 		data += item_length;
 
-		// Read Values
-		// Read length of value
+		/* Read Values */
+		/* Read length of value */
 		if(data+2 > data_max) {
 			SPDYDEBUG("Data to small.");
 			return SPDY_ERROR_INSUFFICIENT_DATA;
 		}
 		item_length = BE_LOAD_16(data);
 		data += 2;
-		// Allocate space for values
+		/* Allocate space for values */
 		size = (sizeof(char)*item_length)+1;
 		if(data+item_length > data_max) {
 			SPDYDEBUG("Insufficient data for block parse.");
@@ -110,7 +114,7 @@ int spdy_nv_block_inflate_parse(
 		spdy_zlib_context *zlib_ctx) {
 	int ret;
 
-	// Inflate NV block.
+	/* Inflate NV block. */
 	char *inflate = NULL;
 	size_t inflate_size = 0;
 	
@@ -124,12 +128,12 @@ int spdy_nv_block_inflate_parse(
 		return ret;
 	}
 
-	// Parse NV block.
+	/* Parse NV block. */
 	if((ret = spdy_nv_block_parse(
 					nv_block,
 					inflate,
 					inflate_size)) != SPDY_ERROR_NONE) {
-		// Clean up.
+		/* Clean up. */
 		free(inflate);
 		free(nv_block);
 		SPDYDEBUG("Failed to parse NV block.");
@@ -153,29 +157,31 @@ int spdy_nv_block_pack(
 		char **dest,
 		size_t *dest_size,
 		spdy_nv_block *nv_block) {
-	*dest = NULL;
+	int i;
+	char *cursor;
 
-	// Two bytes for the number of pairs.
+	*dest = NULL;
+	/* Two bytes for the number of pairs. */
 	*dest_size = 2;
-	// Calculate the size needed for the ouput buffer.
-	for(int i=0; i < nv_block->count; i++) {
-		// Two bytes (length) + stringlength
+	/* Calculate the size needed for the ouput buffer. */
+	for(i=0; i < nv_block->count; i++) {
+		/* Two bytes (length) + stringlength */
 		*dest_size += 2+strlen(nv_block->pairs[i].name);
 		*dest_size += 2+strlen(nv_block->pairs[i].values);
 	}
 
-	// Allocate memory for dest
+	/* Allocate memory for dest */
 	*dest = malloc(sizeof(char)*(*dest_size));
 	if(!*dest) {
 		SPDYDEBUG("Memoy allocation failed.");
 		return SPDY_ERROR_MALLOC_FAILED;
 	}
-	char *cursor = *dest;
+	cursor = *dest;
 
 	BE_STORE_16(cursor, nv_block->count);
 	cursor += 2;
-	uint16_t length;
-	for(int i=0; i < nv_block->count; i++) {
+	for(i=0; i < nv_block->count; i++) {
+		uint16_t length;
 		length = strlen(nv_block->pairs[i].name);
 		BE_STORE_16(cursor, length);
 		memcpy(
@@ -202,7 +208,8 @@ int spdy_nv_block_pack(
 void spdy_nv_block_destroy(spdy_nv_block *nv_block) {
 	if(nv_block) {
 		if(nv_block->pairs) {
-			for(int i=0; i < nv_block->count; i++) {
+			int i;
+			for(i=0; i < nv_block->count; i++) {
 				free(nv_block->pairs[i].name);
 				free(nv_block->pairs[i].values);
 			}

@@ -10,7 +10,7 @@
 #include <netinet/in.h>
 #include <stdlib.h>
 
-// Minimum length of a control frame.
+/** Minimum length of a control frame. */
 const uint8_t SPDY_CONTROL_FRAME_MIN_LENGTH = 8;
 
 /**
@@ -30,15 +30,15 @@ int spdy_control_frame_parse_header(
 		SPDYDEBUG("Insufficient data for control frame.");
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
-	// Read SPDY version. (AND is there to remove the first bit
-	// which is used as frame type identifier.
+	/* Read SPDY version. (AND is there to remove the first bit
+	 * which is used as frame type identifier. */
 	frame->version = BE_LOAD_16(data) & 0x7FFF;
 	data += 2;
 	frame->type = BE_LOAD_16(data);
 	data += 2;
-	// Read one byte
+	/* Read one byte */
 	frame->flags = (uint8_t)data[0];
-	// Read four byte, including the flags byte and removing it with the AND.
+	/* Read four byte, including the flags byte and removing it with the AND. */
 	frame->length = BE_LOAD_32(data) & 0x00FFFFFF;
 	return 0;
 }
@@ -61,13 +61,12 @@ int spdy_control_frame_parse(
 		SPDYDEBUG("Control frame parse header failed.");
 		return ret;
 	}
-	// Remove the header length from data_length.
+	/* Remove the header length from data_length. */
 	data->length -= SPDY_CONTROL_FRAME_MIN_LENGTH;
 	data->data += SPDY_CONTROL_FRAME_MIN_LENGTH;
 	data->used += SPDY_CONTROL_FRAME_MIN_LENGTH;
 
-	// TODO: Check if control_frame_min_length is contained in length
-	// or not!
+	/* TODO: Check if control_frame_min_length is contained in length or not */
 	if(frame->length > data->length) {
 		data->needed = frame->length - data->length;
 		SPDYDEBUG("Insufficient data for control frame.");
@@ -75,7 +74,6 @@ int spdy_control_frame_parse(
 	}
 
 	switch(frame->type) {
-		// SYN_STREAM HANDLING
 		case SPDY_CTRL_SYN_STREAM:
 			frame->type_obj = malloc(sizeof(spdy_syn_stream));
 			if(frame->type_obj == NULL) {
@@ -96,7 +94,6 @@ int spdy_control_frame_parse(
 			}
 			break;
 
-			// SYN_REPLY HANDLING
 		case SPDY_CTRL_SYN_REPLY:
 			frame->type_obj = malloc(sizeof(spdy_syn_reply));
 			if(!frame->type_obj) {
@@ -116,7 +113,6 @@ int spdy_control_frame_parse(
 			}
 			break;
 
-		// RST_STREAM HANDLING
 		case SPDY_CTRL_RST_STREAM:
 			frame->type_obj = malloc(sizeof(spdy_rst_stream));
 			if(!frame->type_obj) {
@@ -164,21 +160,22 @@ int spdy_control_frame_parse(
  * @return SPDY_ERRORS
  */
 int spdy_control_frame_pack_header(char **out, spdy_control_frame *frame) {
+	char *dat;
 	*out = malloc(sizeof(char)*8);
-	char *dat = *out;
+	dat = *out;
 	if(!dat) {
 		SPDYDEBUG("Allocation of destination buffer failed.");
 		return SPDY_ERROR_MALLOC_FAILED;
 	}
-	// The OR sets the first bit to true, indicating that this is a
-	// control frame.
+	/* The OR sets the first bit to true, indicating that this is a
+	 * control frame. */
 	BE_STORE_16(dat, (frame->version | 0x8000));
 	dat += 2;
 	BE_STORE_16(dat, frame->type);
 	dat += 2;
 	BE_STORE_32(dat, frame->length);
-	// The flags are set after the length is written, because elsewise
-	// the flags would get overwritten by the length.
+	/* The flags are set after the length is written, because elsewise
+	 * the flags would get overwritten by the length. */
 	dat[0] = frame->flags;
 	return 0;
 }

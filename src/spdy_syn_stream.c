@@ -28,15 +28,15 @@ int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, char *data, size_t
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
 
-	// Read the Stream-ID.
+	/* Read the Stream-ID. */
 	syn_stream->stream_id = BE_LOAD_32(data) & 0x7FFFFFFF;
 	data += 4;
-	// Read the 'Associated-To-Stream-ID'.
+	/* Read the 'Associated-To-Stream-ID'. */
 	syn_stream->associated_to = BE_LOAD_32(data) & 0x7FFFFFFF;
 	data += 4;
-	// Read the two priority bits.
+	/* Read the two priority bits. */
 	syn_stream->priority = (data[0] & 0xC0) >> 6;
-	// Skip the unused block.
+	/* Skip the unused block. */
 	data += 2;
 
 	return SPDY_ERROR_NONE;
@@ -65,14 +65,14 @@ int spdy_syn_stream_parse(
 		SPDYDEBUG("Not enough data for parsing the stream.");
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
-	//TODO: Optimize the double length check away.
+	/* TODO: Optimize the double length check away. */
 	if(data->length < SPDY_SYN_STREAM_MIN_LENGTH) {
 		data->needed = SPDY_SYN_STREAM_MIN_LENGTH;
 		SPDYDEBUG("Not enough data for parsing the stream.");
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
 
-	// Parse the frame header.
+	/* Parse the frame header. */
 	if((ret = spdy_syn_stream_parse_header(
 					syn_stream,
 					data->data,
@@ -81,25 +81,25 @@ int spdy_syn_stream_parse(
 		return ret;
 	}
 
-	// Skip the (already parsed) header.
+	/* Skip the (already parsed) header. */
 	data->data += SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
 	data->length -= SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
 	data->used += SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
 
-	// Allocate memory of NV block.
+	/* Allocate memory of NV block. */
 	syn_stream->nv_block = malloc(sizeof(spdy_nv_block));
 	if(!syn_stream->nv_block) {
 		SPDYDEBUG("Allocating space for NV block failed.");
 		return SPDY_ERROR_MALLOC_FAILED;
 	}
 
-	// Parse NV block.
+	/* Parse NV block. */
 	if((ret = spdy_nv_block_inflate_parse(
 					syn_stream->nv_block,
 					data->data,
 					frame_length,
 					zlib_ctx)) != SPDY_ERROR_NONE) {
-		// Clean up.
+		/* Clean up. */
 		SPDYDEBUG("Failed to parse NV block.");
 		return ret;
 	}

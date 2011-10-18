@@ -4,13 +4,13 @@
  * bleeding edge you can check out the git repo:
  *  - git clone http://libspdy.org/git/ libspdy
  *
- * Libspdy is a C (Okay, C99!) implementation of Googles SPDY protocol. Its main goals are:
+ * Libspdy is a C implementation of Googles SPDY protocol. Its main goals are:
  *  - Completely implementing the SPDY protocol standard.
  *  - Being lightweight: As few dependencies as possible. (Right now: zlib (and gzip coming up), as well as Check for the unit tests.)
  *  - High testcoverage: Every function is tested.
  *   - Unittests using Check
  *   - Coverage check using LCOV
- *  - Compiler independent (C99 support is needed.):
+ *  - Compiler independent:
  *   - Tested with gcc and clang
  *  - Platform independent:
  *   - Tested on Linux, Mac OS X and Windows 7.
