@@ -16,6 +16,7 @@ SRCS_SPDY += src/spdy_data_frame.c
 SRCS_SPDY += src/spdy_nv_block.c
 SRCS_SPDY += src/spdy_zlib.c
 SRCS_SPDY += src/spdy_stream.c
+SRCS_SPDY += src/spdy_string.c
 HDRS_SPDY = $(SRCS_SPDY,.c=.h)
 OBJS_SPDY = $(SRCS_SPDY:.c=.o)
 
