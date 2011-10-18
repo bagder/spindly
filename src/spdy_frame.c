@@ -21,13 +21,8 @@ int spdy_frame_parse_header(
 		char *data,
 		size_t data_length)
 {
-	/* Read the type bit
-         * (The mask equals 0x10000000, filtering all but the first bit. Then
-         * we shift it over by 7 digits, giving us a char with a value which
-         * either is 0 or 1.)
-         */
 	int ret;
-	frame->type = (data[0] & 0x80)>>7;
+	frame->type = (data[0] & 0x80)?1:0;
 	frame->frame = NULL;
 	switch(frame->type) {
 		case SPDY_DATA_FRAME:
