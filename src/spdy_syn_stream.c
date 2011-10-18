@@ -1,6 +1,7 @@
 #include "spdy_syn_stream.h"
 #include "spdy_log.h"
 #include "spdy_error.h"
+#include "spdy_bytes.h"
 
 #include <netinet/in.h>
 
@@ -28,10 +29,10 @@ int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, char *data, size_t
 	}
 
 	// Read the Stream-ID.
-	syn_stream->stream_id = ntohl(*((uint32_t*)data)) & 0x7FFFFFFF;
+	syn_stream->stream_id = BE_LOAD_32(data) & 0x7FFFFFFF;
 	data += 4;
 	// Read the 'Associated-To-Stream-ID'.
-	syn_stream->associated_to = ntohl(*((uint32_t*)data)) & 0x7FFFFFFF;
+	syn_stream->associated_to = BE_LOAD_32(data) & 0x7FFFFFFF;
 	data += 4;
 	// Read the two priority bits.
 	syn_stream->priority = (data[0] & 0xC0) >> 6;

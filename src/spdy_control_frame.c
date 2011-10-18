@@ -5,6 +5,7 @@
 #include "spdy_headers.h"
 #include "spdy_log.h"
 #include "spdy_error.h"
+#include "spdy_bytes.h"
 
 #include <netinet/in.h>
 #include <stdlib.h>
@@ -31,14 +32,14 @@ int spdy_control_frame_parse_header(
 	}
 	// Read SPDY version. (AND is there to remove the first bit
 	// which is used as frame type identifier.
-	frame->version = ntohs(*((uint16_t*) data)) & 0x7FFF;
+	frame->version = BE_LOAD_16(data) & 0x7FFF;
 	data += 2;
-	frame->type = ntohs(*((uint16_t*) data));
+	frame->type = BE_LOAD_16(data);
 	data += 2;
 	// Read one byte
 	frame->flags = (uint8_t)data[0];
 	// Read four byte, including the flags byte and removing it with the AND.
-	frame->length = ntohl(*((uint32_t*)data)) & 0x00FFFFFF;
+	frame->length = BE_LOAD_32(data) & 0x00FFFFFF;
 	return 0;
 }
 
@@ -171,11 +172,11 @@ int spdy_control_frame_pack_header(char **out, spdy_control_frame *frame) {
 	}
 	// The OR sets the first bit to true, indicating that this is a
 	// control frame.
-	*(uint16_t*)dat = htons(frame->version | 0x8000);
+	BE_STORE_16(dat, (frame->version | 0x8000));
 	dat += 2;
-	*(uint16_t*)dat = htons(frame->type);
+	BE_STORE_16(dat, frame->type);
 	dat += 2;
-	*(uint32_t*)dat = htonl(frame->length);
+	BE_STORE_32(dat, frame->length);
 	// The flags are set after the length is written, because elsewise
 	// the flags would get overwritten by the length.
 	dat[0] = frame->flags;

@@ -1,6 +1,7 @@
 #include "spdy_nv_block.h"
 #include "spdy_log.h"
 #include "spdy_error.h"
+#include "spdy_bytes.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -32,7 +33,7 @@ int spdy_nv_block_parse(
 	}
 
 	// Read the 16 bit integer containing the number of name/value pairs.
-	nv_block->count = ntohs(*((uint16_t*) data));
+	nv_block->count = BE_LOAD_16(data);
 	assert(nv_block->count > 0);
 
 	// Allocate memory for Name/Value pairs.
@@ -58,7 +59,7 @@ int spdy_nv_block_parse(
 
 		// Read Name
 		// Read length of name
-		item_length = ntohs(*((uint16_t*) data));
+		item_length = BE_LOAD_16(data);
 		data += 2;
 		// Allocate space for name
 		size = (sizeof(char)*item_length)+1;
@@ -81,7 +82,7 @@ int spdy_nv_block_parse(
 			SPDYDEBUG("Data to small.");
 			return SPDY_ERROR_INSUFFICIENT_DATA;
 		}
-		item_length = ntohs(*((uint16_t*) data));
+		item_length = BE_LOAD_16(data);
 		data += 2;
 		// Allocate space for values
 		size = (sizeof(char)*item_length)+1;
@@ -171,19 +172,19 @@ int spdy_nv_block_pack(
 	}
 	char *cursor = *dest;
 
-	*((uint16_t*)cursor) = htons(nv_block->count);
+	BE_STORE_16(cursor, nv_block->count);
 	cursor += 2;
 	uint16_t length;
 	for(int i=0; i < nv_block->count; i++) {
 		length = strlen(nv_block->pairs[i].name);
-		*((uint16_t*)cursor) = htons(length);
+		BE_STORE_16(cursor, length);
 		memcpy(
 				cursor+2,
 				nv_block->pairs[i].name,
 				length);
 		cursor += length+2;
 		length = strlen(nv_block->pairs[i].values);
-		*((uint16_t*)cursor) = htons(length);
+		BE_STORE_16(cursor, length);
 		memcpy(
 				cursor+2,
 				nv_block->pairs[i].values,

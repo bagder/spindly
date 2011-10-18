@@ -1,6 +1,7 @@
 #include "spdy_data_frame.h"
 #include "spdy_log.h"
 #include "spdy_error.h"
+#include "spdy_bytes.h"
 
 #include <netinet/in.h>
 #include <stdlib.h>
@@ -26,10 +27,10 @@ int spdy_data_frame_parse_header(
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
 	// Read stream id. (AND removes the first type bit.)
-	frame->stream_id = ntohl(*((uint32_t*)data)) & 0x7FFFFFFF;
+	frame->stream_id = BE_LOAD_32(data) & 0x7FFFFFFF;
 	data += 4;
 	frame->flags = data[0];
-	frame->length = ntohl(*((uint32_t*)data)) & 0x00FFFFFF;
+	frame->length = BE_LOAD_32(data) & 0x00FFFFFF;
 	return SPDY_ERROR_NONE;
 }
 
@@ -87,9 +88,9 @@ int spdy_data_frame_pack_header(char **out, spdy_data_frame *frame) {
 		SPDYDEBUG("Allocation of destination buffer failed.");
 		return SPDY_ERROR_MALLOC_FAILED;
 	}
-	*(uint32_t*)dat = htonl(frame->stream_id & 0x8FFFFFFF);
+	BE_STORE_32(dat, (frame->stream_id & 0x8FFFFFFF));
 	dat += 4;
-	*(uint32_t*)dat = htonl(frame->length);
+	BE_STORE_32(dat, frame->length);
 	// The flags are set after the legnth is writte, because
 	// elsewise the flags would get overwritten by the length.
 	dat[0] = frame->flags;

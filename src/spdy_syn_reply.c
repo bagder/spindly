@@ -1,6 +1,7 @@
 #include "spdy_syn_reply.h"
 #include "spdy_log.h"
 #include "spdy_error.h"
+#include "spdy_bytes.h"
 
 #include <netinet/in.h>
 
@@ -27,7 +28,7 @@ int spdy_syn_reply_parse_header(spdy_syn_reply *syn_reply, char *data, size_t da
 	}
 
 	// Read the Stream-ID.
-	syn_reply->stream_id = ntohl(*((uint32_t*)data)) & 0x7FFFFFFF;
+	syn_reply->stream_id = BE_LOAD_32(data) & 0x7FFFFFFF;
 	// Skip Stream-ID and 2 bytes of unused space.
 	data += 6;
 

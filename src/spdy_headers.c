@@ -1,6 +1,7 @@
 #include "spdy_headers.h"
 #include "spdy_log.h"
 #include "spdy_error.h"
+#include "spdy_bytes.h"
 
 #include <netinet/in.h>
 
@@ -16,7 +17,7 @@ int spdy_headers_parse_header(
 		return SPDY_ERROR_INSUFFICIENT_DATA;
 	}
 
-	headers->stream_id = ntohl(*((uint32_t*)data)) & 0x7FFFFFFF;
+	headers->stream_id = BE_LOAD_32(data) & 0x7FFFFFFF;
 
 	return SPDY_ERROR_NONE;
 }
