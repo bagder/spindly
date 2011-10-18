@@ -1,0 +1,117 @@
+API guidelines
+==============
+
+- Provide an easy API that provides multiple streams over a single connection
+
+- The exact SPDY functionality and protocol details are not exposed to the
+  application. Usage of this API shall require no intimate knowledge of SPDY.
+
+- Transport layer agnostic. Spindly functions read from and send to memory
+  buffers to allow the application to send/recv data in whatever way it thinks
+  is fine
+
+- No global data, everything thread-safe
+
+- Keep internal data/structs private and hidden from the app
+
+
+Handling of the primary single connection
+=========================================
+
+CONN = spindly_conn_init(SIDE, PROTVER?)
+
+  get a handle for a single (TCP) duplex connection, SIDE is either client
+  or server. Is there a need to ask for a specific protocol version?
+
+RESULT = spindly_conn_feed(CONN, DATA, DATALEN);
+
+  when the application has read data off the transport, this function is called
+  to tell Spindly about more data that has arrived.
+
+RESULT = spindly_conn_demux(CONN, &DEMUX)
+
+  Returns information about incoming data on the connection, split up for
+  consuption accordingly. Subsequent calls will return the next result and so
+  on until there's nothing left to demux - until spindly_conn_feed() is called
+  again to feed it with more data.
+
+  If RESULT is OK, DEMUX will tell which message that was receieved
+
+  SPINDLY_DEMUX_NONE - no more message in the struct, demux more!
+ 
+  SPINDLY_DEMUX_GOAWAY - shut down the entire CONN
+
+  SPINDLY_DEMUX_STREAM_ACK - a previous create new stream request has been
+    acked and the associated STREAM struct can be used/extracted now
+
+  SPINDLY_DEMUX_STREAM_REQ - a request for a new stream was received and you
+    should ack or nack it. see spindly_stream_ack() and spindly_stream_nack()
+
+  SPINDLY_DEMUX_STREAM_KILL - a stream has been closed, the associated STREAM
+    can no longer be used and should be closed. see spindly_stream_close()
+
+  SPINDLY_DEMUX_SETTINGS - one or more settings have been updated, some info
+    about which settings that were updated needs to be provided
+
+  SPINDLY_DEMUX_PING - a ping was received (and a response have been created
+    in the output queue). This is for informational purposes only and there's
+    no extra action required on the application's behalf.
+
+  SPINDLY_DEMUX_STREAM - data or meta-data arrived to a specific STREAM, see
+    spindly_stream_recv()
+
+RESULT = spindly_conn_ready(CONN, &SEND);
+
+  Will return info about the data that CONN holds that is available to send
+  over the transport medium immediately.
+
+RESULT = spindly_conn_sent(CONN, LENGTH);
+
+  Tell Spindly how many bytes of the data that has been sent and should be
+  considered consumed. The CONN will then contain updated information of
+  amount of remaining data to send etc.
+
+RESULT = spindly_conn_settings(CONN, SETTINGS);
+
+  Change one or more settings associated with the connection. This will result
+  in a SPINDLY_DEMUX_SETTINGS message to end up on the remote side.
+
+void spindly_conn_cleanup(CONN);
+
+  Cleanup the entire connection and all associated streams and data.
+
+
+API to handle separate streams over the connection
+==================================================
+
+RESULT = spindly_stream_new(CONN, &STREAM, CUSTOMP);
+
+  Creates a request for a new stream and muxes the request into the output
+  connection, creates a STREAM handle for the new stream and returns the
+  RESULT. The CUSTOMP pointer will be associated with the STREAM to allow the
+  application to identify it.
+
+  Note that the stream is not yet ready to be used until it has been
+  acknowledged by the peer and we get a SPINDLY_DEMUX_STREAM_ACK response.
+
+RESULT = spindly_stream_ack(STREAM);
+
+  The STREAM as requested to get opened by the remote is allowed!
+
+RESULT = spindly_stream_nack(STREAM);
+
+  The STREAM as requested to get opened by the remote is NOT allowed!
+
+RESULT = spindly_stream_close(STREAM);
+
+  Close the STREAM. Can be used as a response to a SPINDLY_DEMUX_STREAM_KILL
+  message or it will generate such a message to the other side.
+
+RESULT = spindly_stream_recv(STREAM, &DATA);
+
+  Receive specific data on or metadata for this specific stream. Meta-data
+  would be header/value pairs or flow control information (and more?)
+
+RESULT = spindly_stream_send(STREAM, (META)DATA, DATALEN);
+
+  Send data or metadata on/for this specific stream.
