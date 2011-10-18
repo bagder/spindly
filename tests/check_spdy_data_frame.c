@@ -1,6 +1,6 @@
 #include "check_spdy_data_frame.h"
-#include "../src/spdy_data_frame.h"
-#include "../src/spdy_error.h"
+#include "spdy_data_frame.h"
+#include "spdy_error.h"
 
 #include "testdata.h"
 

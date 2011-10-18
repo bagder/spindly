@@ -1,5 +1,5 @@
 #include "check_spdy_syn_reply.h"
-#include "../src/spdy_syn_reply.h"
+#include "spdy_syn_reply.h"
 
 #include "testdata.h"
 

@@ -1,7 +1,7 @@
 #include "check_spdy_control_frame.h"
-#include "../src/spdy_data.h"
-#include "../src/spdy_control_frame.h"
-#include "../src/spdy_error.h"
+#include "spdy_data.h"
+#include "spdy_control_frame.h"
+#include "spdy_error.h"
 
 #include "testdata.h"
 

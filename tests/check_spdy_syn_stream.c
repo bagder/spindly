@@ -1,5 +1,5 @@
 #include "check_spdy_syn_stream.h"
-#include "../src/spdy_syn_stream.h"
+#include "spdy_syn_stream.h"
 
 #include "testdata.h"
 

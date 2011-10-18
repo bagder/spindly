@@ -1,6 +1,6 @@
 #include "check_spdy_zlib.h"
-#include "../src/spdy_zlib.h"
-#include "../src/spdy_nv_block.h"
+#include "spdy_zlib.h"
+#include "spdy_nv_block.h"
 
 #include "testdata.h"
 
