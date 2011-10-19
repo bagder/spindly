@@ -62,12 +62,14 @@ int spdy_frame_parse(
 	}
 	switch(frame->type) {
 		case SPDY_CONTROL_FRAME:
-			frame->frame.control = malloc(sizeof(spdy_control_frame));
 			if(!frame->frame.control) {
-				SPDYDEBUG("Control frame malloc failed.");
-				return SPDY_ERROR_MALLOC_FAILED;
+				frame->frame.control = malloc(sizeof(spdy_control_frame));
+				if(!frame->frame.control) {
+					SPDYDEBUG("Control frame malloc failed.");
+					return SPDY_ERROR_MALLOC_FAILED;
+				}
+				spdy_control_frame_init(frame->frame.control);
 			}
-			spdy_control_frame_init(frame->frame.control);
 			ret = spdy_control_frame_parse(
 					frame->frame.control,
 					data,
@@ -78,10 +80,12 @@ int spdy_frame_parse(
 			}
 			break;
 		case SPDY_DATA_FRAME:
-			frame->frame.data = malloc(sizeof(spdy_data_frame));
 			if(!frame->frame.data) {
-				SPDYDEBUG("Data frame malloc failed.");
-				return SPDY_ERROR_MALLOC_FAILED;
+				frame->frame.data = malloc(sizeof(spdy_data_frame));
+				if(!frame->frame.data) {
+					SPDYDEBUG("Data frame malloc failed.");
+					return SPDY_ERROR_MALLOC_FAILED;
+				}
 			}
 
 			ret = spdy_data_frame_parse(

@@ -36,6 +36,8 @@ struct spdy_frame {
 	spdy_frame *next;
 };
 
+int spdy_frame_init(spdy_frame *frame);
+
 int spdy_frame_parse_header(
 		spdy_frame *frame,
 		spdy_data *data);
