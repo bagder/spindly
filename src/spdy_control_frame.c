@@ -51,6 +51,7 @@ int spdy_control_frame_parse_header(
 	/* Read four byte, including the flags byte and removing it with the AND. */
 	frame->length = BE_LOAD_32(data->cursor) & 0x00FFFFFF;
 	data->cursor += 4;
+	frame->_header_parsed = 1;
 	return SPDY_ERROR_NONE;
 }
 
