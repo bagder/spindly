@@ -69,6 +69,13 @@ int spdy_syn_reply_parse(
 		return ret;
 	}
 
+	/* TODO: Check this allocation. */
+	spdy_nv_block *block;
+	if((ret = spdy_nv_block_create(&block))) {
+		return ret;
+	}
+	syn_reply->nv_block = block;
+
 	/* Parse NV block. */
 	if((ret = spdy_nv_block_inflate_parse(
 					syn_reply->nv_block,
