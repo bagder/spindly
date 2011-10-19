@@ -5,6 +5,7 @@
 #include "spdy_data_frame.h"
 #include "spdy_control_frame.h"
 
+
 /**
  * SPDY Stream
  * This structure keeps the whole state of a SPDY stream.
@@ -27,7 +28,8 @@ typedef struct {
 	_Bool rst_sent;
 	uint32_t status_code;
 	uint32_t frames_count;
-	spdy_frame **frames;
+	spdy_frame *frames;
+	spdy_frame *last_frame;
 } spdy_stream;
 
 int spdy_stream_init(

@@ -6,6 +6,13 @@
 
 #include <stdlib.h>
 
+int spdy_frame_init(spdy_frame *frame) {
+	frame->_header_parsed = 0;
+	frame->prev = NULL;
+	frame->next = NULL;
+	return SPDY_ERROR_NONE;
+}
+
 /**
  * Parse the header of a frame.
  * @param frame - Target frame.
@@ -45,10 +52,13 @@ int spdy_frame_parse(
 		spdy_data *data,
 		spdy_zlib_context *zlib_ctx) {
 	int ret;
-	ret = spdy_frame_parse_header(frame, data);
-	if(ret != SPDY_ERROR_NONE) {
-		SPDYDEBUG("Frame parse header failed.");
-		return ret;
+	if(!frame->_header_parsed) {
+		ret = spdy_frame_parse_header(frame, data);
+		if(ret != SPDY_ERROR_NONE) {
+			SPDYDEBUG("Frame parse header failed.");
+			return ret;
+		}
+		frame->_header_parsed = 1;
 	}
 	switch(frame->type) {
 		case SPDY_CONTROL_FRAME:

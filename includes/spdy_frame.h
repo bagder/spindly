@@ -22,14 +22,19 @@ enum SPDY_FRAME_TYPE {
  * Indicates the type of the frame and keeps a pointer to a
  * control or data frame.
  */
-typedef struct {
+typedef struct spdy_frame spdy_frame;
+struct spdy_frame {
 	_Bool _header_parsed;
 	enum SPDY_FRAME_TYPE type; /*!< Type of the frame */
 	union {
 		spdy_control_frame *control;
 		spdy_data_frame *data;
 	} frame;
-} spdy_frame;
+
+	/* Used to chain related frames. */
+	spdy_frame *prev;
+	spdy_frame *next;
+};
 
 int spdy_frame_parse_header(
 		spdy_frame *frame,

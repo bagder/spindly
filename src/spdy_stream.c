@@ -48,23 +48,14 @@ int spdy_stream_handle_frame(spdy_stream *stream, spdy_frame *frame) {
 		SPDYDEBUG("Already received RST.");
 		return SPDY_ERROR_STREAM_RST;
 	}
-	if(stream->store_frames) {
-		/* Reallocate space for frames pointer. */
-		spdy_frame **frames_new = realloc(
-				stream->frames,
-				sizeof(spdy_stream*)*(stream->frames_count+1));
 
-		/* If allocation failed, we return but keep the frames pointer untouched. */
-		if(!frames_new) {
-			SPDYDEBUG("Reallocating space for frames pointer failed.");
-			return SPDY_ERROR_MALLOC_FAILED;
-		}
-		stream->frames = frames_new;
-		stream->frames[stream->frames_count] = frame;
+	if(!stream->frames) {
+		stream->frames = frame;
+	} else {
+		stream->last_frame->next = frame;
+		frame->prev = stream->last_frame;
 	}
-
-	/* Keep the number of frames used in the stream. */
-	stream->frames_count++;
+	stream->last_frame = frame;
 
 	switch(frame->type) {
 		case SPDY_DATA_FRAME:
