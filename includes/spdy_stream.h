@@ -6,11 +6,19 @@
 #include "spdy_control_frame.h"
 
 
+enum spdy_stream_states {
+	SPDY_STREAM_IDLE,
+	SPDY_STREAM_PARSING_FRAME,
+	SPDY_STREAM_TERMINATED
+};
+
 /**
  * SPDY Stream
  * This structure keeps the whole state of a SPDY stream.
  */
 typedef struct {
+	/** State: */
+	enum spdy_stream_states state;
 	/** Configuration: **/
 	_Bool store_received_data;
 	_Bool store_frames;
@@ -30,12 +38,19 @@ typedef struct {
 	uint32_t frames_count;
 	spdy_frame *frames;
 	spdy_frame *last_frame;
+	spdy_zlib_context *zlib_ctx_in;
+	spdy_zlib_context *zlib_ctx_out;
+	/** Temporary data: */
+	spdy_frame *active_frame;
 } spdy_stream;
 
 int spdy_stream_init(
 		spdy_stream *stream,
 		_Bool store_received_data,
-		_Bool store_frames);
+		_Bool store_frames,
+		spdy_zlib_context *in,
+		spdy_zlib_context *out);
+int spdy_stream_handle_data(spdy_stream *stream, spdy_data *data);
 int spdy_stream_handle_frame(spdy_stream *stream, spdy_frame *frame);
 int spdy_stream_handle_data_frame(
 		spdy_stream *stream,
