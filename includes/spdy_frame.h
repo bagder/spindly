@@ -3,6 +3,7 @@
 
 #include "spdy_data.h"
 #include "spdy_control_frame.h"
+#include "spdy_data_frame.h"
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -22,8 +23,12 @@ enum SPDY_FRAME_TYPE {
  * control or data frame.
  */
 typedef struct {
+	_Bool _header_parsed;
 	enum SPDY_FRAME_TYPE type; /*!< Type of the frame */
-	void *frame;               /*!< Frame */
+	union {
+		spdy_control_frame *control;
+		spdy_data_frame *data;
+	} frame;
 } spdy_frame;
 
 int spdy_frame_parse_header(

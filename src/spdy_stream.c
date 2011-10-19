@@ -68,10 +68,10 @@ int spdy_stream_handle_frame(spdy_stream *stream, spdy_frame *frame) {
 
 	switch(frame->type) {
 		case SPDY_DATA_FRAME:
-			return spdy_stream_handle_data_frame(stream, frame->frame);
+			return spdy_stream_handle_data_frame(stream, frame->frame.data);
 			break;
 		case SPDY_CONTROL_FRAME:
-			return spdy_stream_handle_control_frame(stream, frame->frame);
+			return spdy_stream_handle_control_frame(stream, frame->frame.control);
 			break;
 		default:
 			/* Should _never_ happen. */

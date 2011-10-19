@@ -10,7 +10,6 @@
 START_TEST (test_spdy_frame_parse_header)
 {
 	spdy_frame frame;
-	spdy_control_frame *ctrl;
 	spdy_data data;
 	spdy_frame_parse_header(&frame,
 			spdy_data_use(&data, test_control_syn_stream_frame, 8));

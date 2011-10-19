@@ -16,15 +16,19 @@
 int spdy_frame_parse_header(
 		spdy_frame *frame,
 		spdy_data *data) {
-
 	/**
 	 * Read the type bit
-	 * (The mask equals 0x10000000, filtering all but the first bit. Then
-	 * we shift it over by 7 digits, giving us a char with a value which
-	 * either is 0 or 1.)
+	 * (The mask equals 0x10000000, filtering all but the first bit.)
 	 */
-	frame->type = (data->cursor[0] & 0x80)>>7;
-	frame->frame = NULL;
+	frame->type = (data->cursor[0] & 0x80) ? 1 : 0;
+	switch(frame->type) {
+		case SPDY_CONTROL_FRAME:
+			frame->frame.control = NULL;
+			break;
+		case SPDY_DATA_FRAME:
+			frame->frame.data = NULL;
+			break;
+	}
 	return SPDY_ERROR_NONE;
 }
 
@@ -48,14 +52,14 @@ int spdy_frame_parse(
 	}
 	switch(frame->type) {
 		case SPDY_CONTROL_FRAME:
-			frame->frame = malloc(sizeof(spdy_control_frame));
-			if(!frame->frame) {
+			frame->frame.control = malloc(sizeof(spdy_control_frame));
+			if(!frame->frame.control) {
 				SPDYDEBUG("Control frame malloc failed.");
 				return SPDY_ERROR_MALLOC_FAILED;
 			}
-			spdy_control_frame_init(frame->frame);
+			spdy_control_frame_init(frame->frame.control);
 			ret = spdy_control_frame_parse(
-					frame->frame,
+					frame->frame.control,
 					data,
 					zlib_ctx);
 			if(ret != SPDY_ERROR_NONE) {
@@ -64,14 +68,14 @@ int spdy_frame_parse(
 			}
 			break;
 		case SPDY_DATA_FRAME:
-			frame->frame = malloc(sizeof(spdy_data_frame));
-			if(!frame->frame) {
+			frame->frame.data = malloc(sizeof(spdy_data_frame));
+			if(!frame->frame.data) {
 				SPDYDEBUG("Data frame malloc failed.");
 				return SPDY_ERROR_MALLOC_FAILED;
 			}
 
 			ret = spdy_data_frame_parse(
-					frame->frame,
+					frame->frame.data,
 					data);
 			if(ret != SPDY_ERROR_NONE) {
 				SPDYDEBUG("Data frame parse failed.");
