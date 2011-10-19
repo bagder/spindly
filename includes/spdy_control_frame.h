@@ -6,6 +6,11 @@
 
 #include "spdy_data.h"
 #include "spdy_zlib.h"
+#include "spdy_syn_stream.h"
+#include "spdy_syn_reply.h"
+#include "spdy_rst_stream.h"
+#include "spdy_headers.h"
+
 
 /** Minimum length of a control frame.*/
 extern const uint8_t SPDY_CONTROL_FRAME_MIN_LENGTH;
@@ -37,7 +42,12 @@ typedef struct {
 	uint16_t type;      /*!< 16 bit type */
 	uint8_t flags;      /*!< 8 bit flags */
 	uint32_t length;    /*!< 24 bit length */
-	/*@null@*/void *type_obj;     /*!< Frame type object */
+	union {
+		spdy_syn_stream *syn_stream;
+		spdy_syn_reply *syn_reply;
+		spdy_rst_stream *rst_stream;
+		spdy_headers *headers;
+	} obj;
 } spdy_control_frame;
 
 int spdy_control_frame_init(spdy_control_frame *frame);

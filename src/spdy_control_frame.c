@@ -86,75 +86,75 @@ int spdy_control_frame_parse(
 
 	switch(frame->type) {
 		case SPDY_CTRL_SYN_STREAM:
-			frame->type_obj = malloc(sizeof(spdy_syn_stream));
-			if(frame->type_obj == NULL) {
+			frame->obj.syn_stream = malloc(sizeof(spdy_syn_stream));
+			if(frame->obj.syn_stream == NULL) {
 				SPDYDEBUG("Failed to allocate space for SYN_STREAM.");
 				return SPDY_ERROR_MALLOC_FAILED;
 			}
 
 			ret = spdy_syn_stream_parse(
-					(spdy_syn_stream*)frame->type_obj,
+					frame->obj.syn_stream,
 					data,
 					frame->length,
 					zlib_ctx);
 			if(ret != SPDY_ERROR_NONE) {
-				free(frame->type_obj);
-				frame->type_obj = NULL;
+				free(frame->obj.syn_stream);
+				frame->obj.syn_stream = NULL;
 				SPDYDEBUG("SYN_STREAM parsing failed.");
 				return ret;
 			}
 			break;
 
 		case SPDY_CTRL_SYN_REPLY:
-			frame->type_obj = malloc(sizeof(spdy_syn_reply));
-			if(!frame->type_obj) {
+			frame->obj.syn_reply = malloc(sizeof(spdy_syn_reply));
+			if(!frame->obj.syn_reply) {
 				SPDYDEBUG("Failed to allocate space for SYN_REPLY.");
 				return SPDY_ERROR_MALLOC_FAILED;
 			}
 			ret = spdy_syn_reply_parse(
-					frame->type_obj,
+					frame->obj.syn_reply,
 					data,
 					frame->length,
 					zlib_ctx);
 			if(ret != SPDY_ERROR_NONE) {
-				free(frame->type_obj);
-				frame->type_obj = NULL;
+				free(frame->obj.syn_reply);
+				frame->obj.syn_reply = NULL;
 				SPDYDEBUG("SYN_REPLY parsing failed.");
 				return ret;
 			}
 			break;
 
 		case SPDY_CTRL_RST_STREAM:
-			frame->type_obj = malloc(sizeof(spdy_rst_stream));
-			if(!frame->type_obj) {
+			frame->obj.rst_stream = malloc(sizeof(spdy_rst_stream));
+			if(!frame->obj.rst_stream) {
 				SPDYDEBUG("Failed to allocate space for RST_STREAM.");
 				return SPDY_ERROR_MALLOC_FAILED;
 			}
 			ret = spdy_rst_stream_parse(
-					frame->type_obj,
+					frame->obj.rst_stream,
 					data->cursor,
 					frame->length);
 			if(ret != SPDY_ERROR_NONE) {
-				free(frame->type_obj);
-				frame->type_obj = NULL;
+				free(frame->obj.rst_stream);
+				frame->obj.rst_stream = NULL;
 				SPDYDEBUG("RST_STREAM parsing failed.");
 				return ret;
 			}
 			break;
 		case SPDY_CTRL_HEADERS:
-			frame->type_obj = malloc(sizeof(spdy_headers));
-			if(frame->type_obj == NULL) {
+			frame->obj.headers = malloc(sizeof(spdy_headers));
+			if(frame->obj.headers == NULL) {
 				SPDYDEBUG("Failed to allocate space for HEADERS.");
 				return SPDY_ERROR_MALLOC_FAILED;
 			}
 			ret = spdy_headers_parse(
-					(spdy_headers*)frame->type_obj,
+					(spdy_headers*)frame->obj.headers,
 					data,
 					frame->length,
 					zlib_ctx);
 			if(ret != SPDY_ERROR_NONE) {
-				free(frame->type_obj);
-				frame->type_obj = NULL;
+				free(frame->obj.headers);
+				frame->obj.headers = NULL;
 				SPDYDEBUG("HEADERS parsing failed.");
 				return SPDY_ERROR_INVALID_DATA;
 			}
