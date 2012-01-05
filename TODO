@@ -1,9 +1,13 @@
-*  Communication with Thomas Roth (primary author of libspdy) has been
-   established. I'll coordinate with him/them to see if I plan of actions
-   needs to be altered...
+Here's a list of things to work on. Not necessarily in this order. And there
+are things not included here we can do as well!
 
-*  As soon as a few more intersted souls pop in, start a mailing list
-   and setup an initial site for this library.
+*  Communication with Thomas Roth (primary author of libspdy) was established
+   but hasn't worked. Ideally we'll work out a way in which we can work
+   forward in a way that will allow Thomas' team to join in and we can merge
+   our efforts at a later point.
+
+*  setup an initial site for this effort (possibly a wiki on github will
+   suffice for a good while)
 
 1. jot up a modified API, some important details:
 
@@ -19,9 +23,12 @@
 
 4. implement the new API and document it in man pages
 
-5. make test cases for the new API
+5. Try it out in some early real-world application use cases (like libcurl) to
+   see that it also works in reality
 
-6. introduce autoconf + automake
+6. make test cases for the new API
 
-7. create a public spindly.h header in a separate include/ directory
+7. introduce autoconf + automake
+
+8. create a public spindly.h header in a separate include/ directory
 
