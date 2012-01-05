@@ -7,6 +7,10 @@ toying around and research.
 There's communication in progress with the primary libspdy author and things
 should develop within shortly.
 
+Mailing list:
+  http://cool.haxx.se/cgi-bin/mailman/listinfo/spdy-library
+
+
 The original README follows below:
 ------------------------------------------------------------------------
 libspdy - An implementation of Googles SPDY protocol.
