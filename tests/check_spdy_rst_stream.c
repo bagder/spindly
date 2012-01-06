@@ -1,5 +1,5 @@
 #include "check_spdy_rst_stream.h"
-#include "../src/spdy_rst_stream.h"
+#include "spdy_rst_stream.h"
 
 #include "testdata.h"
 

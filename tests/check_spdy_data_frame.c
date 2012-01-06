@@ -1,13 +1,18 @@
 #include "check_spdy_data_frame.h"
-#include "../src/spdy_data_frame.h"
-#include "../src/spdy_error.h"
+#include "spdy_data_frame.h"
+#include "spdy_error.h"
 
 #include "testdata.h"
 
 START_TEST (test_spdy_data_frame_parse_header)
 {
 	spdy_data_frame frame;
-	spdy_data_frame_parse_header(&frame, test_data_frame_header, 8);
+	spdy_data data;
+
+	/* stream_id _must_ be 0. */
+	frame.stream_id = 0;
+	spdy_data_frame_parse_header(&frame,
+			spdy_data_use(&data, test_data_frame_header, 8));
 	fail_unless(frame.stream_id == 1, "Stream ID parsing failed.");
 	fail_unless(frame.flags == 1, "Flag parsing failed.");
 	fail_unless(frame.length == 0, "Length parsing failed.");
@@ -19,6 +24,8 @@ START_TEST (test_spdy_data_frame_parse)
 	int ret;
 	spdy_data_frame frame;
 	spdy_data data;
+	/* stream_id _must_ be 0. */
+	frame.stream_id = 0;
 	ret = spdy_data_frame_parse(
 			&frame,
 			spdy_data_use(&data, test_data_frame, 23));
@@ -36,13 +43,13 @@ END_TEST
 
 START_TEST (test_spdy_data_frame_pack_header)
 {
-	spdy_data_frame frame = {
-		.stream_id = 1,
-		.flags = 1,
-		.length = 0
-	};
-	char *out=NULL;
-	int ret = spdy_data_frame_pack_header(&out, &frame);
+	spdy_data_frame frame;
+	char *out = NULL;
+	int ret;
+	frame.stream_id = 1;
+	frame.flags = 1;
+	frame.length = 0;
+	ret = spdy_data_frame_pack_header(&out, &frame);
 	fail_unless(ret == 0, "spdy_data_frame_pack_header failed.");
 	fail_unless(memcmp(out, test_data_frame_header, 8) == 0, "Packed data is invalid.");
 }
@@ -52,7 +59,11 @@ START_TEST (test_spdy_data_frame_parse_pack)
 {
 	spdy_data_frame frame;
 	char *out;
-	int ret = spdy_data_frame_parse_header(&frame, test_data_frame_header, 8);
+	spdy_data data;
+	int ret;
+	frame.stream_id = 0;
+	ret = spdy_data_frame_parse_header(&frame,
+			spdy_data_use(&data, test_data_frame_header, 8));
 	fail_unless(ret == 0, "spdy_data_frame_parse_header failed.");
 	ret = spdy_data_frame_pack_header(&out, &frame);
 	fail_unless(ret == 0, "spdy_data_frame_pack_header failed.");

@@ -22,6 +22,8 @@ Directories:
 		Contains usage samples for libspdy.
 	doc/
 		Contains additional documentation and is the Doxygen target.
+	includes/
+		Contains the includes which should be used by code utilizing the library.
 	src/
 		Contains the sourcecode of the library
 	tests/

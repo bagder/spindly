@@ -2,7 +2,7 @@
 #
 CC=gcc
 
-CFLAGS += -Werror -Wall -Wextra -Wformat=2 -std=c89 -pedantic -DDEBUG -Wno-error=overlength-strings
+CFLAGS += -Werror -Wall -Wextra -Wformat=2 -std=c89 -pedantic -DDEBUG -I./includes/ -Wno-overlength-strings
 LDFLAGS +=
 
 SRCS_SPDY += src/spdy_data.c
@@ -16,6 +16,7 @@ SRCS_SPDY += src/spdy_data_frame.c
 SRCS_SPDY += src/spdy_nv_block.c
 SRCS_SPDY += src/spdy_zlib.c
 SRCS_SPDY += src/spdy_stream.c
+SRCS_SPDY += src/spdy_string.c
 HDRS_SPDY = $(SRCS_SPDY,.c=.h)
 OBJS_SPDY = $(SRCS_SPDY:.c=.o)
 
@@ -48,13 +49,13 @@ $(EXEC_TEST): $(OBJS_SPDY) $(OBJS_TEST)
 	$(CC) $(CFLAGS) $(LDFLAGS) -g $(OBJS_SPDY) $(OBJS_TEST) $(LIBS_TEST) -o $(EXEC_TEST)
 
 create_nv_block: spdy
-	$(CC) $(CFLAGS) $(LDFLAGS) -g $(OBJS_SPDY) -Isrc/ `pkg-config --libs zlib` bin/create_nv_block.c -o bin/$@
+	$(CC) $(CFLAGS) $(LDFLAGS) -g $(OBJS_SPDY) `pkg-config --libs zlib` bin/create_nv_block.c -o bin/$@
 
 read_dump: spdy
-	$(CC) $(CFLAGS) $(LDFLAGS) -g $(OBJS_SPDY) -Isrc/ `pkg-config --libs zlib` bin/read_dump.c -o bin/$@
+	$(CC) $(CFLAGS) $(LDFLAGS) -g $(OBJS_SPDY) `pkg-config --libs zlib` bin/read_dump.c -o bin/$@
 
 read_stream: spdy
-	$(CC) $(CFLAGS) $(LDFLAGS) -g $(OBJS_SPDY) -Isrc/ `pkg-config --libs zlib` bin/read_stream.c -o bin/$@
+	$(CC) $(CFLAGS) $(LDFLAGS) -g $(OBJS_SPDY) `pkg-config --libs zlib` bin/read_stream.c -o bin/$@
 
 doc:
 	doxygen Doxyfile

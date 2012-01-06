@@ -1,19 +1,19 @@
 #include "check_spdy_frame.h"
-#include "../src/spdy_data.h"
-#include "../src/spdy_frame.h"
-#include "../src/spdy_control_frame.h"
-#include "../src/spdy_zlib.h"
-#include "../src/spdy_error.h"
+#include "spdy_data.h"
+#include "spdy_frame.h"
+#include "spdy_control_frame.h"
+#include "spdy_zlib.h"
+#include "spdy_error.h"
 
 #include "testdata.h"
 
 START_TEST (test_spdy_frame_parse_header)
 {
 	spdy_frame frame;
-	spdy_frame_parse_header(&frame, test_control_syn_stream_frame, 8);
+	spdy_data data;
+	spdy_frame_parse_header(&frame,
+			spdy_data_use(&data, test_control_syn_stream_frame, 8));
 	fail_unless(frame.type == SPDY_CONTROL_FRAME, "Frame type detection failed.");
-	spdy_control_frame *ctrl = (spdy_control_frame*)frame.frame;
-	fail_unless(ctrl->version == 2, "Creation of control frame failed.");
 }
 END_TEST
 
@@ -21,9 +21,9 @@ START_TEST (test_spdy_frame_parse)
 {
 	int ret;
 	spdy_zlib_context zlib_ctx;
-	spdy_zlib_inflate_init(&zlib_ctx);
 	spdy_frame frame;
 	spdy_data data;
+	spdy_zlib_inflate_init(&zlib_ctx);
 	ret = spdy_frame_parse(
 			&frame,
 			spdy_data_use(&data, test_control_syn_stream_frame, 296),

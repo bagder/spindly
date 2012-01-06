@@ -3,6 +3,7 @@ tests/checks
 gource.mp4
 doc/man/
 doc/html/
+doc/latex/
 tags
 bin/read_dump
 bin/read_stream
