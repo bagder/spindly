@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.64)
-AC_INIT([spindly],[0.1],[spdy-library@cool.haxx.se])
+AC_INIT([spindly],[-],[spdy-library@cool.haxx.se])
 AC_COPYRIGHT([Copyright (c) .. fill in])
 
 AC_CONFIG_SRCDIR([src/spdy_data.c])
@@ -16,6 +16,12 @@ AC_PROG_CC
 dnl libtool setup
 AC_PROG_LIBTOOL
 AM_INIT_AUTOMAKE
+
+dnl figure out the spindly version
+SPINDLYVER=`$SED -ne 's/^#define SPINDLY_VERSION *"\(.*\)"/\1/p' ${srcdir}/includes/spindly.h`
+AC_MSG_CHECKING([spindly version])
+AC_MSG_RESULT($SPINDLYVER)
+AC_SUBST(SPINDLYVER)
 
 # Checks for libraries.
 
