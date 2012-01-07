@@ -1,34 +1,40 @@
 Here's a list of things to work on. Not necessarily in this order. And there
 are things not included here we can do as well!
 
-*  Communication with Thomas Roth (primary author of libspdy) was established
-   but hasn't worked. Ideally we'll work out a way in which we can work
-   forward in a way that will allow Thomas' team to join in and we can merge
-   our efforts at a later point.
+  Communication with Thomas Roth (primary author of libspdy) was established
+  but hasn't worked. Ideally we'll work out a way in which we can work forward
+  in a way that will allow Thomas' team to join in and we can merge our
+  efforts at a later point.
 
-*  setup an initial site for this effort (possibly a wiki on github will
-   suffice for a good while)
+  http://spindly.haxx.se/ is now up and will be a hub for info around this
+  effort.
 
-1. jot up a modified API, some important details:
+* SPDY draft 3 compatibility
+  http://mbelshe.github.com/SPDY-Specification/draft-mbelshe-spdy-00.xml
+
+* Keep the actual SPDY protocol stuff in the libspdy files as originally
+  imported from libspdy to increase our chances of being able to merge them
+  with libspdy.org again. Use that API internally only, not exposed to
+  applications.
+
+* jot up a new public API, some important details:
 
    A - keep internal data/structs private and hidden from the apps
    B - support both ends of SPDY connections eually fine
 
-2. write up two test applications that use the new API, one client and
-   one server
+* write up two test applications that use the new API, one client and
+  one server
 
-3. establish and make use of new source indentation setup and style,
+* establish and make use of new source indentation setup and style,
    - convert typedef'ed struct back to real structs
    - change _Bool to something nicer
 
-4. implement the new API and document it in man pages
+* implement the new API and document it in man pages
 
-5. Try it out in some early real-world application use cases (like libcurl) to
-   see that it also works in reality
+* Try it out in some early real-world application use cases (like libcurl) to
+  see that it also works in reality
 
-6. make test cases for the new API
+* make test cases for the new API
 
-7. introduce autoconf + automake
-
-8. create a public spindly.h header in a separate include/ directory
+* create a public spindly.h header in a separate include/ directory
 
