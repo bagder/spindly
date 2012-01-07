@@ -12,3 +12,17 @@ autom4te.cache
 configure
 src/spdy_config.h
 src/spdy_config.h.in
+Makefile
+Makefile.in
+aclocal.m4
+compile
+config.guess
+config.log
+config.status
+config.sub
+depcomp
+install-sh
+libtool
+ltmain.sh
+m4
+missing

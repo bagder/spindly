@@ -3,11 +3,19 @@
 
 AC_PREREQ(2.64)
 AC_INIT([spindly],[0.1],[spdy-library@cool.haxx.se])
+AC_COPYRIGHT([Copyright (c) .. fill in])
+
 AC_CONFIG_SRCDIR([src/spdy_data.c])
-AC_CONFIG_HEADERS([src/spdy_config.h])
+AM_CONFIG_HEADER([src/spdy_config.h])
+AC_CONFIG_MACRO_DIR([m4])
+AM_MAINTAINER_MODE
 
 # Checks for programs.
 AC_PROG_CC
+
+dnl libtool setup
+AC_PROG_LIBTOOL
+AM_INIT_AUTOMAKE
 
 # Checks for libraries.
 
@@ -23,7 +31,7 @@ AC_TYPE_UINT8_T
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([memset strnlen])
+AC_CHECK_FUNCS([memset])
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile tests/Makefile])
 AC_OUTPUT
