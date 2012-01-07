@@ -1,15 +1,23 @@
 spindly  October 17th 2011, Daniel Stenberg
 =======
 
-I've imported the libspdy git repository as a foundation for further work,
+We've imported the libspdy git repository as a foundation for further work,
 toying around and research.
-
-There's communication in progress with the primary libspdy author and things
-should develop within shortly.
 
 Mailing list:
   http://cool.haxx.se/cgi-bin/mailman/listinfo/spdy-library
 
+Web site:
+  http://spindly.haxx.se/
+
+Wiki:
+  https://github.com/bagder/spindly/wiki
+
+Code:
+  https://github.com/bagder/spindly
+
+Hopefully we will merge again with the libspdy.org team in a not too distant
+future. In the mean time we move ahead.
 
 The original README follows below:
 ------------------------------------------------------------------------
