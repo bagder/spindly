@@ -8,3 +8,7 @@ tags
 bin/read_dump
 bin/read_stream
 bin/create_nv_block
+autom4te.cache
+configure
+src/spdy_config.h
+src/spdy_config.h.in
