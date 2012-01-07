@@ -31,11 +31,11 @@ RESULT = spindly_conn_feed(CONN, DATA, DATALEN);
 RESULT = spindly_conn_demux(CONN, &DEMUX)
 
   Returns information about incoming data on the connection, split up for
-  consuption accordingly. Subsequent calls will return the next result and so
+  consumption accordingly. Subsequent calls will return the next result and so
   on until there's nothing left to demux - until spindly_conn_feed() is called
   again to feed it with more data.
 
-  If RESULT is OK, DEMUX will tell which message that was receieved
+  If RESULT is OK, DEMUX will tell which message that was received
 
   SPINDLY_DEMUX_NONE - no more message in the struct, demux more!
  
