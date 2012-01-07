@@ -17,6 +17,7 @@ int handle_syn_stream_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 	(void)f;
 	spdy_syn_stream syn_stream;
 	spdy_data data;
+        int i;
 	if(spdy_syn_stream_parse(
 				&syn_stream,
 				spdy_data_use(&data, payload, frame->length),
@@ -29,7 +30,7 @@ int handle_syn_stream_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 	printf("\tAssociated:   % 5d\n", syn_stream.associated_to);
 	printf("\tPriority:     % 5d\n", syn_stream.priority);
 	printf("\tNV Block:     % 5d\n", syn_stream.nv_block->count);
-	for(int i=0; i < syn_stream.nv_block->count; i++) {
+	for(i=0; i < syn_stream.nv_block->count; i++) {
 		printf("\t\t%s: %s\n", syn_stream.nv_block->pairs[i].name, syn_stream.nv_block->pairs[i].values);
 	}
 	//spdy_nv_block_destroy(syn_stream.nv_block);
@@ -41,6 +42,7 @@ int handle_syn_reply_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 	(void)f;
 	spdy_syn_reply syn_reply;
 	spdy_data data;
+        int i;
 	if(spdy_syn_reply_parse(
 				&syn_reply,
 				spdy_data_use(&data, payload, frame->length),
@@ -51,7 +53,7 @@ int handle_syn_reply_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 	}
 	printf("\tStream-ID:    % 5d\n", syn_reply.stream_id);
 	printf("\tNV Block:     % 5d\n", syn_reply.nv_block->count);
-	for(int i=0; i < syn_reply.nv_block->count; i++) {
+	for(i=0; i < syn_reply.nv_block->count; i++) {
 		printf("\t\t%s: %s\n", syn_reply.nv_block->pairs[i].name, syn_reply.nv_block->pairs[i].values);
 	}
 	//spdy_nv_block_destroy(syn_reply.nv_block);
@@ -60,12 +62,13 @@ int handle_syn_reply_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 }
 
 int handle_data_frame(spdy_frame *frame, FILE *f) {
-	spdy_data_frame *data_frm = (spdy_data_frame*)frame->frame;
+	spdy_data_frame *data_frm = (spdy_data_frame*)frame->frame.control;
+        char *payload;
 	printf("Data frame:\n");
 	printf("\tStream ID:    % 5d\n", data_frm->stream_id);
 	printf("\tFlags:        % 5d\n", data_frm->flags);
 	printf("\tLength:       % 5d\n", data_frm->length);
-	char *payload = malloc(sizeof(char)*data_frm->length);
+	payload = malloc(sizeof(char)*data_frm->length);
 	if(!payload) {
 		printf("Failed to allocate memory for payload.\n");
 		return EXIT_FAILURE;
@@ -81,7 +84,8 @@ int handle_data_frame(spdy_frame *frame, FILE *f) {
 
 int handle_control_frame(spdy_frame *frame, FILE *f) {
 	int ret = EXIT_SUCCESS;
-	spdy_control_frame *ctrl_frm = (spdy_control_frame*)frame->frame;
+	spdy_control_frame *ctrl_frm =
+          (spdy_control_frame*)frame->frame.control;
 	printf("Control frame:\n");
 	printf("\tVersion:      % 5d\n", ctrl_frm->version);
 	printf("\tType:         % 5d (%s)\n",
@@ -149,8 +153,9 @@ int main(int argc, char *argv[]) {
 			return EXIT_FAILURE;
 		}
 		spdy_frame frame;
-		if(spdy_frame_parse_header(&frame, pkg,  8) != SPDY_ERROR_NONE) {
-			free(frame.frame);
+		if(spdy_frame_parse_header(&frame, (spdy_data *)&pkg[0]) !=
+                   SPDY_ERROR_NONE) {
+			free(frame.frame.control);
 			end_zlib_contexts();
 			printf("Failed to parse frame header.\n");
 			return EXIT_FAILURE;
@@ -158,20 +163,20 @@ int main(int argc, char *argv[]) {
 		switch(frame.type) {
 			case SPDY_DATA_FRAME:
 				if(handle_data_frame(&frame, f) == EXIT_FAILURE) {
-					free(frame.frame);
+					free(frame.frame.control);
 					end_zlib_contexts();
 					return EXIT_FAILURE;
 				}
 				break;
 			case SPDY_CONTROL_FRAME:
 				if(handle_control_frame(&frame, f) == EXIT_FAILURE) {
-					free(frame.frame);
+					free(frame.frame.control);
 					end_zlib_contexts();
 					return EXIT_FAILURE;
 				}
 				break;
 		}
-		free(frame.frame);
+		free(frame.frame.control);
 		if(feof(f)) {
 			end_zlib_contexts();
 			return EXIT_SUCCESS;

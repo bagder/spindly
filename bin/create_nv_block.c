@@ -11,8 +11,8 @@ int main(int argc, char *argv[]) {
 
 	int i;
 	for(i=1; i < argc; i++) {
-		// strtok manipulates the string, so we need to copy it to keep
-		// argv[i] consistent.
+                /* strtok manipulates the string, so we need to copy it to keep
+                   argv[i] consistent. */
 		char *tmp_argv = malloc(strlen(argv[i])+1);
 		char *tmp_argv_ref = tmp_argv;
 		if(!tmp_argv) exit(1);
@@ -41,9 +41,9 @@ int main(int argc, char *argv[]) {
 	size_t nv_block_data_size=0;
 	spdy_nv_block_pack(&nv_block_data, &nv_block_data_size, &nvb);
 	printf("Size: %d\n", nv_block_data_size);
-	for(size_t i = 0; i < nv_block_data_size; i++) {
+	for(i = 0; i < nv_block_data_size; i++) {
 		printf("%02x ", nv_block_data[i]);
-		// Printed 8 bytes, make a newline.
+		/* Printed 8 bytes, make a newline. */
 		if(((i+1) % 8) == 0) {
 			printf("\n");
 		} else if(((i+1) % 4) == 0) {
