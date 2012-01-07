@@ -1,4 +1,9 @@
-bin_PROGRAMS = create_nv_block read_dump read_stream
+#  read_stream does not compile
+bin_PROGRAMS = create_nv_block read_dump
 
-CFLAGS= -I$(top_srcdir)/includes
+AM_CFLAGS= -I$(top_srcdir)/includes
+
+LDADD = $(top_builddir)/src/libspdy.la
+AM_LDFLAGS = `pkg-config --libs check` `pkg-config --libs zlib`
+
 
