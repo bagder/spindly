@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = foreign
 
 SUBDIRS = src includes
-DIST_SUBDIRS = doc tests bin
+DIST_SUBDIRS = $(SUBDIRS) doc tests bin
 
 EXTRA_DIST = TODO README LICENSE
 
@@ -14,3 +14,12 @@ check:
 
 bin:
 	@(cd bin; $(MAKE))
+
+# a hook to rename [file].dist to [file]
+dist-hook:
+	find $(distdir) -name "*.dist" -exec rm {} \;
+	(distit=`find $(srcdir) -name "*.dist"`; \
+	for file in $$distit; do \
+	  strip=`echo $$file | sed -e s/^$(srcdir)// -e s/\.dist//`; \
+	  cp $$file $(distdir)$$strip; \
+	done)
