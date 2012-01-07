@@ -24,6 +24,7 @@ START_TEST (test_spdy_frame_parse)
 	spdy_frame frame;
 	spdy_data data;
 	spdy_zlib_inflate_init(&zlib_ctx);
+        spdy_frame_init(&frame);
 	ret = spdy_frame_parse(
 			&frame,
 			spdy_data_use(&data, test_control_syn_stream_frame, 296),
