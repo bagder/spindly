@@ -1,3 +1,4 @@
+#include "spdy_setup.h" /* MUST be the first header to include */
 #include "spdy_control_frame.h"
 #include "spdy_syn_stream.h"
 #include "spdy_syn_reply.h"

@@ -1,3 +1,4 @@
+#include "spdy_setup.h" /* MUST be the first header to include */
 #include "spdy_data.h"
 
 #include <string.h>
