@@ -40,3 +40,5 @@
  * "Mon Feb 12 11:35:33 UTC 2007"
  */
 #define SPINDLY_TIMESTAMP "DEV"
+
+#endif /* SPINDLY_H */
