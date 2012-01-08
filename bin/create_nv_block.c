@@ -15,20 +15,24 @@ int main(int argc, char *argv[]) {
                    argv[i] consistent. */
 		char *tmp_argv = malloc(strlen(argv[i])+1);
 		char *tmp_argv_ref = tmp_argv;
-		if(!tmp_argv) exit(1);
+		if(!tmp_argv)
+			exit(1);
 		memcpy(tmp_argv, argv[i], strlen(argv[i])+1);
 		char *pair_name = strtok(tmp_argv, "=");
-		if(!pair_name) exit(1);
+		if(!pair_name)
+			exit(1);
 		char *pair_value = strtok(NULL, "=");
-		if(!pair_value) exit(1);
-
+		if(!pair_value)
+			exit(1);
 		nvb.pairs = realloc(nvb.pairs, sizeof(spdy_nv_pair)*(nvb.count + 1));
 		spdy_nv_pair *nvp = &nvb.pairs[nvb.count];
 		nvp->name = malloc(strlen(pair_name)+1);
-		if(!nvp->name) exit(1);
+		if(!nvp->name)
+			exit(1);
 		strcpy(nvp->name, pair_name);
 		nvp->values = malloc(strlen(pair_value)+1);
-		if(!nvp->values) exit(1);
+		if(!nvp->values)
+			exit(1);
 		strcpy(nvp->values, pair_value);
 		nvp->values_count=1;
 
