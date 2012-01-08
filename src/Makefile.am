@@ -1,8 +1,12 @@
 AUTOMAKE_OPTIONS = foreign nostdinc
 
+SPINDLY_SOURCES = spindly_phys.c
+
 libspdy_la_SOURCES = spdy_control_frame.c spdy_data.c spdy_data_frame.c	      \
   spdy_frame.c spdy_headers.c spdy_nv_block.c spdy_rst_stream.c spdy_stream.c \
-  spdy_syn_reply.c spdy_syn_stream.c spdy_zlib.c spdy_setup.h
+  spdy_syn_reply.c spdy_syn_stream.c spdy_zlib.c spdy_setup.h		      \
+  $(SPINDLY_SOURCES)
+
 
 libspdy_la_CFLAGS = -I$(top_srcdir)/includes
 

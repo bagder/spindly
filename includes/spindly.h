@@ -1,6 +1,8 @@
 #ifndef SPINDLY_H
 #define SPINDLY_H 1
 
+#include <stdio.h>
+
 #define SPINDLY_COPYRIGHT "2011-2012 The spindly project and its contributors"
 
 /* The stringified version. This may have -DEV appended for non-released
@@ -40,5 +42,225 @@
  * "Mon Feb 12 11:35:33 UTC 2007"
  */
 #define SPINDLY_TIMESTAMP "DEV"
+
+/* A few generic types and forward-declarations */
+
+struct spindly_phys;
+struct spindly_stream;
+
+typedef unsigned int spindly_streamid_t;
+
+/*
+ * This struct defines a header pair. Note that both the name and the value
+ * may contain binary zero octets, making ordinary C string operations not
+ * suitable to work with them. Beware.
+ */
+struct spindly_header_pair {
+  size_t namelen;
+  char *name; /* pointer to a name of 'namelen' bytes */
+  size_t valuelen;
+  char *value; /* pointer to a value of 'valuelen' bytes */
+};
+
+/*
+ * Create a handle for a single duplex connection, SIDE is either client or
+ * server - what side the handle is made to handle. PROTVER is the specific
+ * SPDY protocol version.
+ */
+struct spindly_phys *spindly_phys_init(int side, int protver);
+
+typedef enum {
+  SPINDLYE_OK,
+
+  SPINDLYE_LAST /* not used, always the last */
+} spindly_error_t;
+
+
+/*
+ * when the application has read data off the transport, this function is
+ * called to tell Spindly about more data that has arrived. As spindly doesn't
+ * read any network data by itself, it needs to get the data passed into it by
+ * the application.
+ *
+ * After data has been fed into the handle, call spindly_phys_demux() to make
+ * it demux the incoming data.
+ */
+
+spindly_error_t spindly_phys_incoming(struct spindly_phys *phys,
+                                      unsigned char *data,
+                                      size_t datalen);
+
+
+
+typedef enum {            /* what 'ptr' points to */
+  SPINDLY_DX_NONE,        /* NULL */
+  SPINDLY_DX_GOAWAY,      /* NULL */
+  SPINDLY_DX_STREAM_ACK,  /* struct spindly_dx_stream */
+  SPINDLY_DX_STREAM_REQ,  /* struct spindly_dx_stream */
+  SPINDLY_DX_STREAM_KILL, /* struct spindly_dx_stream */
+  SPINDLY_DX_SETTINGS,    /* struct spindly_dx_settings */
+  SPINDLY_DX_PING,        /* NULL */
+  SPINDLY_DX_DATA,        /* struct spindly_dx_data */
+  SPINDLY_DX_HEADERS,     /* struct spindly_dx_headers */
+
+  SPINDLY_DX_LAST /* not used, always the last */
+} spindly_demux_t;
+
+/*
+ * Returns information about incoming data on the connection, split up for
+ * consumption accordingly. Subsequent calls will return the next result and
+ * so on until there's nothing left to demux - until spindly_phys_incoming()
+ * is called again to feed it with more data. Not that when it returns that
+ * there is no more message, it may still hold trailing data that forms the
+ * beginning of the subsequent message. 'ptr' will point to a struct dedicated
+ * to the particular message.
+ */
+
+struct spindly_dx_stream {
+  spindly_streamid_t streamid;
+  struct spindly_stream *stream; /* NULL or pointing to the handle */
+};
+
+struct spindly_dx_settings {
+  /* TODO: how should this be? */
+  char *setting;
+  char *value;
+};
+
+struct spindly_dx_data {
+  struct spindly_streamid *stream;
+  unsigned char *datap;
+  size_t len;
+};
+
+struct spindly_dx_headers {
+  struct spindly_streamid *stream;
+  int num_of_pairs; /* there is at least 1 */
+  struct spindly_header_pair headers[1]; /* this array will be num_of_pairs
+                                           size big */
+};
+
+spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
+                                   spindly_demux_t *msg,
+                                   void **ptr);
+
+/*
+ * Returns info (pointer and length) about the data that PHYS holds that is
+ * available to send over the transport medium immediately.
+ *
+ * The data is put into the output buffer from the attached streams in a prio
+ * order - at the time of the calling of this function.
+ *
+ * The amount may be capped to a certain maximum level. Therefore, an
+ * application should rather call this function repeated times to get updated
+ * values after data has been sent off (and spindly_phys_sent was called).
+ */
+spindly_error_t spindly_phys_ready(struct spindly_phys *phys,
+                                   unsigned char **data,
+                                   size_t len);
+
+/*
+ * Tell Spindly how many bytes of the data that has been sent and should be
+ * considered consumed. The PHYS will then contain updated information of
+ * amount of remaining data to send etc.
+ */
+spindly_error_t spindly_phys_sent(struct spindly_phys *phys,
+                                  size_t len);
+
+/*
+ * Change one or more settings associated with the connection. This will
+ * result in a SPINDLY_DX_SETTINGS message to end up on the remote side.
+ *
+ * TODO: figure out how to pass in 'settings' the best way
+ */
+spindly_error_t spindly_phys_settings(struct spindly_phys *phys,
+                                      void *settings);
+
+/*
+ * Cleanup the entire connection and all associated streams and data.
+ */
+void spindly_phys_cleanup(struct spindly_phys *phys);
+
+/*
+ * Handle separate streams over the physical connection
+ * ====================================================
+ */
+
+/*
+ * Creates a request for a new stream and muxes the request into the output
+ * connection, creates a STREAM handle for the new stream and returns the
+ * RESULT. The CUSTOMP pointer will be associated with the STREAM to allow the
+ * application to identify it.
+ *
+ * PRIO is a priority, 0 - 7 where 0 is the most important.
+ *
+ * Note that the stream is not yet ready to be used until it has been
+ * acknowledged by the peer and we get a SPINDLY_DX_STREAM_ACK response.
+ *
+ * Each stream has a limited local buffer size in which data can be put. When
+ * that buffer is full, it needs to be drained first before more data can get
+ * added.
+ */
+spindly_error_t spindly_stream_new(struct spindly_phys *phys,
+                                   int prio,
+                                   struct spindly_stream **stream,
+                                   void *userp);
+
+
+/*
+ * The STREAM as requested to get opened by the remote is allowed! This
+ * function is only used as a resposne to a SPINDLY_DX_STREAM_REQ.
+ */
+spindly_error_t spindly_stream_ack(struct spindly_stream *stream);
+
+/*
+ * The STREAM as requested to get opened by the remote is NOT allowed! This
+ * function is only used as a resposne to a SPINDLY_DX_STREAM_REQ.
+ */
+spindly_error_t spindly_stream_nack(struct spindly_stream *stream);
+
+/*
+ * Close the STREAM. Can be used as a response to a SPINDLY_DX_STREAM_KILL
+ * message or it will generate such a message to the other side.
+ */
+spindly_error_t spindly_stream_close(struct spindly_stream *stream);
+
+/*
+ * Send data on this specific stream. If the stream is not yet acked by the
+ * remote, some data can be held locally until it gets acked and sent later
+ *
+ * HANDLED is the number of bytes the function "took care of", which may be a
+ * smaller amount than what passed to it. In that case, it means the outgoing
+ * buffer is full and it needs to be drained before this stream can take more
+ * data.
+ *
+ * Also, when adding data or headers etc on multiple streams, it should be
+ * noted that the streams' outgoing buffers are drainde in prio order when
+ * spindly_phys_ready() is called.
+ */
+spindly_error_t spindly_stream_data(struct spindly_stream *stream,
+                                    unsigned char *data,
+                                    size_t len,
+                                    size_t *handled);
+
+/*
+ * Send headers on this specific stream. If the stream is not yet acked by the
+ * remote, some data can be held locally until it gets acked and sent later
+ *
+ * HANDLED is the number of header pairs the function "took care of", which
+ * may be a smaller amount than what passed to it. In that case, it means the
+ * outgoing buffer is full and it needs to be drained before this stream can
+ * take more header pairs.
+ */
+spindly_error_t spindly_stream_headers(struct spindly_stream *stream,
+                                       int num_of_pairs,
+                                       struct spindly_header_pair **pairs,
+                                       size_t *handled);
+
+/*
+ * Figure out the physical handle a particular stream is associated with.
+ */
+struct spindly_phys *spindly_stream_phys(struct spindly_stream *stream);
+
 
 #endif /* SPINDLY_H */
