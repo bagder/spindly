@@ -42,7 +42,7 @@ int handle_syn_reply_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 	(void)f;
 	spdy_syn_reply syn_reply;
 	spdy_data data;
-        int i;
+	int i;
 	if(spdy_syn_reply_parse(
 				&syn_reply,
 				spdy_data_use(&data, payload, frame->length),
@@ -63,7 +63,7 @@ int handle_syn_reply_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 
 int handle_data_frame(spdy_frame *frame, FILE *f) {
 	spdy_data_frame *data_frm = (spdy_data_frame*)frame->frame.control;
-        char *payload;
+	char *payload;
 	printf("Data frame:\n");
 	printf("\tStream ID:    % 5d\n", data_frm->stream_id);
 	printf("\tFlags:        % 5d\n", data_frm->flags);
@@ -75,6 +75,7 @@ int handle_data_frame(spdy_frame *frame, FILE *f) {
 	}
 	if(fread(payload, 1, data_frm->length, f) != data_frm->length) {
 		printf("Failed to read payload from file.\n");
+		free(payload);
 		return EXIT_FAILURE;
 	}
 
@@ -100,19 +101,21 @@ int handle_control_frame(spdy_frame *frame, FILE *f) {
 	}
 	if(fread(payload, 1, ctrl_frm->length, f) != ctrl_frm->length) {
 		printf("Failed to read payload from file.\n");
-		return EXIT_FAILURE;
-	}
-	switch(ctrl_frm->type) {
-		case SPDY_CTRL_SYN_STREAM:
-			// Skip the SYN_STREAM header to the NV block.
-			ret = handle_syn_stream_frame(ctrl_frm, payload, f);
-			break;
-		case SPDY_CTRL_SYN_REPLY:
-			ret = handle_syn_reply_frame(ctrl_frm, payload, f);
-			break;
-		default:
-			printf("Unknown frame type.");
-			ret = EXIT_SUCCESS;
+		ret = EXIT_FAILURE;
+	} else {
+		/* fread success */
+		switch(ctrl_frm->type) {
+			case SPDY_CTRL_SYN_STREAM:
+				// Skip the SYN_STREAM header to the NV block.
+				ret = handle_syn_stream_frame(ctrl_frm, payload, f);
+				break;
+			case SPDY_CTRL_SYN_REPLY:
+				ret = handle_syn_reply_frame(ctrl_frm, payload, f);
+				break;
+			default:
+				printf("Unknown frame type.");
+				ret = EXIT_SUCCESS;
+		}
 	}
 	free(payload);
 
