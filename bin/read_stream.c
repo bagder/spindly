@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
 	ptr=8;
 	spdy_data_use(&data, pkg, 8);
 	if(spdy_zlib_inflate_init(&zlib_ctx) < 0) {
-		printf("Failed to infalte init");
+		printf("Failed to inflate init");
 		return EXIT_FAILURE;
 	}
 	ret = spdy_frame_parse(
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
 			&zlib_ctx);
 	while(1) {
 		if(spdy_zlib_inflate_init(&zlib_ctx) < 0) {
-			printf("Failed to infalte init");
+			printf("Failed to inflate init");
 			return EXIT_FAILURE;
 		}
 		while(ret == SPDY_ERROR_INSUFFICIENT_DATA) {
