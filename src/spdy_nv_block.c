@@ -93,7 +93,7 @@ int spdy_nv_block_init(spdy_nv_block *block) {
 
 /**
  * Parse a Name/Value block payload.
- * @param nv_block - Target block.
+ * @param block - Target block.
  * @param data - Data to parse.
  * @param data_length - Length of data.
  * @see spdy_nv_block

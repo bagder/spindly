@@ -14,6 +14,8 @@
  * @param stream - Stream to initialize.
  * @param store_received_data - Whether to store received data.
  * @param store_frames - Store frames of the stream.
+ * @param in - Compression context used to initialise zlib_ctx_in
+ * @param out - Compression context used to initialise zlib_ctx_out
  * @return Errorcode
  */
 int spdy_stream_init(

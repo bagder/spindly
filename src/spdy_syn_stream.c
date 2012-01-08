@@ -19,7 +19,6 @@ const uint8_t SPDY_SYN_STREAM_HEADER_MIN_LENGTH = 10;
  * is stored in SPDY_SYN_STREAM_HEADER_MIN_LENGTH.)
  * @param syn_stream - Destination frame.
  * @param data - Data to parse.
- * @param data_length - Length of data.
  * @see SPDY_SYN_STREAM_HEADER_MIN_LENGTH
  * @return Errorcode
  */

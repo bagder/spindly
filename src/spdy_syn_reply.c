@@ -18,7 +18,6 @@ const uint8_t SPDY_SYN_REPLY_HEADER_MIN_LENGTH = 6;
  * before the whole NV block has been received.
  * @param syn_reply - Destination frame.
  * @param data - Data to parse.
- * @param data_length - Length of data.
  * @see SPDY_SYN_REPLY_HEADER_MIN_LENGTH
  * @return 0 on success, 01 on failure.
  */
