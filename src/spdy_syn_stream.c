@@ -15,7 +15,7 @@ const uint8_t SPDY_SYN_STREAM_HEADER_MIN_LENGTH = 10;
 /**
  * Parse the header of a SYN_STREAM control frame.
  * This function can be used to parse the header of a SYN_STREAM frame
- * before the whole NV block has been recevied. (Minimum of bytes needed
+ * before the whole NV block has been received. (Minimum of bytes needed
  * is stored in SPDY_SYN_STREAM_HEADER_MIN_LENGTH.)
  * @param syn_stream - Destination frame.
  * @param data - Data to parse.
