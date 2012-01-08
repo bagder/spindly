@@ -94,8 +94,8 @@ int spdy_data_frame_pack_header(char **out, spdy_data_frame *frame) {
 	BE_STORE_32(dat, (frame->stream_id & 0x8FFFFFFF));
 	dat += 4;
 	BE_STORE_32(dat, frame->length);
-	/* The flags are set after the legnth is writte, because
-	 * elsewise the flags would get overwritten by the length. */
+	/* The flags are set after the length is written, because
+	 * otherwise the flags would get overwritten by the length. */
 	dat[0] = frame->flags;
 	return SPDY_ERROR_NONE;
 }
