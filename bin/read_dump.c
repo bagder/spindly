@@ -17,7 +17,7 @@ int handle_syn_stream_frame(spdy_control_frame *frame, char *payload, FILE *f) {
 	(void)f;
 	spdy_syn_stream syn_stream;
 	spdy_data data;
-        int i;
+	int i;
 	if(spdy_syn_stream_parse(
 				&syn_stream,
 				spdy_data_use(&data, payload, frame->length),
