@@ -252,7 +252,7 @@ int spdy_nv_block_inflate_parse(
  * @see spdy_nv_block
  * @see spdy_nv_block_parse
  * @todo Multiple value support.
- * @return 0 on succes, -1 on failure.
+ * @return 0 on success, -1 on failure.
  */
 int spdy_nv_block_pack(
 		char **dest,
