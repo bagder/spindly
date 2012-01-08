@@ -32,7 +32,8 @@ int spdy_control_frame_parse_header(
 		spdy_data *data) {
 	size_t length;
 	/* Check if the header has already been parsed. */
-	if(frame->_header_parsed) return SPDY_ERROR_NONE;
+	if(frame->_header_parsed)
+		return SPDY_ERROR_NONE;
 
 	length = data->data_end - data->cursor;
 	if(length < SPDY_CONTROL_FRAME_MIN_LENGTH) {
@@ -142,6 +143,7 @@ int spdy_control_frame_parse(
 				return ret;
 			}
 			break;
+
 		case SPDY_CTRL_HEADERS:
 			frame->obj.headers = malloc(sizeof(spdy_headers));
 			if(frame->obj.headers == NULL) {
