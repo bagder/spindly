@@ -18,7 +18,7 @@ AC_PROG_LIBTOOL
 AM_INIT_AUTOMAKE
 
 dnl figure out the spindly version
-SPINDLYVER=`$SED -ne 's/^#define SPINDLY_VERSION *"\(.*\)"/\1/p' ${srcdir}/includes/spindly.h`
+SPINDLYVER=`$SED -ne 's/^#define SPINDLY_VERSION *"\(.*\)"/\1/p' ${srcdir}/include/spindly.h`
 AC_MSG_CHECKING([spindly version])
 AC_MSG_RESULT($SPINDLYVER)
 AC_SUBST(SPINDLYVER)
@@ -40,5 +40,5 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([memset])
 
 AC_CONFIG_FILES([Makefile src/Makefile tests/Makefile doc/Makefile \
-                 includes/Makefile bin/Makefile])
+                 include/Makefile bin/Makefile])
 AC_OUTPUT

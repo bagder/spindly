@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = src includes
+SUBDIRS = src include
 DIST_SUBDIRS = $(SUBDIRS) doc tests bin
 
 EXTRA_DIST = TODO README LICENSE

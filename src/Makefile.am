@@ -8,7 +8,7 @@ libspdy_la_SOURCES = spdy_control_frame.c spdy_data.c spdy_data_frame.c	      \
   $(SPINDLY_SOURCES)
 
 
-libspdy_la_CFLAGS = -I$(top_srcdir)/includes
+libspdy_la_CFLAGS = -I$(top_srcdir)/include
 
 # This flag accepts an argument of the form current[:revision[:age]]. So,
 # passing -version-info 3:12:1 sets current to 3, revision to 12, and age to
