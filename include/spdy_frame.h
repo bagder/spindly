@@ -46,4 +46,6 @@ int spdy_frame_parse(
 		spdy_data *data,
 		spdy_zlib_context *zlib_ctx);
 
+void spdy_frame_destroy(spdy_frame *frame);
+
 #endif

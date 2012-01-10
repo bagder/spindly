@@ -62,5 +62,7 @@ int spdy_control_frame_parse(
 		spdy_zlib_context *zlib_ctx);
 char *spdy_control_frame_get_type_name(int type);
 
+void spdy_control_frame_destroy(spdy_control_frame *frame);
+
 #endif
 

@@ -30,6 +30,7 @@ START_TEST (test_spdy_frame_parse)
 			spdy_data_use(&data, test_control_syn_stream_frame, 296),
 			&zlib_ctx);
 	fail_unless(ret == SPDY_ERROR_NONE, "spdy_frame_parse failed.");
+        spdy_frame_destroy(&frame);
         spdy_zlib_inflate_end(&zlib_ctx);
 }
 END_TEST

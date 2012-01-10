@@ -221,7 +221,6 @@ int spdy_nv_block_inflate_parse(
 					inflate_size)) != SPDY_ERROR_NONE) {
 		/* Clean up. */
 		free(inflate);
-		free(nv_block);
 		SPDYDEBUG("Failed to parse NV block.");
 		return ret;
 	}

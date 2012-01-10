@@ -38,5 +38,7 @@ int spdy_syn_stream_parse(
 		uint32_t frame_length,
 		spdy_zlib_context *zlib_ctx);
 
+void spdy_syn_stream_destroy(spdy_syn_stream *syn_stream);
+
 #endif
 

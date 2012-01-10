@@ -85,3 +85,15 @@ int spdy_frame_parse(
 	return SPDY_ERROR_NONE;
 }
 
+void spdy_frame_destroy(spdy_frame *frame)
+{
+  switch(frame->type) {
+  case SPDY_CONTROL_FRAME:
+    spdy_control_frame_destroy(&frame->frame.control);
+    break;
+  case SPDY_DATA_FRAME:
+    break;
+  }
+
+
+}

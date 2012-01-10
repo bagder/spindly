@@ -195,3 +195,13 @@ char *spdy_control_frame_get_type_name(int type) {
 	}
 }
 
+void spdy_control_frame_destroy(spdy_control_frame *frame)
+{
+  switch(frame->type) {
+    case SPDY_CTRL_SYN_STREAM:
+      spdy_syn_stream_destroy(&frame->obj.syn_stream);
+      break;
+  default:
+    break;
+  }
+}

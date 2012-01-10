@@ -104,3 +104,10 @@ int spdy_syn_stream_parse(
 	return SPDY_ERROR_NONE;
 }
 
+/*
+ * Destroy/free all data this struct has allocated.
+ */
+void spdy_syn_stream_destroy(spdy_syn_stream *syn_stream)
+{
+  spdy_nv_block_destroy(&syn_stream->nv_block);
+}
