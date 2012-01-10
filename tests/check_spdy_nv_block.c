@@ -75,6 +75,7 @@ START_TEST (test_spdy_nv_block_parse_pack)
 	ret = spdy_nv_block_pack(&dest, &dest_size, &nv_block);
 	fail_unless(ret == 0, "spdy_nv_block_pack failed.");
 	fail_unless(memcmp(dest, test_nv_block, dest_size)==0, "Packed data differs from testdata.");
+        free(dest);
         spdy_nv_block_destroy(&nv_block);
 }
 END_TEST
