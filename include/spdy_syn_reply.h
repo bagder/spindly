@@ -24,7 +24,7 @@ enum SPDY_SYN_REPLY_FLAGS {
  */
 typedef struct {
 	uint32_t stream_id;      /*!< 31 bit stream id */
-	spdy_nv_block *nv_block; /*!< Name/Value block */
+	spdy_nv_block nv_block;  /*!< Name/Value block */
 } spdy_syn_reply;
 
 int spdy_syn_reply_parse_header(spdy_syn_reply *syn_reply, spdy_data *data);

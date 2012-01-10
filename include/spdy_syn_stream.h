@@ -28,7 +28,7 @@ typedef struct {
 	uint16_t stream_id;      /*!< 31 bit stream id */
 	uint16_t associated_to;  /*!< 31 bit assocaited to stream id */
 	uint8_t priority;        /*!< 2 bit priority */
-	spdy_nv_block *nv_block; /*!< Name/Value block */
+	spdy_nv_block nv_block;  /*!< Name/Value block */
 } spdy_syn_stream;
 
 int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, spdy_data *data);

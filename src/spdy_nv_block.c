@@ -60,21 +60,6 @@ int spdy_nv_pair_destroy(spdy_nv_pair **pair) {
 	return SPDY_ERROR_NONE;
 }
 
-/**
- * Allocate and initialize an NV block.
- *
- * @param block - Block to initialize
- * @see spdy_nv_block
- * @return Errorcode
- */
-int spdy_nv_block_create(spdy_nv_block **block) {
-	*block = malloc(sizeof(spdy_nv_block));
-	if(!(*block)) {
-		return SPDY_ERROR_MALLOC_FAILED;
-	}
-
-	return spdy_nv_block_init(*block);
-}
 
 /**
  * Initialize an NV block.

@@ -69,14 +69,15 @@ int spdy_syn_reply_parse(
 		return ret;
 	}
 
-	/* TODO: Check this allocation. */
-	if((ret = spdy_nv_block_create(&syn_reply->nv_block))) {
+	/* Init NV block. */
+        ret = spdy_nv_block_init(&syn_reply->nv_block);
+	if(ret) {
 		return ret;
 	}
 
 	/* Parse NV block. */
 	if((ret = spdy_nv_block_inflate_parse(
-					syn_reply->nv_block,
+					&syn_reply->nv_block,
 					data->cursor,
 					frame_length,
 					zlib_ctx)) != SPDY_ERROR_NONE) {

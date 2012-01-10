@@ -37,7 +37,6 @@ int spdy_nv_pair_init(spdy_nv_pair *pair);
 int spdy_nv_pair_destroy(spdy_nv_pair **pair);
 
 /* NV block functions */
-int spdy_nv_block_create(spdy_nv_block **block);
 int spdy_nv_block_init(spdy_nv_block *block);
 
 int spdy_nv_block_parse(

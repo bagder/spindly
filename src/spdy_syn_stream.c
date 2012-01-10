@@ -83,15 +83,15 @@ int spdy_syn_stream_parse(
 		return ret;
 	}
 
-	/* Create NV block. */
-	ret = spdy_nv_block_create(&syn_stream->nv_block);
+	/* Init NV block. */
+	ret = spdy_nv_block_init(&syn_stream->nv_block);
 	if(ret) {
 		return ret;
 	}
 
 	/* Parse NV block. */
 	if((ret = spdy_nv_block_inflate_parse(
-					syn_stream->nv_block,
+					&syn_stream->nv_block,
 					data->cursor,
 					frame_length,
 					zlib_ctx)) != SPDY_ERROR_NONE) {
