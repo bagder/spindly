@@ -215,12 +215,14 @@ int spdy_nv_block_inflate_parse(
 	}
 
 	/* Parse NV block. */
-	if((ret = spdy_nv_block_parse(
-					nv_block,
-					inflate,
-					inflate_size)) != SPDY_ERROR_NONE) {
+        ret = spdy_nv_block_parse(nv_block,
+                                  inflate,
+                                  inflate_size);
+
+        free(inflate);
+
+	if(ret != SPDY_ERROR_NONE) {
 		/* Clean up. */
-		free(inflate);
 		SPDYDEBUG("Failed to parse NV block.");
 		return ret;
 	}
@@ -230,6 +232,9 @@ int spdy_nv_block_inflate_parse(
 
 /**
  * Pack a Name/Value block into a payload for transmitting.
+ *
+ * Note that this function returns an allocated string in 'dest'.
+ *
  * @param dest - Destination buffer.
  * @param dest_size - Pointer for storing the size of the destination buffer.
  * @param nv_block - NV block to pack.
