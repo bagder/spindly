@@ -43,10 +43,10 @@ typedef struct {
 	uint8_t flags;      /*!< 8 bit flags */
 	uint32_t length;    /*!< 24 bit length */
 	union {
-		spdy_syn_stream *syn_stream;
-		spdy_syn_reply *syn_reply;
-		spdy_rst_stream *rst_stream;
-		spdy_headers *headers;
+		spdy_syn_stream syn_stream;
+		spdy_syn_reply syn_reply;
+		spdy_rst_stream rst_stream;
+		spdy_headers headers;
 	} obj;
 } spdy_control_frame;
 
