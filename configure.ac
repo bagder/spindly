@@ -27,7 +27,7 @@ AC_SUBST(SPINDLYVER)
 
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h netinet/in.h stdint.h stdlib.h string.h \
-                  sys/types.h stdbool.h])
+                  sys/types.h stdbool.h sys/socket.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_SIZE_T
@@ -54,5 +54,5 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([memset])
 
 AC_CONFIG_FILES([Makefile src/Makefile tests/Makefile doc/Makefile \
-                 include/Makefile bin/Makefile])
+                 include/Makefile bin/Makefile demo/Makefile])
 AC_OUTPUT
