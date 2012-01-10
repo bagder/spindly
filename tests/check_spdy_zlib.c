@@ -11,6 +11,7 @@ START_TEST (test_spdy_zlib_deflate)
 	size_t data_used=0;
 	int ret = spdy_zlib_deflate(test_nv_block, 436, &data_used, &dest, &dest_size);
 	fail_unless(ret == 0, "spdy_zlib_deflate failed.");
+        free(dest);
 }
 END_TEST
 

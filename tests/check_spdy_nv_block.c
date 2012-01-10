@@ -27,12 +27,14 @@ START_TEST (test_spdy_nv_block_parse)
 
 	spdy_nv_block_init(&nv_block);
 	ret = spdy_nv_block_parse(&nv_block, test_nv_block,400);
+        spdy_nv_block_destroy(&nv_block);
 	/* Test with insufficient data. */
 	/* TODO: Check pairs_parsed count etc. */
 	ret = spdy_nv_block_parse(&nv_block, test_nv_block,400);
 	fail_unless(ret == SPDY_ERROR_INSUFFICIENT_DATA,
 			"Couldn't determine that data was insufficient.");
 
+        spdy_nv_block_destroy(&nv_block);
 	spdy_nv_block_init(&nv_block);
 	/* Test with right amount of data. */
 	ret = spdy_nv_block_parse(&nv_block, test_nv_block,436);
@@ -60,6 +62,7 @@ START_TEST (test_spdy_nv_block_pack)
 	nv_block.pairs = test_nv_pairs;
 	ret = spdy_nv_block_pack(&dest, &dest_size, &nv_block);
 	fail_unless(ret == 0, "spdy_nv_block_pack failed.");
+        free(dest);
 }
 END_TEST
 
