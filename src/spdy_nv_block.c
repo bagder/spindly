@@ -301,17 +301,17 @@ int spdy_nv_block_pack(
  * @param nv_block - NV block to destroy.
  * @todo How to test this?
  */
-void spdy_nv_block_destroy(spdy_nv_block *nv_block) {
+void spdy_nv_block_destroy(spdy_nv_block *nv_block)
+{
 	if(nv_block) {
 		if(nv_block->pairs) {
 			int i;
-			for(i=0; i < nv_block->count; i++) {
+			for(i=0; i < nv_block->pairs_parsed; i++) {
 				free(nv_block->pairs[i].name);
 				free(nv_block->pairs[i].values);
 			}
 			free(nv_block->pairs);
 		}
-		free(nv_block);
 	}
 }
 
