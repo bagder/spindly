@@ -27,6 +27,7 @@ START_TEST (test_spdy_zlib_inflate)
         spdy_nv_block_init(&nv_block);
 	ret = spdy_nv_block_parse(&nv_block, dest, dest_size);
 	fail_unless(ret == 0, "spdy_nv_block_parse failed.");
+        spdy_zlib_inflate_end(&ctx);
 	free(dest);
 }
 END_TEST
@@ -47,6 +48,7 @@ START_TEST (test_spdy_zlib_deflate_inflate)
 	fail_unless(ret == 0, "spdy_zlib_inflate failed.");
 	fail_unless(memcmp(inflate, test_nv_block, inflate_size)==0, "Data changed.");
 
+        spdy_zlib_inflate_end(&ctx);
 	free(deflate);
 	free(inflate);
 }

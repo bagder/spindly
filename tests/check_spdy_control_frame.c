@@ -70,6 +70,7 @@ START_TEST (test_spdy_control_frame_parse)
 	fail_unless(frame.type == SPDY_CTRL_SYN_STREAM, "Type failed.");
 	fail_unless(frame.flags == 1, "Flag failed.");
 	fail_unless(frame.length == 288, "Length failed.");
+        spdy_zlib_inflate_end(&zlib_ctx);
 }
 END_TEST
 
