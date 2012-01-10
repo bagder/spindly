@@ -3,6 +3,8 @@
  */
 #include "spdy_setup.h" /* MUST be the first header to include */
 
+#include <stdlib.h>
+
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #else
@@ -11,28 +13,54 @@ typedef unsigned int uint32_t;
 
 #include "spindly.h"
 
-/* fixed size buffer used to create outgoing data into that is then told to
-   the application */
-#define PHYS_BUFFER_SIZE 16738
+/* The default number of slots allocated for streams in a phys handle */
+#define PHYS_DEFAULT_NUM_STREAMS 5
 
 struct spindly_phys {
-  enum { PHYS_CLIENT, PHYS_SERVER } side;
+  spindly_side_t side;
+  spindly_spdyver_t protver;
 
   struct spindly_stream **streams;
   int added_stream;  /* how many have been added so far */
   int added_alloced; /* how large is the streams array alloc */
 
   uint32_t streamid; /* the next streamid to ask for */
-  char outbuf[PHYS_BUFFER_SIZE];
 };
 
 /*
- * Create a handle for a single duplex connection, SIDE is either client or
- * server - what side the handle is made to handle. PROTVER is the specific
- * SPDY protocol version.
+ * Create a handle for a single duplex physical connection, SIDE is either
+ * client or server - what side the handle is made to handle. PROTVER is the
+ * specific SPDY protocol version.
+ *
+ * TODO: provide a means to replace the memory functions
  */
-struct spindly_phys *spindly_phys_init(int side, int protver)
+struct spindly_phys *spindly_phys_init(spindly_side_t side,
+                                       spindly_spdyver_t protver)
 {
+  struct spindly_phys *phys;
+
+  phys = malloc( sizeof(struct spindly_phys) );
+  if(!phys)
+    goto fail;
+  phys->streams = malloc(sizeof(struct spindly_stream *) *
+                         PHYS_DEFAULT_NUM_STREAMS);
+  if(!phys->streams)
+    goto fail;
+
+  phys->side = side;
+  phys->protver = protver;
+
+  phys->streamid = 0;
+  phys->added_stream = 0;
+  phys->added_alloced = PHYS_DEFAULT_NUM_STREAMS;
+
+  return phys;
+
+  fail:
+  if(phys)
+    free(phys);
+
+  return NULL;
 
 
 }
@@ -45,6 +73,7 @@ struct spindly_phys *spindly_phys_init(int side, int protver)
  *
  * After data has been fed into the handle, call spindly_phys_demux() to make
  * it demux the incoming data.
+ *
  */
 
 spindly_error_t spindly_phys_incoming(struct spindly_phys *phys,
@@ -76,9 +105,9 @@ spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
  * Returns info (pointer and length) about the data that PHYS holds that is
  * available to send over the transport medium immediately.
  */
-spindly_error_t spindly_phys_ready(struct spindly_phys *phys,
-                                   unsigned char **data,
-                                   size_t len)
+spindly_error_t spindly_phys_outgoing(struct spindly_phys *phys,
+                                      unsigned char **data,
+                                      size_t len)
 {
 
 

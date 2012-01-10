@@ -10,22 +10,41 @@ API guidelines
   buffers to allow the application to send/recv data in whatever way it thinks
   is fine
 
-- No global data, everything thread-safe
+- No global data, everything thread-safe. No thread code used.
 
 - Keep internal data/structs private and hidden from the app
 
 - Try make the API work for multiple SPDY protocol versions
 
+- Attempt to avoid superfluous memory copies
+
+- Allow applications to completely replace the default memory functions
+
 Handling of the "physical" connection
 =====================================
 
-PHYS = spindly_phys_init(SIDE, PROTVER)
+PHYS = spindly_phys_init(SIDE, PROTVER, CONFIG)
 
   Create a handle for a single duplex connection, SIDE is either client or
   server - what side the handle is made to handle. PROTVER is the specific
   SPDY protocol version.
 
-RESULT = spindly_phys_incoming(PHYS, DATA, DATALEN);
+  CONFIG can be NULL to accept internal defaults.
+
+  CONFIG struct fields:
+
+    age      - should be set to SPINDLY_CONFIG_AGE when SETting a config
+    customp  - custom pointer passed in to all callbacks
+    malloc   - callback to be called instead of malloc
+    realloc  - callback to be called instead of realloc
+    free     - callback to be called instead of free
+    demuxed  - callback called when incoming data passed in with
+               spindly_phys_incoming() has been consumed
+
+  A PHYS handle will hold default values for all SETTINGS and for client-side
+  handles it will keep persistent SETTINGS.
+
+RESULT = spindly_phys_incoming(PHYS, DATA, DATALEN, IDENTIFIER);
 
   when the application has read data off the transport, this function is
   called to tell Spindly about more data that has arrived. As spindly doesn't
@@ -34,6 +53,18 @@ RESULT = spindly_phys_incoming(PHYS, DATA, DATALEN);
 
   After data has been fed into the handle, call spindly_phys_demux() to make
   it demux the incoming data.
+
+  Data is not copied immediately by spindly in this funtion. It will use the
+  data as pointed to, so it is important that the application maintains the
+  data untouched in that buffer until spindly is done with it. Data will be
+  used from within the spindly_phys_demux() function and CONFIG->demuxed will
+  be called with the IDENTIFIER pointer when this block of data has been
+  handled.
+
+  This function will have some means to return information that it couldn't
+  accept any more data. When that happens, spindly_phys_demux() needs to be
+  called to drain the input queue somewhat first before
+  spindly_phys_incoming() can be called again.
 
 RESULT = spindly_phys_demux(PHYS, &MESSAGE, &PTR)
 
@@ -44,8 +75,12 @@ RESULT = spindly_phys_demux(PHYS, &MESSAGE, &PTR)
   is no more message, it may still hold trailing data that forms the beginning
   of the subsequent message.
 
+  When a piece of data passed in with spindly_phys_incoming() has been fully
+  handled (which it needs to be even if the trailing part isn't a complete
+  packet/frame), the CONFIG->demuxed callback must be called (if set).
+
   When spindly_phys_demux() is called. Everything that was handed over in a
-  previous call must've been copied by the application when
+  previous call must've been copied by the application before
   spindly_phys_demux() is called again.
 
   If RESULT is OK, MESSAGE will tell which message that was received
@@ -77,17 +112,19 @@ RESULT = spindly_phys_demux(PHYS, &MESSAGE, &PTR)
 
   SPINDLY_DX_HEADERS - headers arrived to a specific STREAM
 
-RESULT = spindly_phys_ready(PHYS, &SEND);
+RESULT = spindly_phys_outgoing(PHYS, &SEND);
 
-  Will return info (pointer and length) about the data that PHYS holds that is
-  available to send over the transport medium immediately.
+  Will return info (pointer and length) with data that is ready to send over
+  the transport medium immediately. This function may return data in multiple
+  pieces.
 
-  The data is put into the output buffer from the attached streams in a prio
-  order - at the time of the calling of this function.
+  The data is muxed from all streams and provided in a prio order - at the
+  time of the calling of this function.
  
-  The amount may be capped to a certain maximum level. Therefore, an
-  application should rather call this function repeated times to get updated
-  values after data has been sent off (and spindly_phys_sent was called).
+  The amount of data this function can return in a single call may be capped
+  to a certain maximum level. Therefore, an application should rather call
+  this function repeated times to get updated values after data has been sent
+  off (and spindly_phys_sent was called).
 
 RESULT = spindly_phys_sent(PHYS, LENGTH);
 
@@ -108,7 +145,7 @@ void spindly_phys_cleanup(PHYS);
 handle separate streams over the physical connection
 ====================================================
 
-RESULT = spindly_stream_new(PHYS, PRIO, &STREAM, CUSTOMP);
+RESULT = spindly_stream_new(PHYS, PRIO, &STREAM, CUSTOMP, CONFIG);
 
   Creates a request for a new stream and muxes the request into the output
   connection, creates a STREAM handle for the new stream and returns the
@@ -119,6 +156,14 @@ RESULT = spindly_stream_new(PHYS, PRIO, &STREAM, CUSTOMP);
 
   Note that the stream is not yet ready to be used until it has been
   acknowledged by the peer and we get a SPINDLY_DX_STREAM_ACK response.
+
+  CONFIG is NULL or a pointer to a stream config struct with the following
+  fields:
+
+    age      - should be set to SPINDLY_CONFIG_AGE
+    consumed - callback function to call when 'data' or 'headers' have
+               completed. The HANDLED pointer is passed on in addition to the
+               CUSTOMP one.
 
 RESULT = spindly_stream_ack(STREAM);
 
@@ -133,29 +178,38 @@ RESULT = spindly_stream_close(STREAM);
   Close the STREAM. Can be used as a response to a SPINDLY_DX_STREAM_KILL
   message or it will generate such a message to the other side.
 
-RESULT = spindly_stream_data(STREAM, DATA, DATALEN, &HANDLED);
+RESULT = spindly_stream_data(STREAM, DATA, DATALEN, HANDLED);
 
   Send data on this specific stream. If the stream is not yet acked by the
   remote, the data will be held locally until it gets acked and sent later.
 
-  HANDLED is the number of bytes the function "took care of", which may be a
-  smaller amount than what passed to it. In that case, it means the outgoing
-  buffer is full and it needs to be drained before this stream can take more
-  data.
+  This function will not copy data. It will just store a reference to it.  The
+  application is responsible to maintain the data until spindly has called the
+  callback telling that the data has been consumed.
 
-  Also, when adding data or headers etc on multiple streams, it should be
-  noted that the streams' outgoing buffers are drainde in prio order when
-  spindly_phys_ready() is called.
+  HANDLED is a custom pointer. It will be passed in to the STREAM->consumed
+  callback when this data chunk has been handled by spindly.
+
+  When adding data or headers etc on multiple streams, it should be noted that
+  the streams' outgoing buffers are drained in prio order when
+  spindly_phys_outgoing() is called.
 
 RESULT = spindly_stream_headers(STREAM, HEADERS, &HANDLED);
 
   Send headers on this specific stream.
 
+  This function will not copy data. It will just store a reference to it.  The
+  application is responsible to maintain the data until spindly has called the
+  callback telling that the data has been consumed.
+
+  HANDLED is a custom pointer. It will be passed in to the STREAM->consumed
+  callback when these headers have been handled by spindly.
+
 RESULT = spindly_stream_window(STREAM, DELTA);
 
   TODO: Modify the WINDOW SIZE with DELTA ...
 
-PHYS = spindly_stream_phys(STREAM);
+PHYS = spindly_stream_getphys(STREAM);
 
   Figure out the physical handle a particular stream is associated with.
 
@@ -190,19 +244,24 @@ RESULT = spindly_version(REQUIRED, &STRING)
 
  spindly_stream_new(PHYS, &STREAM2, "2");
 
- spindly_phys_ready(PHYS, &DATATOSEND);
+ spindly_phys_outgoing(PHYS, &DATATOSEND);
 
  send(DATATOSEND); /* over TCP to the physical server */
 
  while( !until data comes OR data can be sent ) {
 
-   spindly_phys_ready(PHYS, &data, &len);
-   if(len) { /* there is data to send */
-     bytes_sent = send(TCP, data, len);
+   do {
+     spindly_phys_outgoing(PHYS, &data, &len);
+     if(len) { /* there is data to send */
+       bytes_sent = send(TCP, data, len);
 
-     /* tell spindly how much we actually sent */
-     spindly_phys_sent(PHYS, bytes_sent);
-   }
+       /* tell spindly how much we actually sent */
+       spindly_phys_sent(PHYS, bytes_sent);
+
+       if(bytes_sent != len)
+         break; /* we filled up */
+     }
+   } while (len); /* as long as there were chunks, go on */
 
    number_of_bytes = recv( storeincoming ); /* read from TCP */
 
