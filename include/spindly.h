@@ -80,8 +80,14 @@ typedef enum {
 
 } spindly_spdyver_t;
 
+#define SPINDLY_CONFIG_AGE 1
+struct spindly_phys_config {
+  int age; /* MUST be set to SPINDLY_CONFIG_AGE */
+};
+
 struct spindly_phys *spindly_phys_init(spindly_side_t side,
-                                       spindly_spdyver_t protver);
+                                       spindly_spdyver_t protver,
+                                       struct spindly_phys_config *config);
 
 typedef enum {
   SPINDLYE_OK,

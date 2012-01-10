@@ -25,6 +25,8 @@ struct spindly_phys {
   int added_alloced; /* how large is the streams array alloc */
 
   uint32_t streamid; /* the next streamid to ask for */
+
+  struct spindly_phys_config *config;
 };
 
 /*
@@ -35,7 +37,8 @@ struct spindly_phys {
  * TODO: provide a means to replace the memory functions
  */
 struct spindly_phys *spindly_phys_init(spindly_side_t side,
-                                       spindly_spdyver_t protver)
+                                       spindly_spdyver_t protver,
+                                       struct spindly_phys_config *config)
 {
   struct spindly_phys *phys;
 
@@ -50,9 +53,11 @@ struct spindly_phys *spindly_phys_init(spindly_side_t side,
   phys->side = side;
   phys->protver = protver;
 
-  phys->streamid = 0;
   phys->added_stream = 0;
   phys->added_alloced = PHYS_DEFAULT_NUM_STREAMS;
+
+  phys->streamid = 0;
+  phys->config = config;
 
   return phys;
 
@@ -137,10 +142,13 @@ spindly_error_t spindly_phys_settings(struct spindly_phys *phys,
 }
 
 /*
- * Cleanup the entire connection and all associated streams and data.
+ * Cleanup the entire connection.
  */
 void spindly_phys_cleanup(struct spindly_phys *phys)
 {
-
+  if(phys) {
+    free(phys->streams);
+    free(phys);
+  }
 }
 
