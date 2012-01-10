@@ -27,8 +27,8 @@ struct spdy_frame {
 	_Bool _header_parsed;
 	enum SPDY_FRAME_TYPE type; /*!< Type of the frame */
 	union {
-		spdy_control_frame *control;
-		spdy_data_frame *data;
+		spdy_control_frame control;
+		spdy_data_frame data;
 	} frame;
 
 	/* Used to chain related frames. */

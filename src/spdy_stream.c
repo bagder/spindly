@@ -113,10 +113,12 @@ int spdy_stream_handle_frame(spdy_stream *stream, spdy_frame *frame) {
 	switch(frame->type) {
 		case SPDY_DATA_FRAME:
 			SPDYDEBUG("DATAFRAME");
-			return spdy_stream_handle_data_frame(stream, frame->frame.data);
+			return spdy_stream_handle_data_frame(stream,
+                                                             &frame->frame.data);
 		case SPDY_CONTROL_FRAME:
 			SPDYDEBUG("CONTROLFRAME");
-			return spdy_stream_handle_control_frame(stream, frame->frame.control);
+			return spdy_stream_handle_control_frame(stream,
+                                                                &frame->frame.control);
 		default:
 			/* Should _never_ happen. */
 			SPDYDEBUG("Invalid frame type - This should never be reached!");
