@@ -26,8 +26,6 @@ START_TEST (test_spdy_nv_block_parse)
 	int i;
 
 	spdy_nv_block_init(&nv_block);
-	ret = spdy_nv_block_parse(&nv_block, test_nv_block,400);
-        spdy_nv_block_destroy(&nv_block);
 	/* Test with insufficient data. */
 	/* TODO: Check pairs_parsed count etc. */
 	ret = spdy_nv_block_parse(&nv_block, test_nv_block,400);
