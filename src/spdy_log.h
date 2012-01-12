@@ -6,16 +6,14 @@
 
 #ifdef DEBUG
 /**
- * fprintf ogging macro for SPDY.
- * Can be used with a format string, logs file line and function if
- * compiled with -DDEBUG.
+ * fprintf logging macro for libspdy.
  */
 #define SPDYDEBUG(msg) \
-	fprintf(stderr, "%s:%d:%s: ", __FILE__, __LINE__, __func__); \
+	fprintf(stderr, "%s:%d:%s: ", __FILE__, __LINE__); \
 	fprintf(stderr, msg); \
 	fprintf(stderr, "\n");
 #else
-#define SPDYDEBUG(...)
+#define SPDYDEBUG(msg)
 #endif
 
 #endif
