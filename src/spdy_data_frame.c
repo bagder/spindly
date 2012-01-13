@@ -100,3 +100,13 @@ int spdy_data_frame_pack_header(char **out, spdy_data_frame *frame) {
 	return SPDY_ERROR_NONE;
 }
 
+/*
+ * Destroy/free all data this struct has allocated.
+ */
+void spdy_data_frame_destroy(spdy_data_frame *frame)
+{
+  if(frame->data) {
+    free(frame->data);
+    frame->data = NULL;
+  }
+}

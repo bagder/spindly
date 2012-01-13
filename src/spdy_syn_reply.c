@@ -90,3 +90,10 @@ int spdy_syn_reply_parse(
 	return SPDY_ERROR_NONE;
 }
 
+/*
+ * Destroy/free all data this struct has allocated.
+ */
+void spdy_syn_reply_destroy(spdy_syn_reply *syn_reply)
+{
+  spdy_nv_block_destroy(&syn_reply->nv_block);
+}

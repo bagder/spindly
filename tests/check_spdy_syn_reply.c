@@ -29,6 +29,7 @@ START_TEST (test_spdy_syn_reply_parse)
 			55,
 			&zlib_ctx);
 	fail_unless(ret == 0, "spdy_syn_reply_parse failed.");
+        spdy_syn_reply_destroy(&syn_reply);
         spdy_zlib_inflate_end(&zlib_ctx);
 }
 END_TEST

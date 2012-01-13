@@ -34,5 +34,7 @@ int spdy_syn_reply_parse(
 		uint32_t frame_length,
 		spdy_zlib_context *zlib_ctx);
 
+void spdy_syn_reply_destroy(spdy_syn_reply *syn_reply);
+
 #endif
 

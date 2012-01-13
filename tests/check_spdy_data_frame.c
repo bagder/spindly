@@ -16,6 +16,7 @@ START_TEST (test_spdy_data_frame_parse_header)
 	fail_unless(frame.stream_id == 1, "Stream ID parsing failed.");
 	fail_unless(frame.flags == 1, "Flag parsing failed.");
 	fail_unless(frame.length == 0, "Length parsing failed.");
+        spdy_data_frame_destroy(&frame);
 }
 END_TEST
 
@@ -38,6 +39,7 @@ START_TEST (test_spdy_data_frame_parse)
 	fail_unless(
 			memcmp("123456789012345", frame.data, 15) == 0,
 			"Parsed data is wrong.");
+        spdy_data_frame_destroy(&frame);
 }
 END_TEST
 
@@ -52,6 +54,7 @@ START_TEST (test_spdy_data_frame_pack_header)
 	ret = spdy_data_frame_pack_header(&out, &frame);
 	fail_unless(ret == 0, "spdy_data_frame_pack_header failed.");
 	fail_unless(memcmp(out, test_data_frame_header, 8) == 0, "Packed data is invalid.");
+        spdy_data_frame_destroy(&frame);
 }
 END_TEST
 
@@ -68,6 +71,7 @@ START_TEST (test_spdy_data_frame_parse_pack)
 	ret = spdy_data_frame_pack_header(&out, &frame);
 	fail_unless(ret == 0, "spdy_data_frame_pack_header failed.");
 	fail_unless(memcmp(out, test_data_frame_header, 8) == 0, "Packed data is invalid.");
+        spdy_data_frame_destroy(&frame);
 }
 END_TEST
 
