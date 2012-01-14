@@ -46,14 +46,17 @@ END_TEST
 START_TEST (test_spdy_data_frame_pack_header)
 {
 	spdy_data_frame frame;
-	char *out = NULL;
+	char out[8];
+        size_t outlen;
 	int ret;
 	frame.stream_id = 1;
 	frame.flags = 1;
 	frame.length = 0;
-	ret = spdy_data_frame_pack_header(&out, &frame);
+        frame.data = NULL;
+	ret = spdy_data_frame_pack_header(out, sizeof(out), &outlen, &frame);
 	fail_unless(ret == 0, "spdy_data_frame_pack_header failed.");
 	fail_unless(memcmp(out, test_data_frame_header, 8) == 0, "Packed data is invalid.");
+        fail_unless(outlen == 8);
         spdy_data_frame_destroy(&frame);
 }
 END_TEST
@@ -61,16 +64,18 @@ END_TEST
 START_TEST (test_spdy_data_frame_parse_pack)
 {
 	spdy_data_frame frame;
-	char *out;
+	char out[9];
 	spdy_data data;
 	int ret;
+        size_t outlen;
 	frame.stream_id = 0;
 	ret = spdy_data_frame_parse_header(&frame,
 			spdy_data_use(&data, test_data_frame_header, 8));
 	fail_unless(ret == 0, "spdy_data_frame_parse_header failed.");
-	ret = spdy_data_frame_pack_header(&out, &frame);
+	ret = spdy_data_frame_pack_header(out, sizeof(out), &outlen, &frame);
 	fail_unless(ret == 0, "spdy_data_frame_pack_header failed.");
 	fail_unless(memcmp(out, test_data_frame_header, 8) == 0, "Packed data is invalid.");
+        fail_unless(outlen == 8);
         spdy_data_frame_destroy(&frame);
 }
 END_TEST

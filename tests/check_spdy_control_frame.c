@@ -21,14 +21,15 @@ END_TEST
 
 START_TEST (test_spdy_control_frame_pack_header)
 {
-	char *out=NULL;
+	char out[8];
 	int ret;
 	spdy_control_frame frame;
+        size_t got;
 	frame.version = 2;
 	frame.type = 1;
 	frame.flags = 1;
 	frame.length = 288;
-	ret = spdy_control_frame_pack_header(&out, &frame);
+	ret = spdy_control_frame_pack_header(out, sizeof(out), &got, &frame);
 	fail_unless(ret == 0, "spdy_control_frame_pack_header failed.");
 	fail_unless(memcmp(out, test_control_syn_stream_frame, 8) == 0, "Packed data is invalid.");
 }
@@ -37,16 +38,18 @@ END_TEST
 START_TEST (test_spdy_control_frame_parse_pack_header)
 {
 	spdy_control_frame frame;
-	char *out;
+	char out[8];
 	spdy_data data;
 	int ret;
+        size_t got;
 	spdy_control_frame_init(&frame);
 	ret = spdy_control_frame_parse_header(&frame,
 			spdy_data_use(&data, test_control_syn_stream_frame, 8));
 	fail_unless(ret == 0, "spdy_control_frame_parse_header failed.");
-	ret = spdy_control_frame_pack_header(&out, &frame);
+	ret = spdy_control_frame_pack_header(out, sizeof(out), &got, &frame);
 	fail_unless(ret == 0, "spdy_control_frame_pack_header failed.");
 	fail_unless(memcmp(out, test_control_syn_stream_frame, 8) == 0, "Input is different than repacked frame.");
+        fail_unless(got == 8);
 }
 END_TEST
 

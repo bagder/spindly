@@ -12,7 +12,9 @@
 const uint8_t SPDY_DATA_FRAME_MIN_LENGTH = 8;
 
 /**
- * Parse the header of a data frame.
+ * Parse the header of a data frame. This needs 'stream_id' to be cleared to
+ * consider this as the first call.
+ *
  * @param frame - Target data frame.
  * @param data - Data to parse.
  * @see spdy_data_frame
@@ -37,6 +39,7 @@ int spdy_data_frame_parse_header(
 		frame->flags = data->cursor[0];
 		frame->length = BE_LOAD_32(data->cursor) & 0x00FFFFFF;
 		data->cursor += 4;
+                frame->data = NULL; /* no frame payload yet */
 	}
 	return SPDY_ERROR_NONE;
 }
@@ -78,25 +81,26 @@ int spdy_data_frame_parse(
 
 /**
  * Pack the data frame into a buffer for transmitting.
- * @param out Target buffer.
- * @param frame Frame to pack.
+ * @param out Target buffer
+ * @param bufsize Size of the target buffer
+ * @param outlen Length of the data written by this function
+ * @param frame Frame to pack
  * @see spdy_data_frame
  * @return Errorcode
  */
-int spdy_data_frame_pack_header(char **out, spdy_data_frame *frame) {
-	char *dat;
-	*out = malloc(sizeof(char)*8);
-	dat = *out;
-	if(!dat) {
-		SPDYDEBUG("Allocation of destination buffer failed.");
-		return SPDY_ERROR_MALLOC_FAILED;
-	}
-	BE_STORE_32(dat, (frame->stream_id & 0x8FFFFFFF));
-	dat += 4;
-	BE_STORE_32(dat, frame->length);
+int spdy_data_frame_pack_header(char *out, size_t bufsize,
+                                size_t *outlen, spdy_data_frame *frame)
+{
+	if(bufsize < 8)
+	  return SPDY_ERROR_TOO_SMALL_BUFFER;
+
+	BE_STORE_32(out, (frame->stream_id & 0x8FFFFFFF));
+	out += 4;
+	BE_STORE_32(out, frame->length);
 	/* The flags are set after the length is written, because
 	 * otherwise the flags would get overwritten by the length. */
-	dat[0] = frame->flags;
+	out[0] = frame->flags;
+        *outlen = 8;
 	return SPDY_ERROR_NONE;
 }
 

@@ -30,8 +30,8 @@ int spdy_data_frame_parse_header(
 int spdy_data_frame_parse(
 		spdy_data_frame *frame,
 		spdy_data *data);
-int spdy_data_frame_pack_header(char **out, spdy_data_frame *frame);
-
+int spdy_data_frame_pack_header(char *out, size_t bufsize,
+                                size_t *outlen, spdy_data_frame *frame);
 void spdy_data_frame_destroy(spdy_data_frame *frame);
 
 #endif

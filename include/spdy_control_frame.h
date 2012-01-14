@@ -55,7 +55,9 @@ int spdy_control_frame_init(spdy_control_frame *frame);
 int spdy_control_frame_parse_header(
 		spdy_control_frame *frame,
 		spdy_data *data);
-int spdy_control_frame_pack_header(char **out, spdy_control_frame *frame);
+int spdy_control_frame_pack_header(char *outp, size_t bufsize,
+                                   size_t *outsize,
+                                   spdy_control_frame *frame);
 int spdy_control_frame_parse(
 		spdy_control_frame *frame,
 		spdy_data *data,

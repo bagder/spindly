@@ -138,30 +138,33 @@ int spdy_control_frame_parse(
 }
 
 /**
- * Pack the control frame into a buffer for transmitting.
- * @param out Target buffer.
- * @param frame Frame to pack.
+ * Pack the control frame into an output buffer for transmitting.
+ * @param out Target buffer
+ * @param buffer Length of target buffer
+ * @param outsize Pointer to length of the output data
+ * @param frame Frame to pack
  * @see spdy_control_frame
  * @return SPDY_ERRORS
  */
-int spdy_control_frame_pack_header(char **out, spdy_control_frame *frame) {
-	char *dat;
-	*out = malloc(sizeof(char)*8);
-	dat = *out;
-	if(!dat) {
-		SPDYDEBUG("Allocation of destination buffer failed.");
-		return SPDY_ERROR_MALLOC_FAILED;
-	}
+int spdy_control_frame_pack_header(char *out, size_t bufsize,
+                                   size_t *outsize,
+                                   spdy_control_frame *frame)
+{
+        if(bufsize < 8)
+          return SPDY_ERROR_TOO_SMALL_BUFFER;
+
 	/* The OR sets the first bit to true, indicating that this is a
 	 * control frame. */
-	BE_STORE_16(dat, (frame->version | 0x8000));
-	dat += 2;
-	BE_STORE_16(dat, frame->type);
-	dat += 2;
-	BE_STORE_32(dat, frame->length);
+	BE_STORE_16(out, (frame->version | 0x8000));
+	out += 2;
+	BE_STORE_16(out, frame->type);
+	out += 2;
+	BE_STORE_32(out, frame->length);
 	/* The flags are set after the length is written, because elsewise
 	 * the flags would get overwritten by the length. */
-	dat[0] = frame->flags;
+	out[0] = frame->flags;
+
+        *outsize = 8;
 	return SPDY_ERROR_NONE;
 }
 
