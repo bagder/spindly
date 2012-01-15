@@ -55,6 +55,8 @@ int spdy_frame_parse(
 		}
                 if(frame->type == SPDY_CONTROL_FRAME)
                   spdy_control_frame_init(&frame->frame.control);
+                else if(frame->type == SPDY_DATA_FRAME)
+                  spdy_data_frame_init(&frame->frame.data);
 
 		frame->_header_parsed = 1;
 	}

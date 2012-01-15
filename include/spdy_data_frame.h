@@ -24,6 +24,8 @@ typedef struct {
 	char *data;          /*!< Frame payload */
 } spdy_data_frame;
 
+int spdy_data_frame_init(spdy_data_frame *frame);
+
 int spdy_data_frame_parse_header(
 		spdy_data_frame *frame,
 		spdy_data *data);

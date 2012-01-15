@@ -11,6 +11,10 @@
 /* Minimum length of a data frame. */
 const uint8_t SPDY_DATA_FRAME_MIN_LENGTH = 8;
 
+int spdy_data_frame_init(spdy_data_frame *frame) {
+  frame->stream_id = 0;
+}
+
 /**
  * Parse the header of a data frame. This needs 'stream_id' to be cleared to
  * consider this as the first call.
