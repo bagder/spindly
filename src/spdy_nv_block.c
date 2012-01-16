@@ -146,7 +146,7 @@ int spdy_nv_block_parse(spdy_nv_block *block, char *data, size_t data_length)
     tmp_item_length = BE_LOAD_16(data);
     data += 2;
     /* Allocate space for name */
-    size = (sizeof(char) * tmp_item_length) + 1;
+    size = tmp_item_length + 1;
     if(data + tmp_item_length > data_max) {
       SPDYDEBUG("Data to small.");
       return SPDY_ERROR_INSUFFICIENT_DATA;
@@ -173,7 +173,7 @@ int spdy_nv_block_parse(spdy_nv_block *block, char *data, size_t data_length)
     tmp_item_length = BE_LOAD_16(data);
     data += 2;
     /* Allocate space for values */
-    size = (sizeof(char) * tmp_item_length) + 1;
+    size = tmp_item_length + 1;
     if(data + tmp_item_length > data_max) {
       SPDYDEBUG("Insufficient data for block parse.");
       free(pair->name);
@@ -257,7 +257,7 @@ int spdy_nv_block_pack(char **dest, size_t *dest_size, spdy_nv_block *nv_block)
   }
 
   /* Allocate memory for dest */
-  *dest = malloc(sizeof(char) * (*dest_size));
+  *dest = malloc(*dest_size);
   if(!*dest) {
     SPDYDEBUG("Memoy allocation failed.");
     return SPDY_ERROR_MALLOC_FAILED;

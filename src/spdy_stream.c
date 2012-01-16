@@ -135,9 +135,8 @@ int spdy_stream_handle_data_frame(spdy_stream *stream, spdy_data_frame *frame)
   if(stream->store_received_data) {
     /* Reallocate buffer for received data */
     char *data_received_new = realloc(stream->data_received,
-                                      sizeof(char) *
-                                      (stream->data_received_length +
-                                       frame->length));
+                                      stream->data_received_length +
+                                      frame->length);
     if(!data_received_new) {
       SPDYDEBUG("Reallocating data_received failed.");
       return SPDY_ERROR_MALLOC_FAILED;

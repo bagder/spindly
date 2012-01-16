@@ -72,7 +72,7 @@ int spdy_data_frame_parse(spdy_data_frame *frame, spdy_data *data)
     return SPDY_ERROR_INSUFFICIENT_DATA;
   }
 
-  frame->data = malloc(sizeof(char) * frame->length);
+  frame->data = malloc(frame->length);
   if(!frame->data) {
     SPDYDEBUG("Frame payload malloc failed.");
     return SPDY_ERROR_MALLOC_FAILED;
