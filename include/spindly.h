@@ -95,9 +95,11 @@ struct spindly_phys *spindly_phys_init(spindly_side_t side,
 
 typedef enum
 {
-  SPINDLYE_OK,
+  SPINDLYE_OK,    /* 0 - all is fine */
+  SPINDLYE_NOMEM, /* 1 - out of memory */
+  SPINDLYE_INVAL, /* 2 - invalid input/argument/value */
 
-  SPINDLYE_LAST                 /* not used, always the last */
+  SPINDLYE_LAST   /* not used, always the last */
 } spindly_error_t;
 
 
@@ -221,7 +223,7 @@ void spindly_phys_cleanup(struct spindly_phys *phys);
  * added.
  */
 spindly_error_t spindly_stream_new(struct spindly_phys *phys,
-                                   int prio,
+                                   unsigned int prio,
                                    struct spindly_stream **stream,
                                    void *userp);
 

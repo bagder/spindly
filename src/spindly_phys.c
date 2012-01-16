@@ -46,7 +46,9 @@ struct spindly_phys *spindly_phys_init(spindly_side_t side,
   phys = malloc(sizeof(struct spindly_phys));
   if(!phys)
     goto fail;
-  phys->streams = malloc(sizeof(struct spindly_stream *) *
+  phys->config = config;
+  phys->streams = MALLOC(phys,
+                         sizeof(struct spindly_stream *) *
                          PHYS_DEFAULT_NUM_STREAMS);
   if(!phys->streams)
     goto fail;
@@ -58,7 +60,6 @@ struct spindly_phys *spindly_phys_init(spindly_side_t side,
   phys->added_alloced = PHYS_DEFAULT_NUM_STREAMS;
 
   phys->streamid = 0;
-  phys->config = config;
 
   return phys;
 
@@ -67,9 +68,9 @@ fail:
     free(phys);
 
   return NULL;
-
-
 }
+
+#if 0 /* not yet implemented */
 
 /*
  * when the application has read data off the transport, this function is
@@ -137,6 +138,8 @@ spindly_error_t spindly_phys_settings(struct spindly_phys *phys,
 {
 
 }
+
+#endif
 
 /*
  * Cleanup the entire connection.

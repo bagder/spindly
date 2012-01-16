@@ -30,4 +30,17 @@ typedef enum {
 #  define HAVE_BOOL_T
 #endif
 
+/* TODO: these should be made to use the callbacks if set */
+#define CALLOC(phys,size) (calloc)(1, size)
+#define MALLOC(phys,size) (malloc)(size)
+#define REALLOC(phys,ptr,size) (realloc)(ptr, size)
+#define FREE(phys, ptr) (free)(ptr)
+
+#if 0
+#define malloc _dont_use_malloc_directly
+#define calloc _dont_use_calloc_directly
+#define realloc _dont_use_realloc_directly
+#define free _dont_use_free_directly
+#endif
+
 #endif /* SPDY_SETUP_H */
