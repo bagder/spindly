@@ -1,4 +1,4 @@
-#include "spdy_setup.h" /* MUST be the first header to include */
+#include "spdy_setup.h"         /* MUST be the first header to include */
 #include "spdy_data_frame.h"
 #include "spdy_log.h"
 #include "spdy_error.h"
@@ -11,7 +11,8 @@
 /* Minimum length of a data frame. */
 const uint8_t SPDY_DATA_FRAME_MIN_LENGTH = 8;
 
-int spdy_data_frame_init(spdy_data_frame *frame) {
+int spdy_data_frame_init(spdy_data_frame *frame)
+{
   frame->stream_id = 0;
 }
 
@@ -24,28 +25,27 @@ int spdy_data_frame_init(spdy_data_frame *frame) {
  * @see spdy_data_frame
  * @return Errorcode
  */
-int spdy_data_frame_parse_header(
-		spdy_data_frame *frame,
-		spdy_data *data) {
+int spdy_data_frame_parse_header(spdy_data_frame *frame, spdy_data *data)
+{
 
-	/* Check if the frame header has already been parsed. */
-	if(!frame->stream_id) {
-		size_t length = data->data_end - data->cursor;
-		if(length < SPDY_DATA_FRAME_MIN_LENGTH) {
-			SPDYDEBUG("Insufficient data for data frame.");
-			data->needed = SPDY_DATA_FRAME_MIN_LENGTH - length;
-			return SPDY_ERROR_INSUFFICIENT_DATA;
-		}
+  /* Check if the frame header has already been parsed. */
+  if(!frame->stream_id) {
+    size_t length = data->data_end - data->cursor;
+    if(length < SPDY_DATA_FRAME_MIN_LENGTH) {
+      SPDYDEBUG("Insufficient data for data frame.");
+      data->needed = SPDY_DATA_FRAME_MIN_LENGTH - length;
+      return SPDY_ERROR_INSUFFICIENT_DATA;
+    }
 
-		/* Read stream id. (AND removes the first type bit.) */
-		frame->stream_id = BE_LOAD_32(data->cursor) & 0x7FFFFFFF;
-		data->cursor += 4;
-		frame->flags = data->cursor[0];
-		frame->length = BE_LOAD_32(data->cursor) & 0x00FFFFFF;
-		data->cursor += 4;
-                frame->data = NULL; /* no frame payload yet */
-	}
-	return SPDY_ERROR_NONE;
+    /* Read stream id. (AND removes the first type bit.) */
+    frame->stream_id = BE_LOAD_32(data->cursor) & 0x7FFFFFFF;
+    data->cursor += 4;
+    frame->flags = data->cursor[0];
+    frame->length = BE_LOAD_32(data->cursor) & 0x00FFFFFF;
+    data->cursor += 4;
+    frame->data = NULL;         /* no frame payload yet */
+  }
+  return SPDY_ERROR_NONE;
 }
 
 /**
@@ -55,32 +55,31 @@ int spdy_data_frame_parse_header(
  * @see spdy_data_frame
  * @return Errorcode
  */
-int spdy_data_frame_parse(
-		spdy_data_frame *frame,
-		spdy_data *data) {
-	int ret;
-	size_t length;
-	ret = spdy_data_frame_parse_header(frame, data);
-	if(ret != SPDY_ERROR_NONE) {
-		return ret;
-	}
+int spdy_data_frame_parse(spdy_data_frame *frame, spdy_data *data)
+{
+  int ret;
+  size_t length;
+  ret = spdy_data_frame_parse_header(frame, data);
+  if(ret != SPDY_ERROR_NONE) {
+    return ret;
+  }
 
-	length = data->data_end - data->cursor;
-	if(frame->length > length) {
-		data->needed = frame->length - length;
-		SPDYDEBUG("Insufficient data for data frame.");
-		return SPDY_ERROR_INSUFFICIENT_DATA;
-	}
+  length = data->data_end - data->cursor;
+  if(frame->length > length) {
+    data->needed = frame->length - length;
+    SPDYDEBUG("Insufficient data for data frame.");
+    return SPDY_ERROR_INSUFFICIENT_DATA;
+  }
 
-	frame->data = malloc(sizeof(char) * frame->length);
-	if(!frame->data) {
-		SPDYDEBUG("Frame payload malloc failed.");
-		return SPDY_ERROR_MALLOC_FAILED;
-	}
-	memcpy(frame->data, data->cursor, frame->length);
-	data->cursor += frame->length;
+  frame->data = malloc(sizeof(char) * frame->length);
+  if(!frame->data) {
+    SPDYDEBUG("Frame payload malloc failed.");
+    return SPDY_ERROR_MALLOC_FAILED;
+  }
+  memcpy(frame->data, data->cursor, frame->length);
+  data->cursor += frame->length;
 
-	return SPDY_ERROR_NONE;
+  return SPDY_ERROR_NONE;
 }
 
 /**
@@ -95,17 +94,17 @@ int spdy_data_frame_parse(
 int spdy_data_frame_pack_header(char *out, size_t bufsize,
                                 size_t *outlen, spdy_data_frame *frame)
 {
-	if(bufsize < 8)
-	  return SPDY_ERROR_TOO_SMALL_BUFFER;
+  if(bufsize < 8)
+    return SPDY_ERROR_TOO_SMALL_BUFFER;
 
-	BE_STORE_32(out, (frame->stream_id & 0x8FFFFFFF));
-	out += 4;
-	BE_STORE_32(out, frame->length);
-	/* The flags are set after the length is written, because
-	 * otherwise the flags would get overwritten by the length. */
-	out[0] = frame->flags;
-        *outlen = 8;
-	return SPDY_ERROR_NONE;
+  BE_STORE_32(out, (frame->stream_id & 0x8FFFFFFF));
+  out += 4;
+  BE_STORE_32(out, frame->length);
+  /* The flags are set after the length is written, because
+   * otherwise the flags would get overwritten by the length. */
+  out[0] = frame->flags;
+  *outlen = 8;
+  return SPDY_ERROR_NONE;
 }
 
 /*

@@ -1,7 +1,7 @@
 /*
  * Home of the spindly_phys_*() functions.
  */
-#include "spdy_setup.h" /* MUST be the first header to include */
+#include "spdy_setup.h"         /* MUST be the first header to include */
 
 #include <stdlib.h>
 
@@ -16,15 +16,16 @@ typedef unsigned int uint32_t;
 /* The default number of slots allocated for streams in a phys handle */
 #define PHYS_DEFAULT_NUM_STREAMS 5
 
-struct spindly_phys {
+struct spindly_phys
+{
   spindly_side_t side;
   spindly_spdyver_t protver;
 
   struct spindly_stream **streams;
-  int added_stream;  /* how many have been added so far */
-  int added_alloced; /* how large is the streams array alloc */
+  int added_stream;             /* how many have been added so far */
+  int added_alloced;            /* how large is the streams array alloc */
 
-  uint32_t streamid; /* the next streamid to ask for */
+  uint32_t streamid;            /* the next streamid to ask for */
 
   struct spindly_phys_config *config;
 };
@@ -42,7 +43,7 @@ struct spindly_phys *spindly_phys_init(spindly_side_t side,
 {
   struct spindly_phys *phys;
 
-  phys = malloc( sizeof(struct spindly_phys) );
+  phys = malloc(sizeof(struct spindly_phys));
   if(!phys)
     goto fail;
   phys->streams = malloc(sizeof(struct spindly_stream *) *
@@ -61,7 +62,7 @@ struct spindly_phys *spindly_phys_init(spindly_side_t side,
 
   return phys;
 
-  fail:
+fail:
   if(phys)
     free(phys);
 
@@ -81,9 +82,8 @@ struct spindly_phys *spindly_phys_init(spindly_side_t side,
  *
  */
 
-spindly_error_t spindly_phys_incoming(struct spindly_phys *phys,
-                                      unsigned char *data,
-                                      size_t datalen)
+spindly_error_t spindly_phys_incoming(struct spindly_phys * phys,
+                                      unsigned char *data, size_t datalen)
 {
 
 
@@ -99,8 +99,7 @@ spindly_error_t spindly_phys_incoming(struct spindly_phys *phys,
  * to the particular message.
  */
 spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
-                                   spindly_demux_t *msg,
-                                   void **ptr)
+                                   spindly_demux_t *msg, void **ptr)
 {
 
 
@@ -111,8 +110,7 @@ spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
  * available to send over the transport medium immediately.
  */
 spindly_error_t spindly_phys_outgoing(struct spindly_phys *phys,
-                                      unsigned char **data,
-                                      size_t len)
+                                      unsigned char **data, size_t len)
 {
 
 
@@ -123,8 +121,7 @@ spindly_error_t spindly_phys_outgoing(struct spindly_phys *phys,
  * considered consumed. The PHYS will then contain updated information of
  * amount of remaining data to send etc.
  */
-spindly_error_t spindly_phys_sent(struct spindly_phys *phys,
-                                  size_t len)
+spindly_error_t spindly_phys_sent(struct spindly_phys *phys, size_t len)
 {
 
 }
@@ -151,4 +148,3 @@ void spindly_phys_cleanup(struct spindly_phys *phys)
     free(phys);
   }
 }
-

@@ -1,4 +1,4 @@
-#include "spdy_setup.h" /* MUST be the first header to include */
+#include "spdy_setup.h"         /* MUST be the first header to include */
 #include "spdy_data.h"
 
 #include <string.h>
@@ -11,15 +11,13 @@
  * @param length - Length of data_in.
  * @return spdy_data - Filled with the supplied data. Can't fail.
  */
-spdy_data *spdy_data_use(
-		spdy_data *data,
-		char *data_in,
-		size_t length) {
-	data->data = data_in;
-	data->data_end = data_in + length;
-	data->cursor = data->data;
-	data->needed = 0;
-	return data;
+spdy_data *spdy_data_use(spdy_data *data, char *data_in, size_t length)
+{
+  data->data = data_in;
+  data->data_end = data_in + length;
+  data->cursor = data->data;
+  data->needed = 0;
+  return data;
 }
 
 /**
@@ -29,10 +27,8 @@ spdy_data *spdy_data_use(
  * @todo Check if this is really portable.
  * @return Void. Can't fail.
  */
-void spdy_data_copy(
-		spdy_data *data_out,
-		spdy_data *data_in) {
-	memcpy(data_out, data_in, sizeof(spdy_data));
-	return;
+void spdy_data_copy(spdy_data *data_out, spdy_data *data_in)
+{
+  memcpy(data_out, data_in, sizeof(spdy_data));
+  return;
 }
-
