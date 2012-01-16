@@ -39,7 +39,7 @@ enum SPDY_CTRL_TYPES
  */
 typedef struct
 {
-  _Bool _header_parsed;         /*!< Determines if the header has been parsed. */
+  bool _header_parsed;         /*!< Determines if the header has been parsed. */
   uint16_t version;             /*!< 15 bit version */
   uint16_t type;                /*!< 16 bit type */
   uint8_t flags;                /*!< 8 bit flags */

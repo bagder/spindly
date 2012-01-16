@@ -1,3 +1,4 @@
+#include "spdy_setup.h"
 #include "check_spdy_nv_block.h"
 #include "spdy_nv_block.h"
 #include "spdy_error.h"

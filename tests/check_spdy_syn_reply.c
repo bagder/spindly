@@ -1,3 +1,4 @@
+#include "spdy_setup.h"
 #include "check_spdy_syn_reply.h"
 #include "spdy_syn_reply.h"
 

@@ -22,20 +22,20 @@ typedef struct
   /** State: */
   enum spdy_stream_states state;
   /** Configuration: **/
-  _Bool store_received_data;
-  _Bool store_frames;
+  bool store_received_data;
+  bool store_frames;
   /** Stream data: **/
   uint32_t stream_id;
   uint32_t associated_to;
-  _Bool unidirectional;
+  bool unidirectional;
   uint32_t data_received_length;
   uint32_t data_sent_length;
   char *data_received;
   char *data_sent;
-  _Bool fin_received;
-  _Bool fin_sent;
-  _Bool rst_received;
-  _Bool rst_sent;
+  bool fin_received;
+  bool fin_sent;
+  bool rst_received;
+  bool rst_sent;
   uint32_t status_code;
   uint32_t frames_count;
   spdy_frame *frames;
@@ -47,8 +47,8 @@ typedef struct
 } spdy_stream;
 
 int spdy_stream_init(spdy_stream *stream,
-                     _Bool store_received_data,
-                     _Bool store_frames,
+                     bool store_received_data,
+                     bool store_frames,
                      spdy_zlib_context *in, spdy_zlib_context *out);
 int spdy_stream_handle_data(spdy_stream *stream, spdy_data *data);
 int spdy_stream_handle_frame(spdy_stream *stream, spdy_frame *frame);

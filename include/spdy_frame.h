@@ -26,7 +26,7 @@ enum SPDY_FRAME_TYPE
 typedef struct spdy_frame spdy_frame;
 struct spdy_frame
 {
-  _Bool _header_parsed;
+  bool _header_parsed;
   enum SPDY_FRAME_TYPE type;    /*!< Type of the frame */
   union
   {

@@ -19,8 +19,8 @@
  * @return Errorcode
  */
 int spdy_stream_init(spdy_stream *stream,
-                     _Bool store_received_data,
-                     _Bool store_frames,
+                     bool store_received_data,
+                     bool store_frames,
                      spdy_zlib_context *in, spdy_zlib_context *out)
 {
   memset(stream, 0, sizeof(stream));

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "spdy_setup.h"
 #include "spdy_data.h"
 #include "spdy_frame.h"
 #include "spdy_control_frame.h"

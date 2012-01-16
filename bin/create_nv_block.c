@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "spdy_setup.h"
 #include "spdy_nv_block.h"
 
 int main(int argc, char *argv[])

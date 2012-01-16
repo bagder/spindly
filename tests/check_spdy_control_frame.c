@@ -1,3 +1,4 @@
+#include "spdy_setup.h"
 #include "check_spdy_control_frame.h"
 #include "spdy_data.h"
 #include "spdy_control_frame.h"
