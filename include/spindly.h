@@ -55,11 +55,12 @@ typedef unsigned int spindly_streamid_t;
  * may contain binary zero octets, making ordinary C string operations not
  * suitable to work with them. Beware.
  */
-struct spindly_header_pair {
+struct spindly_header_pair
+{
   size_t namelen;
-  char *name; /* pointer to a name of 'namelen' bytes */
+  char *name;                   /* pointer to a name of 'namelen' bytes */
   size_t valuelen;
-  char *value; /* pointer to a value of 'valuelen' bytes */
+  char *value;                  /* pointer to a value of 'valuelen' bytes */
 };
 
 /*
@@ -67,32 +68,36 @@ struct spindly_header_pair {
  * server - what side the handle is made to handle. PROTVER is the specific
  * SPDY protocol version.
  */
-typedef enum {
+typedef enum
+{
   /* deliberately not using 0 to force a more active choice */
   SPINDLY_SIDE_CLIENT = 1,
   SPINDLY_SIDE_SERVER = 2
 } spindly_side_t;
 
-typedef enum {
-  SPINDLY_DEFAULT, /* allow spindly to decide or figure out */
-  SPINDLY_SPDYVER2 = 2, /* SPDY draft-2 protocol */
-  SPINDLY_SPDYVER3 = 3, /* SPDY draft-3 protocol */
+typedef enum
+{
+  SPINDLY_DEFAULT,              /* allow spindly to decide or figure out */
+  SPINDLY_SPDYVER2 = 2,         /* SPDY draft-2 protocol */
+  SPINDLY_SPDYVER3 = 3,         /* SPDY draft-3 protocol */
 
 } spindly_spdyver_t;
 
 #define SPINDLY_CONFIG_AGE 1
-struct spindly_phys_config {
-  int age; /* MUST be set to SPINDLY_CONFIG_AGE */
+struct spindly_phys_config
+{
+  int age;                      /* MUST be set to SPINDLY_CONFIG_AGE */
 };
 
 struct spindly_phys *spindly_phys_init(spindly_side_t side,
                                        spindly_spdyver_t protver,
                                        struct spindly_phys_config *config);
 
-typedef enum {
+typedef enum
+{
   SPINDLYE_OK,
 
-  SPINDLYE_LAST /* not used, always the last */
+  SPINDLYE_LAST                 /* not used, always the last */
 } spindly_error_t;
 
 
@@ -107,23 +112,23 @@ typedef enum {
  */
 
 spindly_error_t spindly_phys_incoming(struct spindly_phys *phys,
-                                      unsigned char *data,
-                                      size_t datalen);
+                                      unsigned char *data, size_t datalen);
 
 
 
-typedef enum {            /* what 'ptr' points to */
-  SPINDLY_DX_NONE,        /* NULL */
-  SPINDLY_DX_GOAWAY,      /* NULL */
-  SPINDLY_DX_STREAM_ACK,  /* struct spindly_dx_stream */
-  SPINDLY_DX_STREAM_REQ,  /* struct spindly_dx_stream */
-  SPINDLY_DX_STREAM_KILL, /* struct spindly_dx_stream */
-  SPINDLY_DX_SETTINGS,    /* struct spindly_dx_settings */
-  SPINDLY_DX_PING,        /* NULL */
-  SPINDLY_DX_DATA,        /* struct spindly_dx_data */
-  SPINDLY_DX_HEADERS,     /* struct spindly_dx_headers */
+typedef enum
+{                               /* what 'ptr' points to */
+  SPINDLY_DX_NONE,              /* NULL */
+  SPINDLY_DX_GOAWAY,            /* NULL */
+  SPINDLY_DX_STREAM_ACK,        /* struct spindly_dx_stream */
+  SPINDLY_DX_STREAM_REQ,        /* struct spindly_dx_stream */
+  SPINDLY_DX_STREAM_KILL,       /* struct spindly_dx_stream */
+  SPINDLY_DX_SETTINGS,          /* struct spindly_dx_settings */
+  SPINDLY_DX_PING,              /* NULL */
+  SPINDLY_DX_DATA,              /* struct spindly_dx_data */
+  SPINDLY_DX_HEADERS,           /* struct spindly_dx_headers */
 
-  SPINDLY_DX_LAST /* not used, always the last */
+  SPINDLY_DX_LAST               /* not used, always the last */
 } spindly_demux_t;
 
 /*
@@ -136,49 +141,50 @@ typedef enum {            /* what 'ptr' points to */
  * to the particular message.
  */
 
-struct spindly_dx_stream {
+struct spindly_dx_stream
+{
   spindly_streamid_t streamid;
-  struct spindly_stream *stream; /* NULL or pointing to the handle */
+  struct spindly_stream *stream;        /* NULL or pointing to the handle */
 };
 
-struct spindly_dx_settings {
+struct spindly_dx_settings
+{
   /* TODO: how should this be? */
   char *setting;
   char *value;
 };
 
-struct spindly_dx_data {
+struct spindly_dx_data
+{
   struct spindly_streamid *stream;
   unsigned char *datap;
   size_t len;
 };
 
-struct spindly_dx_headers {
+struct spindly_dx_headers
+{
   struct spindly_streamid *stream;
-  int num_of_pairs; /* there is at least 1 */
-  struct spindly_header_pair headers[1]; /* this array will be num_of_pairs
-                                           size big */
+  int num_of_pairs;             /* there is at least 1 */
+  struct spindly_header_pair headers[1];        /* this array will be num_of_pairs
+                                                   size big */
 };
 
 spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
-                                   spindly_demux_t *msg,
-                                   void **ptr);
+                                   spindly_demux_t *msg, void **ptr);
 
 /*
  * Returns info (pointer and length) about the data that PHYS holds that is
  * available to send over the transport medium immediately.
  */
 spindly_error_t spindly_phys_outgoing(struct spindly_phys *phys,
-                                      unsigned char **data,
-                                      size_t len);
+                                      unsigned char **data, size_t len);
 
 /*
  * Tell Spindly how many bytes of the data that has been sent and should be
  * considered consumed. The PHYS will then contain updated information of
  * amount of remaining data to send etc.
  */
-spindly_error_t spindly_phys_sent(struct spindly_phys *phys,
-                                  size_t len);
+spindly_error_t spindly_phys_sent(struct spindly_phys *phys, size_t len);
 
 /*
  * Change one or more settings associated with the connection. This will
@@ -243,8 +249,7 @@ spindly_error_t spindly_stream_close(struct spindly_stream *stream);
  */
 spindly_error_t spindly_stream_data(struct spindly_stream *stream,
                                     unsigned char *data,
-                                    size_t len,
-                                    void *handled);
+                                    size_t len, void *handled);
 
 /*
  * Send headers on this stream.

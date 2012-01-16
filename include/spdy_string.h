@@ -9,4 +9,3 @@ size_t strnlen(char *s, size_t maxlen);
 #endif
 
 #endif
-

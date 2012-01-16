@@ -20,51 +20,49 @@ extern const uint8_t SPDY_CONTROL_FRAME_MIN_LENGTH;
  * List of all SPDY control frame types. See section 2.7 in the draft 2
  * specification.
  */
-enum SPDY_CTRL_TYPES {
-	SPDY_CTRL_SYN_STREAM=1,   /*!< SYN_STREAM frame. */
-	SPDY_CTRL_SYN_REPLY=2,    /*!< SYN_REPLY frame. */
-	SPDY_CTRL_RST_STREAM=3,   /*!< RST_STREAM frame. */
-	SPDY_CTRL_SETTINGS=4,     /*!< SETTINGS frame. */
-	SPDY_CTRL_NOOP=5,         /*!< NOOP frame. */
-	SPDY_CTRL_PING=6,         /*!< PING frame.*/
-	SPDY_CTRL_GOAWAY=7,       /*!< GOAWAY frame. */
-	SPDY_CTRL_HEADERS=8,      /*!< HEADERS frame. */
-	SPDY_CTRL_WINDOW_UPDATE=9 /*!< WINDOW_UPDATE frame. */
+enum SPDY_CTRL_TYPES
+{
+  SPDY_CTRL_SYN_STREAM = 1,     /*!< SYN_STREAM frame. */
+  SPDY_CTRL_SYN_REPLY = 2,      /*!< SYN_REPLY frame. */
+  SPDY_CTRL_RST_STREAM = 3,     /*!< RST_STREAM frame. */
+  SPDY_CTRL_SETTINGS = 4,       /*!< SETTINGS frame. */
+  SPDY_CTRL_NOOP = 5,           /*!< NOOP frame. */
+  SPDY_CTRL_PING = 6,           /*!< PING frame. */
+  SPDY_CTRL_GOAWAY = 7,         /*!< GOAWAY frame. */
+  SPDY_CTRL_HEADERS = 8,        /*!< HEADERS frame. */
+  SPDY_CTRL_WINDOW_UPDATE = 9   /*!< WINDOW_UPDATE frame. */
 };
 
 /**
  * Control frame
  * - Contains all data (including the data payload) of a data frame.
  */
-typedef struct {
-	_Bool _header_parsed;/*!< Determines if the header has been parsed. */
-	uint16_t version;   /*!< 15 bit version */
-	uint16_t type;      /*!< 16 bit type */
-	uint8_t flags;      /*!< 8 bit flags */
-	uint32_t length;    /*!< 24 bit length */
-	union {
-		spdy_syn_stream syn_stream;
-		spdy_syn_reply syn_reply;
-		spdy_rst_stream rst_stream;
-		spdy_headers headers;
-	} obj;
+typedef struct
+{
+  _Bool _header_parsed;         /*!< Determines if the header has been parsed. */
+  uint16_t version;             /*!< 15 bit version */
+  uint16_t type;                /*!< 16 bit type */
+  uint8_t flags;                /*!< 8 bit flags */
+  uint32_t length;              /*!< 24 bit length */
+  union
+  {
+    spdy_syn_stream syn_stream;
+    spdy_syn_reply syn_reply;
+    spdy_rst_stream rst_stream;
+    spdy_headers headers;
+  } obj;
 } spdy_control_frame;
 
 int spdy_control_frame_init(spdy_control_frame *frame);
 
-int spdy_control_frame_parse_header(
-		spdy_control_frame *frame,
-		spdy_data *data);
+int spdy_control_frame_parse_header(spdy_control_frame *frame,
+                                    spdy_data *data);
 int spdy_control_frame_pack_header(char *outp, size_t bufsize,
-                                   size_t *outsize,
-                                   spdy_control_frame *frame);
-int spdy_control_frame_parse(
-		spdy_control_frame *frame,
-		spdy_data *data,
-		spdy_zlib_context *zlib_ctx);
+                                   size_t *outsize, spdy_control_frame *frame);
+int spdy_control_frame_parse(spdy_control_frame *frame,
+                             spdy_data *data, spdy_zlib_context *zlib_ctx);
 char *spdy_control_frame_get_type_name(int type);
 
 void spdy_control_frame_destroy(spdy_control_frame *frame);
 
 #endif
-
