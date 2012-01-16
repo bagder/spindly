@@ -14,6 +14,7 @@ const uint8_t SPDY_DATA_FRAME_MIN_LENGTH = 8;
 int spdy_data_frame_init(spdy_data_frame *frame)
 {
   frame->stream_id = 0;
+  return SPDY_ERROR_NONE;
 }
 
 /**
