@@ -17,14 +17,8 @@ are things not included here we can do as well!
   with libspdy.org again. Use that API internally only, not exposed to
   applications.
 
-* jot up a new public API
-
 * write up two test applications that use the new API, one client and
   one server
-
-* establish and make use of new source indentation setup and style,
-   - convert typedef'ed struct back to real structs
-   - change _Bool to something nicer
 
 * implement the new API and document it in man pages
 
@@ -32,3 +26,6 @@ are things not included here we can do as well!
   see that it also works in reality
 
 * make test cases for the new API
+
+* make sure the underlying spdy_ functions also use the memory functions as
+  set with spindly_phys_init()
