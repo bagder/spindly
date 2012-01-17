@@ -184,7 +184,7 @@ spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
  * available to send over the transport medium immediately.
  */
 spindly_error_t spindly_phys_outgoing(struct spindly_phys *phys,
-                                      unsigned char **data, size_t len);
+                                      unsigned char **data, size_t *len);
 
 /*
  * Tell Spindly how many bytes of the data that has been sent and should be

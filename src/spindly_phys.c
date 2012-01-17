@@ -4,6 +4,7 @@
 #include "spdy_setup.h"         /* MUST be the first header to include */
 
 #include <stdlib.h>
+#include <stddef.h>
 #include "spindly.h"
 #include "spindly_phys.h"
 #include "spindly_stream.h"
@@ -53,6 +54,33 @@ spindly_error_t _spindly_phys_add_stream(struct spindly_phys *phys,
   return SPINDLYE_OK;
 }
 
+/*
+ * Returns info (pointer and length) about the data that PHYS holds that is
+ * available to send over the transport medium immediately.
+ */
+spindly_error_t spindly_phys_outgoing(struct spindly_phys *phys,
+                                      unsigned char **data,
+                                      size_t *len)
+{
+  struct list_node *n = _spindly_list_first(&phys->outq);
+  if(n) {
+    struct spindly_stream *s= (struct spindly_stream *)
+      ((char *)n - offsetof(struct spindly_stream, outnode));
+
+    /* iterate over the attached streams and do the associated magic */
+    switch(s->out) {
+    case SPDY_CTRL_SYN_STREAM:
+      /* a fresh stream */
+
+      break;
+    }
+  }
+  else {
+    *data = NULL;
+    *len = 0;
+  }
+}
+
 #if 0 /* not yet implemented */
 
 /*
@@ -84,17 +112,6 @@ spindly_error_t spindly_phys_incoming(struct spindly_phys * phys,
  */
 spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
                                    spindly_demux_t *msg, void **ptr)
-{
-
-
-}
-
-/*
- * Returns info (pointer and length) about the data that PHYS holds that is
- * available to send over the transport medium immediately.
- */
-spindly_error_t spindly_phys_outgoing(struct spindly_phys *phys,
-                                      unsigned char **data, size_t len)
 {
 
 
