@@ -5,6 +5,12 @@
 #include "spdy_config.h"
 #endif
 
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#else
+typedef unsigned int uint32_t;
+#endif
+
 #ifdef HAVE_STDBOOL_H
 #include <stdbool.h>
 #endif

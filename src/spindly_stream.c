@@ -3,28 +3,10 @@
  */
 #include "spdy_setup.h"         /* MUST be the first header to include */
 
+#include <stdlib.h>
 #include "spindly.h"
-
-enum stream_state
-{
-  STREAM_NEW,                   /* as before the peer has ACKed it */
-  STREAM_ACKED,                 /* ACKed by remote or locally */
-  STREAM_CLOSED                 /* handle has been closed, can't use it */
-};
-
-struct spindly_stream
-{
-  struct spindly_phys *phys;    /* the physical connection this is associated
-                                   with */
-  enum stream_state;
-  size_t bytes_pending;         /* number of bytes not yet drained from this
-                                   handle */
-  size_t write_index;           /* where to write new data to */
-  size_t read_index;            /* where to read data from */
-  void *userp;                  /* set in stream_new() */
-};
-
-#define PRIO_MAX 7
+#include "spindly_stream.h"
+#include "spindly_phys.h"
 
 /*
  * Creates a request for a new stream and muxes the request into the output
@@ -47,8 +29,10 @@ spindly_error_t spindly_stream_new(struct spindly_phys *phys,
     return SPINDLYE_NOMEM;
 
   s->phys = phys;
-  s->stream_state = STREAM_NEW;
+  s->state = STREAM_NEW;
   s->userp = userp;
+
+  _spindly_phys_add_stream(phys, s);
 
   *stream = s;
 

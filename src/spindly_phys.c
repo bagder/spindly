@@ -4,31 +4,9 @@
 #include "spdy_setup.h"         /* MUST be the first header to include */
 
 #include <stdlib.h>
-
-#ifdef HAVE_STDINT_H
-#include <stdint.h>
-#else
-typedef unsigned int uint32_t;
-#endif
-
 #include "spindly.h"
-
-/* The default number of slots allocated for streams in a phys handle */
-#define PHYS_DEFAULT_NUM_STREAMS 5
-
-struct spindly_phys
-{
-  spindly_side_t side;
-  spindly_spdyver_t protver;
-
-  struct spindly_stream **streams;
-  int added_stream;             /* how many have been added so far */
-  int added_alloced;            /* how large is the streams array alloc */
-
-  uint32_t streamid;            /* the next streamid to ask for */
-
-  struct spindly_phys_config *config;
-};
+#include "spindly_phys.h"
+#include "spindly_stream.h"
 
 /*
  * Create a handle for a single duplex physical connection, SIDE is either
@@ -43,23 +21,18 @@ struct spindly_phys *spindly_phys_init(spindly_side_t side,
 {
   struct spindly_phys *phys;
 
+  /* this is the first malloc, it should use the malloc function provided in
+     the config struct if set, but probably cannot use the MALLOC macro */
   phys = malloc(sizeof(struct spindly_phys));
   if(!phys)
     goto fail;
   phys->config = config;
-  phys->streams = MALLOC(phys,
-                         sizeof(struct spindly_stream *) *
-                         PHYS_DEFAULT_NUM_STREAMS);
-  if(!phys->streams)
-    goto fail;
-
   phys->side = side;
   phys->protver = protver;
-
-  phys->added_stream = 0;
-  phys->added_alloced = PHYS_DEFAULT_NUM_STREAMS;
-
+  phys->num_streams = 0;
   phys->streamid = 0;
+
+  _spindly_list_init(&phys->streams);
 
   return phys;
 
@@ -68,6 +41,14 @@ fail:
     free(phys);
 
   return NULL;
+}
+
+spindly_error_t _spindly_phys_add_stream(struct spindly_phys *phys,
+                                         struct spindly_stream *s)
+{
+  _spindly_list_add(&phys->streams, &s->node);
+  phys->num_streams++;
+  return SPINDLYE_OK;
 }
 
 #if 0 /* not yet implemented */
@@ -147,7 +128,6 @@ spindly_error_t spindly_phys_settings(struct spindly_phys *phys,
 void spindly_phys_cleanup(struct spindly_phys *phys)
 {
   if(phys) {
-    free(phys->streams);
-    free(phys);
+    FREE(phys, phys);
   }
 }
