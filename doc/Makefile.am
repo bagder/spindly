@@ -1,5 +1,5 @@
 
-EXTRA_DIST = resources API
+EXTRA_DIST = resources API HACKING
 
 all:
 	doxygen Doxyfile

@@ -1,0 +1,66 @@
+Hacking spindly
+===============
+
+1. Mailing list.
+
+  Subscribe to the mailing list and do all dev talk, bug reporting and patches
+  on there.
+
+  Please don't do github pull requests, it is much better to discuss the
+  patches and what not in the open on the mailing list.
+
+2. Code style
+
+  - indent with 2 spaces
+  - the opening brace of a function starts on column 0
+  - the opening brace of a if/for/while/select block starts on the same line
+    as the keyword
+  - keep lines shorter than 80 columns
+
+3. Symbols
+
+  - Internal global functions
+
+  For functions that are provided within the library but have no external
+  exposure, use the _spindly prefix.
+
+  - External symbols
+
+  All symbols that have external exposure MUST be prefixed spindly_ (for
+  functions) or SPINDLY_ (for defines and macros).
+
+  - libspdy and spdy_* names
+
+  They originate from the libspdy.org project and will remain in its own
+  separate (but private) name space for the time being to allow code
+  interchange if/when the libspdy developers return.
+
+4. Copyright
+
+  We use individual copyrights in this project. Anyone who does original work
+  will get their copyright of the files they contribute. Anyone who does
+  "significant" work in a file is allowed to add himself/herself as a
+  copyright owner in that file.
+
+5. Portability
+
+  We aim at doing a very portable C library that should build fine with ANSI
+  C89 compilers. Everything else is considered a bug and should be fixed.
+
+6. API / ABI
+
+  We have no fixed API nor ABI until we release 1.0. We have no estimated
+  release data for 1.0 but once that happens we will work hard to NEVER modify
+  API or ABI in a backwards incompatible manner.
+
+7. Contributing
+
+  Posting patches and bugfixes on the public mailing list will be considered
+  an acknowledgement that the spindly project is allowed to use the material
+  using the existing license. It is then assumed that the contributor has the
+  rights to share the code or change to us.
+
+  The best patches are made by you first committing the change in your local
+  git repository using a correct name and email and with a properly formatted
+  commit message. You then produce a patch to send from that with 'git
+  format-patch'.
