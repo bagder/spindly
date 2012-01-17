@@ -23,6 +23,12 @@ struct spindly_stream
   uint32_t streamid;            /* SPDY identifier for this stream */
   void *userp;                  /* set in stream_new() */
 
+  int out; /* when this handle is added to the outq, this field will hold the
+              hint of what to send */
+  struct list_node outnode;
+
+  struct spindly_stream_config *config;
+
   spdy_stream spdy;
   spdy_zlib_context zlib_in;
   spdy_zlib_context zlib_out;

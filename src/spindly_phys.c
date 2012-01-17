@@ -33,7 +33,8 @@ struct spindly_phys *spindly_phys_init(spindly_side_t side,
   phys->streamid = 0;
 
   _spindly_list_init(&phys->streams);
-
+  _spindly_list_init(&phys->outq); /* the list of handles to go over for
+                                      outgoing traffic */
   return phys;
 
 fail:

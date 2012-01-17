@@ -89,6 +89,11 @@ struct spindly_phys_config
   int age;                      /* MUST be set to SPINDLY_CONFIG_AGE */
 };
 
+struct spindly_stream_config
+{
+  int age;                      /* MUST be set to SPINDLY_CONFIG_AGE */
+};
+
 struct spindly_phys *spindly_phys_init(spindly_side_t side,
                                        spindly_spdyver_t protver,
                                        struct spindly_phys_config *config);
@@ -225,7 +230,8 @@ void spindly_phys_cleanup(struct spindly_phys *phys);
 spindly_error_t spindly_stream_new(struct spindly_phys *phys,
                                    unsigned int prio,
                                    struct spindly_stream **stream,
-                                   void *userp);
+                                   void *userp,
+                                   struct spindly_stream_config *config);
 
 
 /*

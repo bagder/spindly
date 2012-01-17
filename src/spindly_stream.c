@@ -13,12 +13,14 @@
  * connection, creates a STREAM handle for the new stream and returns the
  * RESULT. The CUSTOMP pointer will be associated with the STREAM to allow the
  * application to identify it.
+ *
  */
 
 spindly_error_t spindly_stream_new(struct spindly_phys *phys,
                                    unsigned int prio,
                                    struct spindly_stream **stream,
-                                   void *userp)
+                                   void *userp,
+                                   struct spindly_stream_config *config)
 {
   struct spindly_stream *s;
   int rc;
@@ -33,6 +35,7 @@ spindly_error_t spindly_stream_new(struct spindly_phys *phys,
   s->phys = phys;
   s->state = STREAM_NEW;
   s->userp = userp;
+  s->config = config;
 
   /* create zlib contexts for incoming and outgoing data */
   rc = spdy_zlib_inflate_init(&s->zlib_in);
@@ -48,8 +51,9 @@ spindly_error_t spindly_stream_new(struct spindly_phys *phys,
   if(rc)
     goto fail;
 
-  /* now create an outgoing SPDY frame to request this stream to get acked
-     by the remote */
+  /* add this handle to the outq */
+  s->out = SPDY_CTRL_SYN_STREAM;
+  _spindly_list_add(&phys->outq, &s->outnode);
 
   /* append this stream to the list of streams held by the phys handle */
   _spindly_phys_add_stream(phys, s);

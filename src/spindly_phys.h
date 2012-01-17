@@ -11,10 +11,13 @@ struct spindly_phys
   spindly_side_t side;
   spindly_spdyver_t protver;
 
+  /* all the streams on this physical connection */
   struct list_head streams;
   int num_streams;             /* how many have been added so far */
-
   uint32_t streamid;            /* the next streamid to ask for */
+
+  /* list of handles to go over for outgoing traffic */
+  struct list_head outq;
 
   struct spindly_phys_config *config;
 };
