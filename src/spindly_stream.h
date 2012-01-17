@@ -2,6 +2,8 @@
 #define SPINDLY_STREAM_H
 
 #include "list.h"
+#include "spdy_zlib.h"
+#include "spdy_stream.h"
 
 enum stream_state
 {
@@ -18,9 +20,12 @@ struct spindly_stream
   enum stream_state state;
   size_t bytes_pending;         /* number of bytes not yet drained from this
                                    handle */
-  size_t write_index;           /* where to write new data to */
-  size_t read_index;            /* where to read data from */
+  uint32_t streamid;            /* SPDY identifier for this stream */
   void *userp;                  /* set in stream_new() */
+
+  spdy_stream spdy;
+  spdy_zlib_context zlib_in;
+  spdy_zlib_context zlib_out;
 };
 
 #define PRIO_MAX 7
