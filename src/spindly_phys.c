@@ -305,6 +305,8 @@ spindly_error_t spindly_phys_settings(struct spindly_phys *phys,
  */
 void spindly_phys_cleanup(struct spindly_phys *phys)
 {
+  /* TODO: move over all attached streams and clean them up as well */
+
   if(phys) {
     FREE(phys, phys);
   }

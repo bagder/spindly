@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <netinet/in.h>
 #include <stdlib.h>
+#include <string.h>
 
 /** Minimum length of a control frame. */
 #define SPDY_CONTROL_FRAME_MIN_LENGTH 8
@@ -208,6 +209,7 @@ int spdy_control_mk_syn_stream(spdy_control_frame *frame,
   int rc;
   assert(frame);
 
+  memset(frame, 0, sizeof(*frame));
   frame->type = SPDY_CTRL_SYN_STREAM;
   frame->_header_parsed = true; /* consider it parsed */
   rc = spdy_syn_stream_init(&frame->obj.syn_stream,

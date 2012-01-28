@@ -2,16 +2,33 @@
 
 #include <check.h>
 
+static const unsigned char SPDY_SYN_STREAM[8] =
+  "\x80\x00\x00\x01\x00\x00\x00\x00";
+
 START_TEST (test_spindly_phys_init)
 {
   struct spindly_phys *phys_client;
   struct spindly_phys *phys_server;
+  struct spindly_stream *stream_client;
+  spindly_error_t spint;
+  unsigned char *data;
+  size_t datalen;
 
   phys_client = spindly_phys_init(SPINDLY_SIDE_CLIENT, SPINDLY_DEFAULT, NULL);
   fail_unless(phys_client != NULL, "spindly_phys_init() failed");
 
   phys_server = spindly_phys_init(SPINDLY_SIDE_SERVER, SPINDLY_DEFAULT, NULL);
   fail_unless(phys_server != NULL, "spindly_phys_init() failed");
+
+  spint = spindly_stream_new(phys_client, 0, &stream_client, NULL, NULL);
+  fail_unless(spint == SPINDLYE_OK, "spindly_stream_new() failed");
+
+  spint = spindly_phys_outgoing(phys_client, &data, &datalen);
+  fail_unless(spint == SPINDLYE_OK, "spindly_phys_outgoing() failed");
+  fail_unless(datalen == 8, "spindly_phys_outgoing() returned funny value");
+
+  fail_unless(memcmp(data, SPDY_SYN_STREAM, 8) == 0,
+              "SYN_STREAM data wrong");
 
   spindly_phys_cleanup(phys_client);
   spindly_phys_cleanup(phys_server);
