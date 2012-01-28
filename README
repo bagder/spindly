@@ -19,6 +19,18 @@ Code:
 Hopefully we will merge again with the libspdy.org team in a not too distant
 future. In the mean time we move ahead.
 
+PROTOCOL specs
+==============
+
+Draft-2:
+
+ http://www.chromium.org/spdy/spdy-protocol/spdy-protocol-draft2
+
+Draft-3:
+
+ http://mbelshe.github.com/SPDY-Specification/draft-mbelshe-spdy-00.xml
+
+
 The original README follows below:
 ------------------------------------------------------------------------
 libspdy - An implementation of Googles SPDY protocol.
