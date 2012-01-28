@@ -21,8 +21,12 @@
 
 #include "list.h"
 
-/* The default number of slots allocated for streams in a phys handle */
-#define PHYS_DEFAULT_NUM_STREAMS 5
+struct spindly_indata {
+  struct list_node node;
+  void *identifier;
+  unsigned char *data;
+  size_t datalen;
+};
 
 struct spindly_phys
 {
@@ -34,8 +38,11 @@ struct spindly_phys
   int num_streams;             /* how many have been added so far */
   uint32_t streamid;            /* the next streamid to ask for */
 
-  /* list of handles to go over for outgoing traffic */
+  /* list of spindly_stream handles to go over for outgoing traffic */
   struct list_head outq;
+
+  /* list of spindly_indata with incoming traffic */
+  struct list_head inq;
 
   struct spindly_phys_config *config;
 };

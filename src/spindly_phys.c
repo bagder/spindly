@@ -103,8 +103,6 @@ spindly_error_t spindly_phys_outgoing(struct spindly_phys *phys,
   return SPINDLYE_OK;
 }
 
-#if 0 /* not yet implemented */
-
 /*
  * when the application has read data off the transport, this function is
  * called to tell Spindly about more data that has arrived. As spindly doesn't
@@ -116,12 +114,26 @@ spindly_error_t spindly_phys_outgoing(struct spindly_phys *phys,
  *
  */
 
-spindly_error_t spindly_phys_incoming(struct spindly_phys * phys,
-                                      unsigned char *data, size_t datalen)
+spindly_error_t spindly_phys_incoming(struct spindly_phys *phys,
+                                      unsigned char *data, size_t datalen,
+                                      void *identifier)
 {
+  struct spindly_indata *in = MALLOC(phys, sizeof(*in));
 
+  if(!in)
+    return SPINDLYE_NOMEM;
 
+  in->identifier = identifier;
+  in->datalen = datalen;
+  in->data = data;
+
+  /* add this to the phys' incoming queue */
+  _spindly_list_add(&phys->inq, &in->node);
+
+  return SPINDLYE_OK;
 }
+
+#if 0 /* not yet implemented */
 
 /*
  * Returns information about incoming data on the connection, split up for

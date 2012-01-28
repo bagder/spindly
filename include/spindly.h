@@ -137,7 +137,8 @@ typedef enum
  */
 
 spindly_error_t spindly_phys_incoming(struct spindly_phys *phys,
-                                      unsigned char *data, size_t datalen);
+                                      unsigned char *data, size_t datalen,
+                                      void *identifier);
 
 
 
