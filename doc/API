@@ -66,6 +66,8 @@ RESULT = spindly_phys_incoming(PHYS, DATA, DATALEN, IDENTIFIER);
   called to drain the input queue somewhat first before
   spindly_phys_incoming() can be called again.
 
+  RECOMMENDATION: feed as large data chunks as possible into this function
+
 RESULT = spindly_phys_demux(PHYS, &MESSAGE, &PTR)
 
   Returns information about incoming messages on the connection, split up for

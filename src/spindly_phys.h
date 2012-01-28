@@ -21,6 +21,8 @@
 
 #include "list.h"
 
+#include "spdy_frame.h"
+
 struct spindly_indata {
   struct list_node node;
   void *identifier;
@@ -43,6 +45,16 @@ struct spindly_phys
 
   /* list of spindly_indata with incoming traffic */
   struct list_head inq;
+  size_t inq_size; /* total number of bytes in the queue */
+
+  /* state variables for the parsing and demuxing of single incoming data
+     stream */
+  spdy_frame frame;
+  spdy_data data;
+
+  unsigned char *parse; /* malloc'ed buffer for parsing incoming data */
+  size_t parsealloc; /* size of the malloc'ed parse buffer */
+  size_t parselen;   /* length of data used in the parse buffer */
 
   struct spindly_phys_config *config;
 };

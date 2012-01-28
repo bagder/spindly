@@ -19,7 +19,7 @@
  * @see SPDY_RST_STREAM_LENGTH
  * @return 0 on success, -1 on failure.
  */
-int spdy_rst_stream_parse(spdy_rst_stream *rst_stream, char *data,
+int spdy_rst_stream_parse(spdy_rst_stream *rst_stream, unsigned char *data,
                           size_t data_length)
 {
   if(data_length != SPDY_RST_STREAM_LENGTH) {

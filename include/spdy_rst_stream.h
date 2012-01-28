@@ -27,7 +27,7 @@ typedef struct
   uint32_t status_code;         /*!< 32 bit status code */
 } spdy_rst_stream;
 
-int spdy_rst_stream_parse(spdy_rst_stream *rst_stream, char *data,
+int spdy_rst_stream_parse(spdy_rst_stream *rst_stream, unsigned char *data,
                           size_t data_length);
 
 #endif

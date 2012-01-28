@@ -11,7 +11,8 @@
  * @param length - Length of data_in.
  * @return spdy_data - Filled with the supplied data. Can't fail.
  */
-spdy_data *spdy_data_use(spdy_data *data, char *data_in, size_t length)
+spdy_data *spdy_data_use(spdy_data *data, unsigned char *data_in,
+                         size_t length)
 {
   data->data = data_in;
   data->data_end = data_in + length;

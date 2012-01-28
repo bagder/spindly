@@ -196,7 +196,7 @@ int spdy_nv_block_parse(spdy_nv_block *block, char *data, size_t data_length)
 
 /* TODO: Test & documentation. Do not use yet! */
 int spdy_nv_block_inflate_parse(spdy_nv_block *nv_block,
-                                char *data,
+                                unsigned char *data,
                                 size_t data_length,
                                 spdy_zlib_context *zlib_ctx)
 {
