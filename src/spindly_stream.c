@@ -118,5 +118,7 @@ spindly_error_t spindly_stream_new(struct spindly_phys *phys,
   spdy_zlib_inflate_end(&s->zlib_in);
   spdy_zlib_inflate_end(&s->zlib_out);
 
+  FREE(phys, s);
+
   return rc;
 }
