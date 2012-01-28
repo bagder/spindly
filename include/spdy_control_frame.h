@@ -11,10 +11,6 @@
 #include "spdy_rst_stream.h"
 #include "spdy_headers.h"
 
-
-/** Minimum length of a control frame.*/
-extern const uint8_t SPDY_CONTROL_FRAME_MIN_LENGTH;
-
 /**
  * SPDY control frame types.
  * List of all SPDY control frame types. See section 2.7 in the draft 2
@@ -57,12 +53,18 @@ int spdy_control_frame_init(spdy_control_frame *frame);
 
 int spdy_control_frame_parse_header(spdy_control_frame *frame,
                                     spdy_data *data);
-int spdy_control_frame_pack_header(char *outp, size_t bufsize,
+int spdy_control_frame_pack_header(unsigned char *outp, size_t bufsize,
                                    size_t *outsize, spdy_control_frame *frame);
 int spdy_control_frame_parse(spdy_control_frame *frame,
                              spdy_data *data, spdy_zlib_context *zlib_ctx);
 char *spdy_control_frame_get_type_name(int type);
 
 void spdy_control_frame_destroy(spdy_control_frame *frame);
+
+int spdy_control_mk_syn_stream(spdy_control_frame *frame,
+                               uint32_t stream_id,
+                               uint32_t associated_to,
+                               int prio,
+                               spdy_nv_block *nv_block);
 
 #endif

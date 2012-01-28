@@ -8,11 +8,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-/** Minimum length of a SYN_STREAM frame. */
-extern const uint8_t SPDY_SYN_STREAM_MIN_LENGTH;
-/** Minimum length of a SYN_STREAM frame header. */
-extern const uint8_t SPDY_SYN_STREAM_HEADER_MIN_LENGTH;
-
 /**
  * Flags for SYN_STREAM frames.
  */
@@ -27,9 +22,9 @@ enum SPDY_SYN_STREAM_FLAGS
  */
 typedef struct
 {
-  uint16_t stream_id;           /*!< 31 bit stream id */
-  uint16_t associated_to;       /*!< 31 bit assocaited to stream id */
-  uint8_t priority;             /*!< 2 bit priority */
+  uint32_t stream_id;           /*!< 31 bit stream id */
+  uint32_t associated_to;       /*!< 31 bit assocaited to stream id */
+  int priority;                 /*!< 3 bit priority */
   spdy_nv_block nv_block;       /*!< Name/Value block */
 } spdy_syn_stream;
 
@@ -40,4 +35,7 @@ int spdy_syn_stream_parse(spdy_syn_stream *syn_stream,
 
 void spdy_syn_stream_destroy(spdy_syn_stream *syn_stream);
 
+int spdy_syn_stream_init(spdy_syn_stream *str, uint32_t stream_id,
+                         uint32_t associated_to, int prio,
+                         spdy_nv_block *nv_block);
 #endif

@@ -73,7 +73,7 @@ spindly_error_t _spindly_phys_add_stream(struct spindly_phys *phys,
 }
 
 /*
- * Returns info (pointer and length) about the data that PHYS holds that is
+ * Returns info (pointer and length) with data that PHYS holds that is
  * available to send over the transport medium immediately.
  */
 spindly_error_t spindly_phys_outgoing(struct spindly_phys *phys,
@@ -85,11 +85,13 @@ spindly_error_t spindly_phys_outgoing(struct spindly_phys *phys,
     struct spindly_stream *s= (struct spindly_stream *)
       ((char *)n - offsetof(struct spindly_stream, outnode));
 
-    /* iterate over the attached streams and do the associated magic */
+    /* iterate over the attached streams and return binary data */
     switch(s->out) {
     case SPDY_CTRL_SYN_STREAM:
-      /* a fresh stream */
-
+      *data = s->buffer;
+      *len = s->outlen;
+      /* remove this node from the outgoing queue */
+      _spindly_list_remove(&s->outnode);
       break;
     }
   }
@@ -97,6 +99,8 @@ spindly_error_t spindly_phys_outgoing(struct spindly_phys *phys,
     *data = NULL;
     *len = 0;
   }
+
+  return SPINDLYE_OK;
 }
 
 #if 0 /* not yet implemented */

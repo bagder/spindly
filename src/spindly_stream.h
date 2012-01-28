@@ -23,6 +23,8 @@
 #include "spdy_zlib.h"
 #include "spdy_stream.h"
 
+#define STREAM_BUFSIZE 32 /* scratch buffer for generated frame contents */
+
 enum stream_state
 {
   STREAM_NEW,                   /* as before the peer has ACKed it */
@@ -40,9 +42,12 @@ struct spindly_stream
                                    handle */
   uint32_t streamid;            /* SPDY identifier for this stream */
   void *userp;                  /* set in stream_new() */
+  unsigned int prio;            /* 0 - 7 */
 
   int out; /* when this handle is added to the outq, this field will hold the
               hint of what to send */
+  size_t outlen; /* number of bytes in 'buffer' that is stored and ready to
+                    get sent off */
   struct list_node outnode;
 
   struct spindly_stream_config *config;
@@ -50,6 +55,8 @@ struct spindly_stream
   spdy_stream spdy;
   spdy_zlib_context zlib_in;
   spdy_zlib_context zlib_out;
+
+  unsigned char buffer[STREAM_BUFSIZE];
 };
 
 #define PRIO_MAX 7

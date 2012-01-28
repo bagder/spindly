@@ -9,7 +9,7 @@
 #include <string.h>
 
 /* Minimum length of a data frame. */
-const uint8_t SPDY_DATA_FRAME_MIN_LENGTH = 8;
+#define SPDY_DATA_FRAME_MIN_LENGTH 8
 
 int spdy_data_frame_init(spdy_data_frame *frame)
 {

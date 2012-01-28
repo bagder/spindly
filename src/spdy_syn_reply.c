@@ -7,10 +7,10 @@
 #include <netinet/in.h>
 
 /* Minimum length of a SYN_REPLY frame. */
-const uint8_t SPDY_SYN_REPLY_MIN_LENGTH = 8;
+#define SPDY_SYN_REPLY_MIN_LENGTH 8
 /* Minimum length of a SYN_STREAM frame header. (The frame without
  * the NV Block.) */
-const uint8_t SPDY_SYN_REPLY_HEADER_MIN_LENGTH = 6;
+#define SPDY_SYN_REPLY_HEADER_MIN_LENGTH 6
 
 /**
  * Parse the header of a SYN_REPLY control frame.

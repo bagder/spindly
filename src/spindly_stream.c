@@ -42,6 +42,7 @@ spindly_error_t spindly_stream_new(struct spindly_phys *phys,
 {
   struct spindly_stream *s;
   int rc;
+  spdy_control_frame ctrl_frame;
 
   if(!phys || prio> PRIO_MAX)
     return SPINDLYE_INVAL;
@@ -50,6 +51,10 @@ spindly_error_t spindly_stream_new(struct spindly_phys *phys,
   if(!s)
     return SPINDLYE_NOMEM;
 
+  /* create a control frame */
+  spdy_control_frame_init(&ctrl_frame);
+
+  s->prio = prio;
   s->phys = phys;
   s->state = STREAM_NEW;
   s->userp = userp;
@@ -69,8 +74,29 @@ spindly_error_t spindly_stream_new(struct spindly_phys *phys,
   if(rc)
     goto fail;
 
-  /* add this handle to the outq */
+  /* mark the current action */
   s->out = SPDY_CTRL_SYN_STREAM;
+
+  /* make it a SYN_STREAM frame.
+
+     NOTES:
+
+     - code currently makes all streams independent
+     - doesn't include any NV block yet
+     - bumps the physical connection's streamid at the bottom of this
+       function
+  */
+  rc = spdy_control_mk_syn_stream(&ctrl_frame, phys->streamid, 0, prio, NULL);
+  if(rc)
+    goto fail;
+
+  /* pack it to the output buffer */
+  rc = spdy_control_frame_pack_header(s->buffer, sizeof(s->buffer),
+                                      &s->outlen, &ctrl_frame);
+  if(rc)
+    goto fail;
+
+  /* add this handle to the outq */
   _spindly_list_add(&phys->outq, &s->outnode);
 
   /* append this stream to the list of streams held by the phys handle */
@@ -78,9 +104,17 @@ spindly_error_t spindly_stream_new(struct spindly_phys *phys,
 
   *stream = s;
 
+  /* the control frame was only ever held on the stack */
+  spdy_control_frame_destroy(&ctrl_frame);
+
+  phys->streamid++; /* bump the counter last so that it isn't bumped in vain */
+
   return SPINDLYE_OK;
 
   fail:
+
+  spdy_control_frame_destroy(&ctrl_frame);
+
   spdy_zlib_inflate_end(&s->zlib_in);
   spdy_zlib_inflate_end(&s->zlib_out);
 

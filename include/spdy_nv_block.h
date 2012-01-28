@@ -27,10 +27,10 @@ struct spdy_nv_pair
  */
 struct spdy_nv_block
 {
-  bool has_count;              /*!< Determines if the count has been parsed. */
-  uint16_t count;               /*!< Number of Name/Value pairs */
-  uint16_t pairs_parsed;        /*!< Number of pairs that have been parsed. */
-  spdy_nv_pair *pairs;          /*!< Array of Name/Value pairs */
+  bool has_count;          /*!< Determines if the count has been parsed. */
+  int count;               /*!< Number of Name/Value pairs */
+  int pairs_parsed;        /*!< Number of pairs that have been parsed. */
+  spdy_nv_pair *pairs;     /*!< Array of Name/Value pairs */
 };
 
 /* NV pair functions */

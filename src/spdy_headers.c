@@ -7,7 +7,7 @@
 #include <netinet/in.h>
 
 /* Minimum length of a HEADERS frame. */
-const uint8_t SPDY_HEADERS_MIN_LENGTH = 8;
+#define SPDY_HEADERS_MIN_LENGTH 8
 
 int spdy_headers_parse_header(spdy_headers *headers, spdy_data *data)
 {

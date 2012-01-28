@@ -1,4 +1,8 @@
 #include "spdy_setup.h"         /* MUST be the first header to include */
+
+#include <string.h>
+#include <assert.h>
+
 #include "spdy_syn_stream.h"
 #include "spdy_log.h"
 #include "spdy_error.h"
@@ -7,10 +11,32 @@
 #include <netinet/in.h>
 
 /* Minimum length of a SYN_STREAM frame. */
-const uint8_t SPDY_SYN_STREAM_MIN_LENGTH = 12;
+#define SPDY_SYN_STREAM_MIN_LENGTH 12
+
 /* Minimum length of a SYN_STREAM frame header. (The frame without
  * the NV block.) */
-const uint8_t SPDY_SYN_STREAM_HEADER_MIN_LENGTH = 10;
+#define SPDY_SYN_STREAM_HEADER_MIN_LENGTH 10
+
+int spdy_syn_stream_init(spdy_syn_stream *str,
+                         uint32_t stream_id,
+                         uint32_t associated_to,
+                         int prio,
+                         spdy_nv_block *nv_block)
+{
+  assert(str);
+
+  str->stream_id = stream_id;
+  str->associated_to = associated_to;
+  str->priority = prio;
+  if(nv_block) {
+    assert(0);
+  }
+  else
+    memset(&str->nv_block, 0, sizeof(str->nv_block));
+
+  return SPDY_ERROR_NONE;
+}
+
 
 /**
  * Parse the header of a SYN_STREAM control frame.
@@ -76,22 +102,23 @@ int spdy_syn_stream_parse(spdy_syn_stream *syn_stream,
   }
 
   /* Parse the frame header. */
-  if((ret = spdy_syn_stream_parse_header(syn_stream, data)) != SPDY_ERROR_NONE) {
+  ret = spdy_syn_stream_parse_header(syn_stream, data);
+  if(ret) {
     SPDYDEBUG("Failed to parse header.");
     return ret;
   }
 
   /* Init NV block. */
   ret = spdy_nv_block_init(&syn_stream->nv_block);
-  if(ret) {
+  if(ret)
     return ret;
-  }
 
   /* Parse NV block. */
-  if((ret = spdy_nv_block_inflate_parse(&syn_stream->nv_block,
-                                        data->cursor,
-                                        frame_length,
-                                        zlib_ctx)) != SPDY_ERROR_NONE) {
+  ret = spdy_nv_block_inflate_parse(&syn_stream->nv_block,
+                                    data->cursor,
+                                    frame_length,
+                                    zlib_ctx);
+  if(ret) {
     /* Clean up. */
     SPDYDEBUG("Failed to parse NV block.");
     return ret;

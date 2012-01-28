@@ -8,7 +8,7 @@
 
 /* Length of a RST_STREAM frame. (No minimum length - the length
  * of a RST_STREAM frame is always 8. */
-const uint8_t SPDY_RST_STREAM_LENGTH = 8;
+#define SPDY_RST_STREAM_LENGTH 8
 
 /**
  * Parse a RST_STREAM control frame.

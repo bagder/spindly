@@ -7,11 +7,6 @@
 
 #include <stdint.h>
 
-/** Minimum length of a SYN_REPLY frame. */
-extern const uint8_t SPDY_SYN_REPLY_MIN_LENGTH;
-/** Minimum length of a SYN_REPLY frame header. */
-extern const uint8_t SPDY_SYN_REPLY_HEADER_MIN_LENGTH;
-
 /**
  * Flags for SYN_REPLY frames.
  */

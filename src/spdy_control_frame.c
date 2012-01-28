@@ -1,4 +1,5 @@
 #include "spdy_setup.h"         /* MUST be the first header to include */
+
 #include "spdy_control_frame.h"
 #include "spdy_syn_stream.h"
 #include "spdy_syn_reply.h"
@@ -8,11 +9,12 @@
 #include "spdy_error.h"
 #include "spdy_bytes.h"
 
+#include <assert.h>
 #include <netinet/in.h>
 #include <stdlib.h>
 
 /** Minimum length of a control frame. */
-const uint8_t SPDY_CONTROL_FRAME_MIN_LENGTH = 8;
+#define SPDY_CONTROL_FRAME_MIN_LENGTH 8
 
 int spdy_control_frame_init(spdy_control_frame *frame)
 {
@@ -134,7 +136,7 @@ int spdy_control_frame_parse(spdy_control_frame *frame,
  * @see spdy_control_frame
  * @return SPDY_ERRORS
  */
-int spdy_control_frame_pack_header(char *out, size_t bufsize,
+int spdy_control_frame_pack_header(unsigned char *out, size_t bufsize,
                                    size_t *outsize, spdy_control_frame *frame)
 {
   if(bufsize < 8)
@@ -195,4 +197,22 @@ void spdy_control_frame_destroy(spdy_control_frame *frame)
   default:
     break;
   }
+}
+
+int spdy_control_mk_syn_stream(spdy_control_frame *frame,
+                               uint32_t stream_id,
+                               uint32_t associated_to,
+                               int prio,
+                               spdy_nv_block *nv_block)
+{
+  int rc;
+  assert(frame);
+
+  frame->type = SPDY_CTRL_SYN_STREAM;
+  frame->_header_parsed = true; /* consider it parsed */
+  rc = spdy_syn_stream_init(&frame->obj.syn_stream,
+                            stream_id,
+                            associated_to,
+                            prio, nv_block);
+  return rc;
 }
