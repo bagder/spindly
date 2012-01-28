@@ -4,14 +4,17 @@
 
 START_TEST (test_spindly_phys_init)
 {
+  struct spindly_phys *phys_client;
+  struct spindly_phys *phys_server;
 
-  struct spindly_phys *phys;
+  phys_client = spindly_phys_init(SPINDLY_SIDE_CLIENT, SPINDLY_DEFAULT, NULL);
+  fail_unless(phys_client != NULL, "spindly_phys_init() failed");
 
-  phys = spindly_phys_init(SPINDLY_SIDE_CLIENT, SPINDLY_DEFAULT, NULL);
+  phys_server = spindly_phys_init(SPINDLY_SIDE_SERVER, SPINDLY_DEFAULT, NULL);
+  fail_unless(phys_server != NULL, "spindly_phys_init() failed");
 
-  fail_unless(phys != NULL, "spindly_phys_init() failed");
-
-  spindly_phys_cleanup(phys);
+  spindly_phys_cleanup(phys_client);
+  spindly_phys_cleanup(phys_server);
 }
 END_TEST
 
