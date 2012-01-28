@@ -22,7 +22,7 @@ END_TEST
 
 START_TEST (test_spdy_control_frame_pack_header)
 {
-	char out[8];
+	unsigned char out[8];
 	int ret;
 	spdy_control_frame frame;
         size_t got;
@@ -39,7 +39,7 @@ END_TEST
 START_TEST (test_spdy_control_frame_parse_pack_header)
 {
 	spdy_control_frame frame;
-	char out[8];
+	unsigned char out[8];
 	spdy_data data;
 	int ret;
         size_t got;
