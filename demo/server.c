@@ -37,8 +37,10 @@ static int acceptclient(int sock)
   len = sizeof(clientaddr);
 
   clientfd = accept(sock, (struct sockaddr *) &clientaddr, &len);
-  if (clientfd < 0)
-    errorout("accept() failed");
+  if (clientfd < 0) {
+    fprintf(stderr, "accept() failed\n");
+    return -1;
+  }
 
   printf("Handling client %s\n", inet_ntoa(clientaddr.sin_addr));
 
@@ -72,14 +74,17 @@ static int createserver(unsigned short port)
   return sock;
 }
 
-static void handleclient(socket_t sock)
+static int handleclient(socket_t sock)
 {
   char buffer[256];
   int len;
 
   len = recv(sock, buffer, sizeof(buffer), 0);
-  if (len < 0)
-    errorout("recv() failed");
+  if (len >= 0) {
+    write(sock, "bye", 3);
+  }
+
+  return len;
 }
 
 int main(int argc, char *argv[])
@@ -101,11 +106,7 @@ int main(int argc, char *argv[])
   servsock = createserver(SERVER_PORT);
 
   /* Initialize maxfd for use by select() */
-  maxfd = -1;
-
-  /* Determine if new descriptor is the largest */
-  if (servsock > maxfd)
-    maxfd = servsock;
+  maxfd = servsock;
 
   while (running) {
     int rc;
@@ -115,7 +116,7 @@ int main(int argc, char *argv[])
 
     /* right now we only allow one client to connect, so when there's a client
        we don't listen for new connects */
-    if(SOCKET_BAD != clientsock) {
+    if (SOCKET_BAD != clientsock) {
       FD_SET(clientsock, &readfds);
 
       /* if there is anything to write, wait to send */
@@ -135,17 +136,23 @@ int main(int argc, char *argv[])
         /* read stdin and pass as data to clients */
       }
 
-      if (FD_ISSET(clientsock, &readfds)) {
-        /* client is readable */
-        handleclient(clientsock);
-      }
-      if (FD_ISSET(clientsock, &writefds)) {
-        /* client is writeable */
+      if (clientsock > 0) {
+        if (FD_ISSET(clientsock, &readfds)) {
+	  /* client is readable */
+	  if (handleclient(clientsock) < 0) {
+            sclose(clientsock);
+            clientsock = SOCKET_BAD;
+	  }
+	}
+	if (FD_ISSET(clientsock, &writefds)) {
+          /* client is writeable */
+	}
       }
 
       if (FD_ISSET(servsock, &readfds)) {
         printf("New client connects on port %d:  ", SERVER_PORT);
         clientsock = acceptclient(servsock);
+        maxfd = clientsock;
       }
     }
   }

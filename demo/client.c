@@ -23,6 +23,8 @@ int main(int argc, char *argv[])
   struct sockaddr_in servaddr;
   char *server;
   int rc;
+  char bye[3];
+  int len;
 
   server = "127.0.0.1";
 
@@ -41,6 +43,9 @@ int main(int argc, char *argv[])
     errorout("connect() failed");
 
   printf("Connected!\n");
+  write(sock, "not spdy", strlen("not spdy"));
+  len = read(sock, bye, sizeof(bye));
+  printf("Recv: %.*s\n", 3, bye); 
 
   sclose(sock);
 
