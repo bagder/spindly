@@ -129,7 +129,7 @@ int spdy_control_frame_parse(spdy_control_frame *frame,
 }
 
 /**
- * Pack the control frame into an output buffer for transmitting.
+ * Pack the control frame HEADER into an output buffer for transmitting.
  * @param out Target buffer
  * @param buffer Length of target buffer
  * @param outsize Pointer to length of the output data
@@ -149,12 +149,53 @@ int spdy_control_frame_pack_header(unsigned char *out, size_t bufsize,
   out += 2;
   BE_STORE_16(out, frame->type);
   out += 2;
-  BE_STORE_32(out, frame->length);
-  /* The flags are set after the length is written, because elsewise
-   * the flags would get overwritten by the length. */
-  out[0] = frame->flags;
+  *out++ = frame->flags;
+  BE_STORE_24(out, frame->length);
 
   *outsize = 8;
+  return SPDY_ERROR_NONE;
+}
+
+/**
+ * Pack the entire control frame into an output buffer for transmitting.
+ *
+ * @param out Target buffer
+ * @param buffer Length of target buffer
+ * @param outsize Pointer to length of the output data
+ * @param frame Frame to pack
+ * @see spdy_control_frame
+ * @return SPDY_ERRORS
+ */
+int spdy_control_frame_pack(unsigned char *out, size_t bufsize,
+                            size_t *outsize, spdy_control_frame *frame)
+{
+  size_t headersize;
+  size_t payloadsize;
+  int rc;
+
+  if(bufsize < (8 + frame->length))
+    return SPDY_ERROR_TOO_SMALL_BUFFER;
+
+  /* create the control frame header */
+  rc = spdy_control_frame_pack_header(out, bufsize, &headersize, frame);
+  if(rc)
+    return rc;
+
+  /* the out buffer has now 'headersize' bytes of data */
+  bufsize -= headersize;
+  out += headersize;
+
+  /* fill in the control frame payload */
+  switch(frame->type) {
+  case SPDY_CTRL_SYN_STREAM:
+    rc = spdy_syn_stream_pack(out, bufsize, &payloadsize,
+                              &frame->obj.syn_stream);
+    break;
+  }
+  if(rc)
+    return rc;
+
+  *outsize = headersize + payloadsize;
   return SPDY_ERROR_NONE;
 }
 
@@ -216,5 +257,6 @@ int spdy_control_mk_syn_stream(spdy_control_frame *frame,
                             stream_id,
                             associated_to,
                             prio, nv_block);
+  frame->length += 10; /* fixed size */
   return rc;
 }

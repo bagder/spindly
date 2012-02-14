@@ -35,6 +35,9 @@ int spdy_syn_stream_parse(spdy_syn_stream *syn_stream,
 
 void spdy_syn_stream_destroy(spdy_syn_stream *syn_stream);
 
+int spdy_syn_stream_pack(unsigned char *out, size_t bufsize,
+                         size_t *outsize, spdy_syn_stream *str);
+
 int spdy_syn_stream_init(spdy_syn_stream *str, uint32_t stream_id,
                          uint32_t associated_to, int prio,
                          spdy_nv_block *nv_block);

@@ -129,6 +129,24 @@ int spdy_syn_stream_parse(spdy_syn_stream *syn_stream,
 }
 
 /*
+ * Pack SYN_STREAM into an output buffer for transmitting.
+ */
+int spdy_syn_stream_pack(unsigned char *out, size_t bufsize,
+                         size_t *outsize, spdy_syn_stream *str)
+{
+  if(bufsize < 10)
+    return SPDY_ERROR_TOO_SMALL_BUFFER;
+  BE_STORE_32(out, str->stream_id);
+  out += 4;
+  BE_STORE_32(out, str->associated_to);
+  out += 4;
+  BE_STORE_16(out, (str->priority << 14)); /* 14 bits unused */
+
+  *outsize = 10;
+  return SPDY_ERROR_NONE;
+}
+
+/*
  * Destroy/free all data this struct has allocated.
  */
 void spdy_syn_stream_destroy(spdy_syn_stream *syn_stream)

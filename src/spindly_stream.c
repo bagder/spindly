@@ -90,9 +90,9 @@ spindly_error_t spindly_stream_new(struct spindly_phys *phys,
   if(rc)
     goto fail;
 
-  /* pack it to the output buffer */
-  rc = spdy_control_frame_pack_header(s->buffer, sizeof(s->buffer),
-                                      &s->outlen, &ctrl_frame);
+  /* pack a control frame to the output buffer */
+  rc = spdy_control_frame_pack(s->buffer, sizeof(s->buffer),
+                               &s->outlen, &ctrl_frame);
   if(rc)
     goto fail;
 

@@ -2,8 +2,8 @@
 
 #include <check.h>
 
-static const unsigned char SPDY_SYN_STREAM[8] =
-  "\x80\x00\x00\x01\x00\x00\x00\x00";
+static const unsigned char SPDY_SYN_STREAM[18] =
+  "\x80\x00\x00\x01\x00\x00\x00\x0a\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
 
 START_TEST (test_spindly_phys_init)
 {
@@ -25,9 +25,22 @@ START_TEST (test_spindly_phys_init)
 
   spint = spindly_phys_outgoing(phys_client, &data, &datalen);
   fail_unless(spint == SPINDLYE_OK, "spindly_phys_outgoing() failed");
-  fail_unless(datalen == 8, "spindly_phys_outgoing() returned funny value");
 
-  fail_unless(memcmp(data, SPDY_SYN_STREAM, 8) == 0,
+  printf("got datalen %d\n", datalen);
+
+  fail_unless(datalen == 18, "spindly_phys_outgoing() returned bad value");
+
+#if 0
+  {
+    size_t i;
+    for(i=0; i<datalen; i++) {
+      printf("\\x%02x", data[i]);
+    }
+    printf("\n");
+  }
+#endif
+
+  fail_unless(memcmp(data, SPDY_SYN_STREAM, datalen) == 0,
               "SYN_STREAM data wrong");
 
   spindly_phys_cleanup(phys_client);

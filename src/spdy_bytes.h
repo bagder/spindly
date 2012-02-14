@@ -8,6 +8,10 @@
 #define BE_STORE_16(target, source)             \
   target[1] = source & 0xFF;                    \
   target[0] = (source >> 8) & 0xFF
+#define BE_STORE_24(target, source)  \
+  target[2] = source & 0xFF;         \
+  target[1] = (source >> 8) & 0xFF;  \
+  target[0] = (source >> 16) & 0xFF;
 #define BE_STORE_32(target, source)  \
   target[3] = source & 0xFF;         \
   target[2] = (source >> 8) & 0xFF;  \
