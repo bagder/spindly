@@ -28,18 +28,15 @@
 #include "hash.h"
 
 /*
- * Creates a request for a new stream and muxes the request into the output
- * connection, creates a STREAM handle for the new stream and returns the
- * RESULT. The CUSTOMP pointer will be associated with the STREAM to allow the
- * application to identify it.
- *
+ * Internal function for creating and setting up a new stream.
  */
 
-spindly_error_t spindly_stream_new(struct spindly_phys *phys,
-                                   unsigned int prio,
-                                   struct spindly_stream **stream,
-                                   void *userp,
-                                   struct spindly_stream_config *config)
+spindly_error_t _spindly_stream_init(struct spindly_phys *phys,
+                                     unsigned int prio,
+                                     struct spindly_stream **stream,
+                                     void *userp,
+                                     struct spindly_stream_config *config,
+                                     bool madebypeer)
 {
   struct spindly_stream *s;
   int rc;
@@ -75,35 +72,42 @@ spindly_error_t spindly_stream_new(struct spindly_phys *phys,
   if(rc)
     goto fail;
 
-  /* mark the current action */
-  s->out = SPDY_CTRL_SYN_STREAM;
+  if(!madebypeer) {
+    /* only send a SYN_STREAM if this stream is not the result of a received
+       SYN_STREAM from the peer */
 
-  /* make it a SYN_STREAM frame.
+    /* mark the current action */
+    s->out = SPDY_CTRL_SYN_STREAM;
 
-     "If the server is initiating the stream, the Stream-ID must be even.  If
-     the client is initiating the stream, the Stream-ID must be odd.
+    /* make it a SYN_STREAM frame.
 
-     0 is not a valid Stream-ID."
+       "If the server is initiating the stream, the Stream-ID must be even.
+       If the client is initiating the stream, the Stream-ID must be odd.
 
-     NOTES:
+       0 is not a valid Stream-ID."
 
-     - code currently makes all streams independent
-     - doesn't include any NV block yet
-     - bumps the physical connection's streamid at the bottom of this
+       NOTES:
+
+       - code currently makes all streams independent
+       - doesn't include any NV block yet
+       - bumps the physical connection's streamid at the bottom of this
        function
-  */
-  rc = spdy_control_mk_syn_stream(&ctrl_frame, phys->streamid, 0, prio, NULL);
-  if(rc)
-    goto fail;
+    */
 
-  /* pack a control frame to the output buffer */
-  rc = spdy_control_frame_pack(s->buffer, sizeof(s->buffer),
-                               &s->outlen, &ctrl_frame);
-  if(rc)
-    goto fail;
+    rc = spdy_control_mk_syn_stream(&ctrl_frame, phys->streamid, 0, prio,
+                                    NULL);
+    if(rc)
+      goto fail;
 
-  /* add this handle to the outq */
-  _spindly_list_add(&phys->outq, &s->outnode);
+    /* pack a control frame to the output buffer */
+    rc = spdy_control_frame_pack(s->buffer, sizeof(s->buffer),
+                                 &s->outlen, &ctrl_frame);
+    if(rc)
+      goto fail;
+
+    /* add this handle to the outq */
+    _spindly_list_add(&phys->outq, &s->outnode);
+  }
 
   /* append this stream to the list of streams held by the phys handle */
   _spindly_phys_add_stream(phys, s);
@@ -130,4 +134,21 @@ spindly_error_t spindly_stream_new(struct spindly_phys *phys,
   FREE(phys, s);
 
   return rc;
+}
+
+/*
+ * Creates a request for a new stream and muxes the request into the output
+ * connection, creates a STREAM handle for the new stream and returns the
+ * RESULT. The CUSTOMP pointer will be associated with the STREAM to allow the
+ * application to identify it.
+ *
+ */
+
+spindly_error_t spindly_stream_new(struct spindly_phys *phys,
+                                   unsigned int prio,
+                                   struct spindly_stream **stream,
+                                   void *userp,
+                                   struct spindly_stream_config *config)
+{
+  return _spindly_stream_init(phys, prio, stream, userp, config, false);
 }

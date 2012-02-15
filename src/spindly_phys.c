@@ -231,10 +231,26 @@ spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
 
     if(rc == SPDY_ERROR_NONE) {
       if(phys->frame.type == SPDY_CONTROL_FRAME) {
+        spdy_syn_stream *syn;
+        struct spindly_stream *stream;
+
         switch(phys->frame.frame.control.type) {
         case SPDY_CTRL_SYN_STREAM:
+          /*
+           * At this point there's a syn_stream struct that needs to be
+           * converted to a full spinly_stream struct!
+           *
+           * phys->frame.frame.control.obj.syn_stream
+           */
+          syn = &phys->frame.frame.control.obj.syn_stream;
+          rc = _spindly_stream_init(phys, syn->priority, &stream, NULL,
+                                    NULL, true);
+          if(rc)
+            /* TODO: how do we deal with a failure here? */
+            break;
+
           ptr->type = SPINDLY_DX_STREAM_REQ;
-          ptr->msg.stream.stream = NULL;
+          ptr->msg.stream.stream = stream;
           break;
         case SPDY_CTRL_SYN_REPLY:
           break;

@@ -57,9 +57,10 @@ START_TEST (test_spindly_phys_init)
   spint = spindly_phys_demux(phys_server, &demux);
   fail_unless(spint == SPINDLYE_OK, "spindly_phys_demux() failed");
 
-  printf("Demux type %d\n", demux.type);
-
   fail_unless(demux.type == SPINDLY_DX_STREAM_REQ,
+              "spindly_phys_demux() demuxed incorrect message");
+
+  fail_unless(demux.msg.stream.stream != NULL,
               "spindly_phys_demux() demuxed incorrect message");
 
   spindly_phys_cleanup(phys_client);

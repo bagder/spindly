@@ -61,4 +61,11 @@ struct spindly_stream
 
 #define PRIO_MAX 7
 
+spindly_error_t _spindly_stream_init(struct spindly_phys *phys,
+                                     unsigned int prio,
+                                     struct spindly_stream **stream,
+                                     void *userp,
+                                     struct spindly_stream_config *config,
+                                     bool madebypeer);
+
 #endif /* SPINDLY_STREAM_H */
