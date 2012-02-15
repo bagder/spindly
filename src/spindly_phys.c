@@ -99,6 +99,7 @@ spindly_error_t spindly_phys_outgoing(struct spindly_phys *phys,
     /* iterate over the attached streams and return binary data */
     switch(s->out) {
     case SPDY_CTRL_SYN_STREAM:
+    case SPDY_CTRL_SYN_REPLY:
       *data = s->buffer;
       *len = s->outlen;
       /* remove this node from the outgoing queue */

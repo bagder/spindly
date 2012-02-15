@@ -3,7 +3,13 @@
 #include <check.h>
 
 static const unsigned char SPDY_SYN_STREAM[] =
-  "\x80\x00\x00\x01\x00\x00\x00\x0a" \
+  "\x80\x02\x00\x01\x00\x00\x00\x0a" \
+  "\x00\x00\x00\x01\x00\x00\x00\x00" \
+  "\x00\x00\x78\xbb\xdf\xa2\x51\xb2" \
+  "\x63\x60\x00\x00\x00\x02\x00\x01";
+
+static const unsigned char SPDY_SYN_REPLY[] =
+  "\x80\x02\x00\x02\x00\x00\x00\x0a" \
   "\x00\x00\x00\x01\x00\x00\x00\x00" \
   "\x00\x00\x78\xbb\xdf\xa2\x51\xb2" \
   "\x63\x60\x00\x00\x00\x02\x00\x01";
@@ -30,21 +36,17 @@ START_TEST (test_spindly_phys_init)
   spint = spindly_phys_outgoing(phys_client, &data, &datalen);
   fail_unless(spint == SPINDLYE_OK, "spindly_phys_outgoing() failed");
 
-  printf("got datalen %d\n", datalen);
-
 #if 0
   {
     size_t i;
     for(i=0; i<datalen; i++) {
       printf("%02x%s ", data[i], SPDY_SYN_STREAM[i]==data[i]?"":"*");
     }
-    printf("\n (%d bytes)", i);
+    printf("\n (%d bytes)\n", i);
   }
 #endif
 
   fail_unless(datalen == 32, "spindly_phys_outgoing() returned bad value");
-
-
   fail_unless(memcmp(data, SPDY_SYN_STREAM, datalen) == 0,
               "SYN_STREAM data wrong");
 
@@ -59,9 +61,30 @@ START_TEST (test_spindly_phys_init)
 
   fail_unless(demux.type == SPINDLY_DX_STREAM_REQ,
               "spindly_phys_demux() demuxed incorrect message");
-
   fail_unless(demux.msg.stream.stream != NULL,
               "spindly_phys_demux() demuxed incorrect message");
+
+  /* ACK the new stream */
+  spint = spindly_stream_ack(demux.msg.stream.stream);
+  fail_unless(spint == SPINDLYE_OK, "spindly_stream_ack() failed");
+
+  /* figure out what to send from the server */
+  spint = spindly_phys_outgoing(phys_server, &data, &datalen);
+  fail_unless(spint == SPINDLYE_OK, "spindly_phys_outgoing() failed");
+
+  fail_unless(datalen == 32, "spindly_phys_outgoing() returned bad value");
+
+#if 1
+  {
+    size_t i;
+    for(i=0; i<datalen; i++) {
+      printf("%02x%s ", data[i], SPDY_SYN_REPLY[i]==data[i]?"":"*");
+    }
+    printf("\n (%d bytes)\n", i);
+  }
+#endif
+  fail_unless(memcmp(data, SPDY_SYN_REPLY, datalen) == 0,
+              "SYN_REPLY data wrong");
 
   spindly_phys_cleanup(phys_client);
   spindly_phys_cleanup(phys_server);
