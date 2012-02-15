@@ -22,6 +22,7 @@
 #include "spdy_setup.h"         /* MUST be the first header to include */
 
 #include <stdlib.h>
+#include <assert.h>
 #include "spindly.h"
 #include "spindly_stream.h"
 #include "spindly_phys.h"
@@ -156,3 +157,58 @@ spindly_error_t spindly_stream_new(struct spindly_phys *phys,
 {
   return _spindly_stream_init(phys, prio, stream, userp, config, false);
 }
+
+/*
+ * Send nack or ack
+ */
+static spindly_error_t stream_acknack(struct spindly_stream *s, bool ack)
+{
+  spindly_error_t rc = SPINDLYE_OK;
+  spdy_control_frame ctrl_frame;
+
+  assert(s != NULL);
+
+  /* queue up a SYN_REPLY or RST_STREAM message */
+
+  /* mark the current action */
+  s->out = ack?SPDY_CTRL_SYN_REPLY:SPDY_CTRL_RST_STREAM;
+
+  if(ack)
+    rc = spdy_control_mk_syn_reply(&ctrl_frame, s->streamid, NULL);
+  else
+    rc = spdy_control_mk_rst_stream(&ctrl_frame, s->streamid, 0);
+
+  if(rc)
+    goto fail;
+
+  /* pack a control frame to the output buffer */
+  rc = spdy_control_frame_pack(s->buffer, sizeof(s->buffer),
+                               &s->outlen, &ctrl_frame);
+  if(rc)
+    goto fail;
+
+  /* add this handle to the outq */
+  _spindly_list_add(&s->phys->outq, &s->outnode);
+
+  fail:
+  return rc;
+}
+
+/*
+ * The STREAM as requested to get opened by the remote is allowed! This
+ * function is only used as a response to a SPINDLY_DX_STREAM_REQ.
+ */
+spindly_error_t spindly_stream_ack(struct spindly_stream *s)
+{
+  return stream_acknack(s, true);
+}
+
+/*
+ * The STREAM as requested to get opened by the remote is NOT allowed! This
+ * function is only used as a response to a SPINDLY_DX_STREAM_REQ.
+ */
+spindly_error_t spindly_stream_nack(struct spindly_stream *s)
+{
+  return stream_acknack(s, false);
+}
+

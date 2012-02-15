@@ -72,4 +72,12 @@ int spdy_control_mk_syn_stream(spdy_control_frame *frame,
                                int prio,
                                spdy_nv_block *nv_block);
 
+int spdy_control_mk_syn_reply(spdy_control_frame *frame,
+                              uint32_t stream_id,
+                              spdy_nv_block *nv_block);
+
+int spdy_control_mk_rst_stream(spdy_control_frame *frame,
+                               uint32_t stream_id,
+                               uint32_t status);
+
 #endif
