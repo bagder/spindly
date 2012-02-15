@@ -66,6 +66,6 @@ spindly_error_t _spindly_stream_init(struct spindly_phys *phys,
                                      struct spindly_stream **stream,
                                      void *userp,
                                      struct spindly_stream_config *config,
-                                     bool madebypeer);
+                                     uint32_t streamid);
 
 #endif /* SPINDLY_STREAM_H */

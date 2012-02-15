@@ -243,11 +243,16 @@ spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
            * phys->frame.frame.control.obj.syn_stream
            */
           syn = &phys->frame.frame.control.obj.syn_stream;
+
+          /* TODO: inherit the zlib context that was already created
+             for the stream! */
           rc = _spindly_stream_init(phys, syn->priority, &stream, NULL,
-                                    NULL, true);
+                                    NULL, syn->stream_id);
           if(rc)
             /* TODO: how do we deal with a failure here? */
             break;
+
+          spdy_frame_destroy(&phys->frame);
 
           ptr->type = SPINDLY_DX_STREAM_REQ;
           ptr->msg.stream.stream = stream;

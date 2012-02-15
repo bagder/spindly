@@ -36,11 +36,14 @@ spindly_error_t _spindly_stream_init(struct spindly_phys *phys,
                                      struct spindly_stream **stream,
                                      void *userp,
                                      struct spindly_stream_config *config,
-                                     bool madebypeer)
+                                     uint32_t peer_streamid)
 {
   struct spindly_stream *s;
   int rc;
   spdy_control_frame ctrl_frame;
+
+  /* if there's a given streamid, this stream was created by the peer */
+  bool madebypeer = peer_streamid?true:false;
 
   if(!phys || prio> PRIO_MAX)
     return SPINDLYE_INVAL;
@@ -120,7 +123,8 @@ spindly_error_t _spindly_stream_init(struct spindly_phys *phys,
   /* the control frame was only ever held on the stack */
   spdy_control_frame_destroy(&ctrl_frame);
 
-  phys->streamid+=2; /* bump counter last so that it isn't bumped in vain */
+  if(!madebypeer)
+    phys->streamid+=2; /* bump counter last so that it isn't bumped in vain */
 
   return SPINDLYE_OK;
 
