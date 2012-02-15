@@ -257,6 +257,7 @@ int spdy_control_mk_syn_stream(spdy_control_frame *frame,
   memset(frame, 0, sizeof(*frame));
   frame->type = SPDY_CTRL_SYN_STREAM;
   frame->_header_parsed = true; /* consider it parsed */
+  frame->version = 2; /* SPDY draft protocol version */
   rc = spdy_syn_stream_init(&frame->obj.syn_stream,
                             stream_id,
                             associated_to,
@@ -276,6 +277,7 @@ int spdy_control_mk_syn_reply(spdy_control_frame *frame,
   memset(frame, 0, sizeof(*frame));
   frame->type = SPDY_CTRL_SYN_REPLY;
   frame->_header_parsed = true; /* consider it parsed */
+  frame->version = 2; /* SPDY draft protocol version */
   frame->obj.syn_reply.stream_id = stream_id;
   frame->length += 10; /* fixed size */
   return SPDY_ERROR_NONE;
@@ -290,6 +292,7 @@ int spdy_control_mk_rst_stream(spdy_control_frame *frame,
   memset(frame, 0, sizeof(*frame));
   frame->type = SPDY_CTRL_RST_STREAM;
   frame->_header_parsed = true; /* consider it parsed */
+  frame->version = 2; /* SPDY draft protocol version */
   frame->obj.rst_stream.stream_id = stream_id;
   frame->obj.rst_stream.status_code = status;
   frame->length += 8; /* fixed size */
