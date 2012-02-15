@@ -11,6 +11,8 @@
 #include "spdy_rst_stream.h"
 #include "spdy_headers.h"
 
+struct hash;
+
 /**
  * SPDY control frame types.
  * List of all SPDY control frame types. See section 2.7 in the draft 2
@@ -58,7 +60,8 @@ int spdy_control_frame_pack_header(unsigned char *outp, size_t bufsize,
 int spdy_control_frame_pack(unsigned char *outp, size_t bufsize,
                             size_t *outsize, spdy_control_frame *frame);
 int spdy_control_frame_parse(spdy_control_frame *frame,
-                             spdy_data *data, spdy_zlib_context *zlib_ctx);
+                             struct hash *hash,
+                             spdy_data *data);
 char *spdy_control_frame_get_type_name(int type);
 
 void spdy_control_frame_destroy(spdy_control_frame *frame);

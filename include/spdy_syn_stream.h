@@ -8,6 +8,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+struct hash;
+
 /**
  * Flags for SYN_STREAM frames.
  */
@@ -26,12 +28,14 @@ typedef struct
   uint32_t associated_to;       /*!< 31 bit assocaited to stream id */
   int priority;                 /*!< 3 bit priority */
   spdy_nv_block nv_block;       /*!< Name/Value block */
+  spdy_zlib_context zlib_ctx;   /* created for the new stream */
 } spdy_syn_stream;
 
 int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, spdy_data *data);
 int spdy_syn_stream_parse(spdy_syn_stream *syn_stream,
+                          struct hash *hash,
                           spdy_data *data,
-                          uint32_t frame_length, spdy_zlib_context *zlib_ctx);
+                          uint32_t frame_length);
 
 void spdy_syn_stream_destroy(spdy_syn_stream *syn_stream);
 

@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = foreign nostdinc
 
 SPINDLY_SOURCES = spindly_phys.c spindly_stream.c list.c list.h	\
-  spindly_phys.h spindly_stream.h
+  spindly_phys.h spindly_stream.h hash.c hash.h
 
 libspdy_la_SOURCES = spdy_control_frame.c spdy_data.c spdy_data_frame.c	      \
   spdy_frame.c spdy_headers.c spdy_nv_block.c spdy_rst_stream.c spdy_stream.c \

@@ -5,14 +5,16 @@
 #include "spdy_zlib.h"
 #include "spdy_nv_block.h"
 
+struct hash;
+
 typedef struct
 {
   uint16_t stream_id;
   spdy_nv_block *nv_block;
 } spdy_headers;
 
-int spdy_headers_parse(spdy_headers *headers,
+int spdy_headers_parse(spdy_headers *headers, struct hash *hash,
                        spdy_data *data,
-                       uint32_t frame_length, spdy_zlib_context *zlib_ctx);
+                       uint32_t frame_length);
 
 #endif

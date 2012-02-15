@@ -43,18 +43,20 @@ int spdy_syn_reply_parse_header(spdy_syn_reply *syn_reply, spdy_data *data)
  * Parses the header of a SYN_REPLY control frame and extracts the
  * NV block.
  * @param syn_reply - Destination frame.
+ * @param hash - streamid lookup
  * @param data - Data to parse.
  * @param frame_length - Length of the frame.
- * @param zlib_ctx - The zlib context to use.
  * @see SPDY_SYN_STREAM_MIN_LENGTH
  * @return 0 on success, -1 on failure.
  */
 int spdy_syn_reply_parse(spdy_syn_reply *syn_reply,
+                         struct hash *hash,
                          spdy_data *data,
-                         uint32_t frame_length, spdy_zlib_context *zlib_ctx)
+                         uint32_t frame_length)
 {
   int ret;
   size_t length = data->data_end - data->cursor;
+  spdy_zlib_context *zlib_ctx = NULL;
   if(length < SPDY_SYN_REPLY_MIN_LENGTH) {
     SPDYDEBUG("Not enough data for parsing the stream.");
     data->needed = SPDY_SYN_REPLY_MIN_LENGTH - length;
@@ -71,6 +73,8 @@ int spdy_syn_reply_parse(spdy_syn_reply *syn_reply,
   if(ret) {
     return ret;
   }
+
+  /* TODO: get the zlib_ctx */
 
   /* Parse NV block. */
   if((ret = spdy_nv_block_inflate_parse(&syn_reply->nv_block,

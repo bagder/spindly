@@ -24,10 +24,10 @@ int spdy_frame_init(spdy_frame *frame)
  */
 int spdy_frame_parse_header(spdy_frame *frame, spdy_data *data)
 {
-        /**
-	 * Read the type bit
-	 * (The mask equals 0x10000000, filtering all but the first bit.)
-	 */
+  /**
+   * Read the type bit
+   * (The mask equals 0x10000000, filtering all but the first bit.)
+   */
   frame->type = (data->cursor[0] & 0x80) ? SPDY_CONTROL_FRAME :
     SPDY_DATA_FRAME;
 
@@ -37,13 +37,12 @@ int spdy_frame_parse_header(spdy_frame *frame, spdy_data *data)
 /**
  * Parse a frame.
  * @param frame - Target frame.
+ * @param hash - hash for streamid lookup
  * @param data - Data to parse.
- * @param zlib_ctx - zlib context to use.
  * @see spdy_frame
  * @return Errorcode
  */
-int spdy_frame_parse(spdy_frame *frame,
-                     spdy_data *data, spdy_zlib_context *zlib_ctx)
+int spdy_frame_parse(spdy_frame *frame, struct hash *hash, spdy_data *data)
 {
   int ret;
   if(!frame->_header_parsed) {
@@ -57,11 +56,11 @@ int spdy_frame_parse(spdy_frame *frame,
     else if(frame->type == SPDY_DATA_FRAME)
       spdy_data_frame_init(&frame->frame.data);
 
-    frame->_header_parsed = 1;
+    frame->_header_parsed = true;
   }
   switch (frame->type) {
   case SPDY_CONTROL_FRAME:
-    ret = spdy_control_frame_parse(&frame->frame.control, data, zlib_ctx);
+    ret = spdy_control_frame_parse(&frame->frame.control, hash, data);
     if(ret != SPDY_ERROR_NONE) {
       SPDYDEBUG("Control frame parse failed.");
       return ret;

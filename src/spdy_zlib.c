@@ -32,9 +32,9 @@ char *spdy_zlib_dictionary =
  * Deflate data as used in the header compression of spdy.
  * @param src - Data to deflate
  * @param length - Length of data
+ * @param data_used - Amount of data used by zlib.
  * @param dest - Destination of deflated data
  * @param dest_size - Pointer to size of deflated data.
- * @param data_used - Amount of data used by zlib.
  * @see spdy_zlib_inflate
  * @return Errorcode
  */
@@ -171,6 +171,8 @@ int spdy_zlib_inflate(spdy_zlib_context *ctx,
   unsigned char out[SPDY_ZLIB_CHUNK];
   *dest = NULL;
   *dest_size = 0;
+
+  assert(ctx != NULL);
 
   /* Loop while inflate return is not Z_STREAM_END */
   do {

@@ -182,21 +182,29 @@ struct spindly_dx_settings
 
 struct spindly_dx_data
 {
-  struct spindly_streamid *stream;
+  struct spindly_stream *stream;
   unsigned char *datap;
   size_t len;
 };
 
 struct spindly_dx_headers
 {
-  struct spindly_streamid *stream;
-  int num_of_pairs;             /* there is at least 1 */
-  struct spindly_header_pair headers[1];        /* this array will be num_of_pairs
-                                                   size big */
+  struct spindly_stream *stream;
+  int num_of_pairs;                      /* there is at least 1 */
+  struct spindly_header_pair headers[1]; /* this array will be num_of_pairs
+                                            size big */
+};
+
+struct spindly_demux {
+  spindly_demux_t type;
+  union {
+    struct spindly_dx_stream stream;
+    struct spindly_dx_settings settings;
+  } msg;
 };
 
 spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
-                                   spindly_demux_t *msg, void **ptr);
+                                   struct spindly_demux *ptr);
 
 /*
  * Returns info (pointer and length) about the data that PHYS holds that is

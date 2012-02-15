@@ -24,6 +24,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <assert.h>
 #include "spindly.h"
 #include "spindly_phys.h"
 #include "spindly_stream.h"
@@ -51,15 +52,18 @@ struct spindly_phys *spindly_phys_init(spindly_side_t side,
   phys->side = side;
   phys->protver = protver;
   phys->num_streams = 0;
-  phys->streamid = 0;
+  phys->streamid = side == SPINDLY_SIDE_CLIENT?1:2;
 
   _spindly_list_init(&phys->streams);
-  _spindly_list_init(&phys->outq); /* the list of handles to go over for
-                                      outgoing traffic */
+  _spindly_list_init(&phys->outq);
+  _spindly_list_init(&phys->inq);
 
   /* init receiver variables  */
   spdy_frame_init(&phys->frame);
   spdy_data_use(&phys->data, NULL, 0);
+
+  /* for stream-ID to stream struct lookups */
+  _spindly_hash_init(&phys->streamhash, phys);
 
   return phys;
 
@@ -197,17 +201,19 @@ static int parse_append(struct spindly_phys *phys, bool *more)
  * When this function returns that there is no more message, it may still hold
  * trailing data that forms the beginning of the subsequent message.
  *
- * 'ptr' will point to a struct dedicated to the particular message.
+ * 'ptr' must point to the correct struct, read the first 'type' field of that
+ * to know how to interpret the rest!
  */
 spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
-                                   spindly_demux_t *msg, void **ptr)
+                                   struct spindly_demux *ptr)
 {
   struct list_node *n = _spindly_list_first(&phys->inq);
   struct spindly_indata *in= (struct spindly_indata *)n;
   int rc = SPINDLYE_OK;
 
-  *ptr = NULL;
-  *msg = SPINDLY_DX_NONE;
+  assert(ptr != NULL);
+
+  ptr->type = SPINDLY_DX_NONE;
 
   do {
 
@@ -216,20 +222,19 @@ spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
          current queue data */
       spdy_data_use(&phys->data, in->data, in->datalen);
 
-    /* Parse data. The parsing function wants a full frame to be in a
-       contiguous buffer so unless it is, we must create a full frame from the
-       input we have.
-
-       TODO: how can we know which zlib context to use?
-    */
-    rc = spdy_frame_parse(&phys->frame, &phys->data, NULL);
+    /*
+     * Parse data. The parsing function wants a full frame to be in a
+     * contiguous buffer so unless it is, we must create a full frame from the
+     * input we have.
+     */
+    rc = spdy_frame_parse(&phys->frame, &phys->streamhash, &phys->data);
 
     if(rc == SPDY_ERROR_NONE) {
-      /* TODO: convert to a 'msg' and suitable struct for 'ptr' and return */
-
       if(phys->frame.type == SPDY_CONTROL_FRAME) {
         switch(phys->frame.frame.control.type) {
         case SPDY_CTRL_SYN_STREAM:
+          ptr->type = SPINDLY_DX_STREAM_REQ;
+          ptr->msg.stream.stream = NULL;
           break;
         case SPDY_CTRL_SYN_REPLY:
           break;
@@ -250,7 +255,7 @@ spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
         }
       }
       else { /* data */
-        *msg = SPINDLY_DX_DATA;
+        ptr->type = SPINDLY_DX_DATA;
       }
 
       /* TODO: if the complete inq node was consumed, call the callback */

@@ -68,10 +68,14 @@ int spdy_control_frame_parse_header(spdy_control_frame *frame, spdy_data *data)
  * @return Errorcode
  */
 int spdy_control_frame_parse(spdy_control_frame *frame,
-                             spdy_data *data, spdy_zlib_context *zlib_ctx)
+                             struct hash *hash,
+                             spdy_data *data)
 {
   int ret;
   size_t length;
+
+  assert(hash != NULL);
+
   if(!frame->_header_parsed) {
     ret = spdy_control_frame_parse_header(frame, data);
     if(ret != SPDY_ERROR_NONE) {
@@ -90,8 +94,8 @@ int spdy_control_frame_parse(spdy_control_frame *frame,
 
   switch (frame->type) {
   case SPDY_CTRL_SYN_STREAM:
-    ret = spdy_syn_stream_parse(&frame->obj.syn_stream,
-                                data, frame->length, zlib_ctx);
+    ret = spdy_syn_stream_parse(&frame->obj.syn_stream, hash,
+                                data, frame->length);
     if(ret != SPDY_ERROR_NONE) {
       SPDYDEBUG("SYN_STREAM parsing failed.");
       return ret;
@@ -99,8 +103,8 @@ int spdy_control_frame_parse(spdy_control_frame *frame,
     break;
 
   case SPDY_CTRL_SYN_REPLY:
-    ret = spdy_syn_reply_parse(&frame->obj.syn_reply,
-                               data, frame->length, zlib_ctx);
+    ret = spdy_syn_reply_parse(&frame->obj.syn_reply, hash,
+                               data, frame->length);
     if(ret != SPDY_ERROR_NONE) {
       SPDYDEBUG("SYN_REPLY parsing failed.");
       return ret;
@@ -117,8 +121,8 @@ int spdy_control_frame_parse(spdy_control_frame *frame,
     break;
 
   case SPDY_CTRL_HEADERS:
-    ret = spdy_headers_parse(&frame->obj.headers,
-                             data, frame->length, zlib_ctx);
+    ret = spdy_headers_parse(&frame->obj.headers, hash,
+                             data, frame->length);
     if(ret != SPDY_ERROR_NONE) {
       SPDYDEBUG("HEADERS parsing failed.");
       return SPDY_ERROR_INVALID_DATA;

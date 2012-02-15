@@ -1,5 +1,6 @@
 #include "spdy_setup.h"         /* MUST be the first header to include */
 
+#include <netinet/in.h>
 #include <string.h>
 #include <assert.h>
 
@@ -7,8 +8,7 @@
 #include "spdy_log.h"
 #include "spdy_error.h"
 #include "spdy_bytes.h"
-
-#include <netinet/in.h>
+#include "hash.h"
 
 /* Minimum length of a SYN_STREAM frame. */
 #define SPDY_SYN_STREAM_MIN_LENGTH 12
@@ -76,19 +76,24 @@ int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, spdy_data *data)
  * Parses the header of a SYN_STREAM control frame and extracts the
  * NV block.
  * @param syn_stream - Destination frame.
+ * @param hash - Streamid lookup
  * @param data - Data to parse.
  * @param frame_length - Length of the frame.
- * @param zlib_ctx - The zlib context to use.
  * @see spdy_control_frame
  * @see SPDY_SYN_STREAM_MIN_LENGTH
  * @return 0 on success, -1 on failure.
  */
 int spdy_syn_stream_parse(spdy_syn_stream *syn_stream,
+                          struct hash *hash,
                           spdy_data *data,
-                          uint32_t frame_length, spdy_zlib_context *zlib_ctx)
+                          uint32_t frame_length)
 {
   int ret;
   size_t length = data->data_end - data->cursor;
+  struct hashnode *hn;
+
+  assert(hash != NULL);
+
   if(length < frame_length) {
     data->needed = frame_length - length;
     SPDYDEBUG("Not enough data for parsing the stream.");
@@ -108,6 +113,18 @@ int spdy_syn_stream_parse(spdy_syn_stream *syn_stream,
     return ret;
   }
 
+  /* make sure the incoming streamid isn't already used */
+  hn = _spindly_hash_get(hash, syn_stream->stream_id);
+  if(hn) {
+    SPDYDEBUG("Got a SPDY_STREAM with an exiting id!");
+    return SPDY_ERROR_INVALID_DATA;
+  }
+
+  /* create zlib context for the new stream */
+  ret = spdy_zlib_inflate_init(&syn_stream->zlib_ctx);
+  if(ret)
+    return ret;
+
   /* Init NV block. */
   ret = spdy_nv_block_init(&syn_stream->nv_block);
   if(ret)
@@ -117,7 +134,7 @@ int spdy_syn_stream_parse(spdy_syn_stream *syn_stream,
   ret = spdy_nv_block_inflate_parse(&syn_stream->nv_block,
                                     data->cursor,
                                     frame_length,
-                                    zlib_ctx);
+                                    &syn_stream->zlib_ctx);
   if(ret) {
     /* Clean up. */
     SPDYDEBUG("Failed to parse NV block.");
@@ -134,6 +151,12 @@ int spdy_syn_stream_parse(spdy_syn_stream *syn_stream,
 int spdy_syn_stream_pack(unsigned char *out, size_t bufsize,
                          size_t *outsize, spdy_syn_stream *str)
 {
+  char buf[2];
+  size_t consumed;
+  char *deflated;
+  size_t deflated_length;
+  int rc;
+
   if(bufsize < 10)
     return SPDY_ERROR_TOO_SMALL_BUFFER;
   BE_STORE_32(out, str->stream_id);
@@ -141,8 +164,24 @@ int spdy_syn_stream_pack(unsigned char *out, size_t bufsize,
   BE_STORE_32(out, str->associated_to);
   out += 4;
   BE_STORE_16(out, (str->priority << 14)); /* 14 bits unused */
+  out += 2;
 
-  *outsize = 10;
+  /* create the NV block to include */
+  BE_STORE_16(buf, 0); /* 16 bit NV pair counter */
+
+  rc = spdy_zlib_deflate(buf, 2, &consumed, &deflated, &deflated_length);
+  if(rc)
+    return rc;
+
+  if(bufsize < (10 + deflated_length)) {
+    free(deflated);
+    return SPDY_ERROR_TOO_SMALL_BUFFER;
+  }
+
+  memcpy(out, deflated, deflated_length);
+  free(deflated);
+
+  *outsize = 10 + deflated_length;
   return SPDY_ERROR_NONE;
 }
 

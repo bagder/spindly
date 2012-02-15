@@ -7,6 +7,8 @@
 
 #include <stdint.h>
 
+struct hash;
+
 /**
  * Flags for SYN_REPLY frames.
  */
@@ -25,9 +27,9 @@ typedef struct
 } spdy_syn_reply;
 
 int spdy_syn_reply_parse_header(spdy_syn_reply *syn_reply, spdy_data *data);
-int spdy_syn_reply_parse(spdy_syn_reply *syn_reply,
+int spdy_syn_reply_parse(spdy_syn_reply *syn_reply, struct hash *hash,
                          spdy_data *data,
-                         uint32_t frame_length, spdy_zlib_context *zlib_ctx);
+                         uint32_t frame_length);
 
 void spdy_syn_reply_destroy(spdy_syn_reply *syn_reply);
 

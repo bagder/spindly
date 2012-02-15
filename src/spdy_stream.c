@@ -43,6 +43,7 @@ int spdy_stream_init(spdy_stream *stream,
   return SPDY_ERROR_NONE;
 }
 
+#if 0
 int spdy_stream_handle_data(spdy_stream *stream, spdy_data *data)
 {
   int ret = SPDY_ERROR_NONE;
@@ -205,3 +206,4 @@ int spdy_stream_handle_rst_stream(spdy_stream *stream,
   (void)rst_stream;
   return SPDY_ERROR_NONE;
 }
+#endif

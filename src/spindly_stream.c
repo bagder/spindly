@@ -25,6 +25,7 @@
 #include "spindly.h"
 #include "spindly_stream.h"
 #include "spindly_phys.h"
+#include "hash.h"
 
 /*
  * Creates a request for a new stream and muxes the request into the output
@@ -79,6 +80,11 @@ spindly_error_t spindly_stream_new(struct spindly_phys *phys,
 
   /* make it a SYN_STREAM frame.
 
+     "If the server is initiating the stream, the Stream-ID must be even.  If
+     the client is initiating the stream, the Stream-ID must be odd.
+
+     0 is not a valid Stream-ID."
+
      NOTES:
 
      - code currently makes all streams independent
@@ -102,12 +108,15 @@ spindly_error_t spindly_stream_new(struct spindly_phys *phys,
   /* append this stream to the list of streams held by the phys handle */
   _spindly_phys_add_stream(phys, s);
 
+  /* store a lookup from the streamid to the stream struct */
+  _spindly_hash_store(phys, &phys->streamhash, phys->streamid, s);
+
   *stream = s;
 
   /* the control frame was only ever held on the stack */
   spdy_control_frame_destroy(&ctrl_frame);
 
-  phys->streamid++; /* bump the counter last so that it isn't bumped in vain */
+  phys->streamid+=2; /* bump counter last so that it isn't bumped in vain */
 
   return SPINDLYE_OK;
 

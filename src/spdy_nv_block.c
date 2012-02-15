@@ -91,10 +91,11 @@ int spdy_nv_block_init(spdy_nv_block *block)
  * @todo Multiple value support.
  * @return Errorcode
  */
-int spdy_nv_block_parse(spdy_nv_block *block, char *data, size_t data_length)
+int spdy_nv_block_parse(spdy_nv_block *block, unsigned char *data,
+                        size_t data_length)
 {
   /* The bounds of data. */
-  char *data_max = data + data_length;
+  unsigned char *data_max = data + data_length;
 
   /* For the for-loop: */
 

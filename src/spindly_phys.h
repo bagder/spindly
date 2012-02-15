@@ -19,7 +19,10 @@
  *
  ***************************************************************************/
 
+#include <spindly.h>
+
 #include "list.h"
+#include "hash.h"
 
 #include "spdy_frame.h"
 
@@ -37,8 +40,8 @@ struct spindly_phys
 
   /* all the streams on this physical connection */
   struct list_head streams;
-  int num_streams;             /* how many have been added so far */
-  uint32_t streamid;            /* the next streamid to ask for */
+  int num_streams;           /* how many have been added so far */
+  uint32_t streamid;         /* the next streamid to ask for */
 
   /* list of spindly_stream handles to go over for outgoing traffic */
   struct list_head outq;
@@ -57,6 +60,8 @@ struct spindly_phys
   size_t parselen;   /* length of data used in the parse buffer */
 
   struct spindly_phys_config *config;
+
+  struct hash streamhash; /* for ID => stream lookup */
 };
 
 /* internal functions */
