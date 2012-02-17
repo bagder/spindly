@@ -68,7 +68,7 @@ RESULT = spindly_phys_incoming(PHYS, DATA, DATALEN, IDENTIFIER);
 
   RECOMMENDATION: feed as large data chunks as possible into this function
 
-RESULT = spindly_phys_demux(PHYS, &MESSAGE, &PTR)
+RESULT = spindly_phys_demux(PHYS, &MESSAGE)
 
   Returns information about incoming messages on the connection, split up for
   consumption accordingly. Subsequent calls will return the next result and so
@@ -114,7 +114,7 @@ RESULT = spindly_phys_demux(PHYS, &MESSAGE, &PTR)
 
   SPINDLY_DX_HEADERS - headers arrived to a specific STREAM
 
-RESULT = spindly_phys_outgoing(PHYS, &SEND);
+RESULT = spindly_phys_outgoing(PHYS, &DATA, &LENGTH);
 
   Will return info (pointer and length) with data that is ready to send over
   the transport medium immediately. This function may return data in multiple
@@ -127,6 +127,9 @@ RESULT = spindly_phys_outgoing(PHYS, &SEND);
   to a certain maximum level. Therefore, an application should rather call
   this function repeated times to get updated values after data has been sent
   off (and spindly_phys_sent was called).
+
+  NOTE: if this function is called again before earlier data as not yet been
+  reported fully with spindly_phys_sent() it will return SPINDLYE_INVAL.
 
 RESULT = spindly_phys_sent(PHYS, LENGTH);
 
