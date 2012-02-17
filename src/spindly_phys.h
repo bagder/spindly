@@ -63,6 +63,12 @@ struct spindly_phys
   /* list of spindly_stream handles to go over for outgoing traffic */
   struct list_head outq;
 
+  /* 'outgoing' holds the node when *outgoing() has been called until *sent()
+     has acknowledged that the entire data is sent. */
+
+  size_t outgoing_tosend;
+  struct spindly_outdata *outgoing;
+
   /* list of spindly_indata with incoming traffic */
   struct list_head inq;
   size_t inq_size; /* total number of bytes in the queue */

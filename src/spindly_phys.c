@@ -55,6 +55,8 @@ struct spindly_phys *spindly_phys_init(spindly_side_t side,
   phys->protver = protver;
   phys->num_streams = 0;
   phys->streamid = side == SPINDLY_SIDE_CLIENT?1:2;
+  phys->outgoing = NULL;
+  phys->outgoing_tosend = 0;
 
   /* create zlib contexts for incoming and outgoing data */
   rc = spdy_zlib_inflate_init(&phys->zlib_in);
@@ -117,14 +119,22 @@ spindly_error_t spindly_phys_outgoing(struct spindly_phys *phys,
                                       unsigned char **data,
                                       size_t *len)
 {
-  struct spindly_outdata *od = _spindly_list_first(&phys->outq);
+  struct spindly_outdata *od;
+
+  if(phys->outgoing)
+    /* data returned previously has not yet been reported to have been sent
+       off */
+    return SPINDLYE_INVAL;
+
+  od = _spindly_list_first(&phys->outq);
   if(od) {
     *data = od->buffer;
     *len = od->len;
     /* remove this node from the outgoing queue */
     _spindly_list_remove(&od->node);
-    /* add this node back to the pending queue */
-    _spindly_list_add(&phys->pendq, &od->node);
+
+    phys->outgoing = od;
+    phys->outgoing_tosend = *len; /* send this to be done */
   }
   else {
     *data = NULL;
@@ -318,8 +328,6 @@ spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
   return rc;
 }
 
-#if 0 /* not yet implemented */
-
 /*
  * Tell Spindly how many bytes of the data that has been sent and should be
  * considered consumed. The PHYS will then contain updated information of
@@ -327,8 +335,20 @@ spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
  */
 spindly_error_t spindly_phys_sent(struct spindly_phys *phys, size_t len)
 {
+  struct spindly_outdata *od = phys->outgoing;
 
+  phys->outgoing_tosend -= len;
+
+  if(phys->outgoing_tosend == 0) {
+    phys->outgoing = NULL;
+
+    /* add this node back to the pending queue */
+    _spindly_list_add(&phys->pendq, &od->node);
+  }
+  return SPINDLYE_OK;
 }
+
+#if 0 /* not yet implemented */
 
 /*
  * Change one or more settings associated with the connection. This will
