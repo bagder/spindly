@@ -118,11 +118,16 @@ struct spindly_phys *spindly_phys_init(spindly_side_t side,
 
 typedef enum
 {
-  SPINDLYE_OK,    /* 0 - all is fine */
-  SPINDLYE_NOMEM, /* 1 - out of memory */
-  SPINDLYE_INVAL, /* 2 - invalid input/argument/value */
+  SPINDLYE_OK,           /* 0 - all is fine */
+  SPINDLYE_NOMEM,        /* 1 - out of memory */
+  SPINDLYE_INVAL,        /* 2 - invalid input/argument/value */
+  SPINDLYE_INSUFF,       /* 3 - insufficient data */
+  SPINDLYE_ZLIB,         /* 4 - a compression problem */
+  SPINDLYE_RESET,        /* 5 - stream was (unexpectedly) reset */
+  SPINDLYE_STOP,         /* 6 - stream was (unexpectedly) terminated */
+  SPINDLYE_SMALL_BUFFER, /* 7 - too small buffer */
 
-  SPINDLYE_LAST   /* not used, always the last */
+  SPINDLYE_LAST          /* not used, always the last */
 } spindly_error_t;
 
 
