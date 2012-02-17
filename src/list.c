@@ -17,7 +17,8 @@
  *
  ***************************************************************************/
 /*
- * Linked list functions for spindly
+ * Linked list functions for spindly. The idea is to not do memory functions
+ * for list handling.
  */
 #include "spdy_setup.h"         /* MUST be the first header to include */
 
@@ -30,7 +31,7 @@ void _spindly_list_init(struct list_head *head)
   head->first = head->last = NULL;
 }
 
-/* add a node to the list */
+/* add a node last in the list */
 void _spindly_list_add(struct list_head *head,
                        struct list_node *entry)
 {
