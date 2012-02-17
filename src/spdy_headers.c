@@ -3,6 +3,7 @@
 #include "spdy_log.h"
 #include "spdy_error.h"
 #include "spdy_bytes.h"
+#include "spindly_phys.h"
 
 #include <netinet/in.h>
 
@@ -25,13 +26,13 @@ int spdy_headers_parse_header(spdy_headers *headers, spdy_data *data)
 }
 
 int spdy_headers_parse(spdy_headers *headers,
-                       struct hash *hash,
+                       struct spindly_phys *phys,
                        spdy_data *data,
                        uint32_t frame_length)
 {
   int ret;
   size_t length = data->data_end - data->cursor;
-  spdy_zlib_context *zlib_ctx = NULL;
+
   if(length < SPDY_HEADERS_MIN_LENGTH) {
     data->needed = SPDY_HEADERS_MIN_LENGTH - length;
     SPDYDEBUG("Not enough data for parsing the frame.");
@@ -43,13 +44,12 @@ int spdy_headers_parse(spdy_headers *headers,
     return ret;
   }
 
-  /* TODO: get the proper zlib context */
-
   /* Parse NV block. */
-  if((ret = spdy_nv_block_inflate_parse(headers->nv_block,
-                                        data->cursor,
-                                        frame_length,
-                                        zlib_ctx)) != SPDY_ERROR_NONE) {
+  ret = spdy_nv_block_inflate_parse(headers->nv_block,
+                                    data->cursor,
+                                    frame_length,
+                                    &phys->zlib_in);
+  if(ret != SPDY_ERROR_NONE) {
     /* Clean up. */
     SPDYDEBUG("Failed to parse NV block.");
     return ret;

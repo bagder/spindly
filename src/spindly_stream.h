@@ -53,8 +53,6 @@ struct spindly_stream
   struct spindly_stream_config *config;
 
   spdy_stream spdy;
-  spdy_zlib_context zlib_in;
-  spdy_zlib_context zlib_out;
 
   unsigned char buffer[STREAM_BUFSIZE];
 };

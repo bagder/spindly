@@ -42,7 +42,8 @@ int spdy_frame_parse_header(spdy_frame *frame, spdy_data *data)
  * @see spdy_frame
  * @return Errorcode
  */
-int spdy_frame_parse(spdy_frame *frame, struct hash *hash, spdy_data *data)
+int spdy_frame_parse(spdy_frame *frame, struct spindly_phys *phys,
+                     spdy_data *data)
 {
   int ret;
   if(!frame->_header_parsed) {
@@ -60,7 +61,7 @@ int spdy_frame_parse(spdy_frame *frame, struct hash *hash, spdy_data *data)
   }
   switch (frame->type) {
   case SPDY_CONTROL_FRAME:
-    ret = spdy_control_frame_parse(&frame->frame.control, hash, data);
+    ret = spdy_control_frame_parse(&frame->frame.control, phys, data);
     if(ret != SPDY_ERROR_NONE) {
       SPDYDEBUG("Control frame parse failed.");
       return ret;

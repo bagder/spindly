@@ -5,7 +5,7 @@
 #include "spdy_zlib.h"
 #include "spdy_nv_block.h"
 
-struct hash;
+struct spindly_phys;
 
 typedef struct
 {
@@ -13,7 +13,7 @@ typedef struct
   spdy_nv_block *nv_block;
 } spdy_headers;
 
-int spdy_headers_parse(spdy_headers *headers, struct hash *hash,
+int spdy_headers_parse(spdy_headers *headers, struct spindly_phys *phys,
                        spdy_data *data,
                        uint32_t frame_length);
 

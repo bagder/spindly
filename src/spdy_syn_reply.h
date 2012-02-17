@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 
-struct hash;
+struct spindly_phys;
 
 /**
  * Flags for SYN_REPLY frames.
@@ -27,7 +27,7 @@ typedef struct
 } spdy_syn_reply;
 
 int spdy_syn_reply_parse_header(spdy_syn_reply *syn_reply, spdy_data *data);
-int spdy_syn_reply_parse(spdy_syn_reply *syn_reply, struct hash *hash,
+int spdy_syn_reply_parse(spdy_syn_reply *syn_reply, struct spindly_phys *phys,
                          spdy_data *data,
                          uint32_t frame_length);
 

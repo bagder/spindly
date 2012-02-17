@@ -62,6 +62,10 @@ struct spindly_phys
   struct spindly_phys_config *config;
 
   struct hash streamhash; /* for ID => stream lookup */
+
+  spdy_zlib_context zlib_in;
+  spdy_zlib_context zlib_out;
+
 };
 
 /* internal functions */

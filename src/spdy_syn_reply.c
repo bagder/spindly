@@ -3,6 +3,7 @@
 #include "spdy_log.h"
 #include "spdy_error.h"
 #include "spdy_bytes.h"
+#include "spindly_phys.h"
 
 #include <netinet/in.h>
 
@@ -50,13 +51,13 @@ int spdy_syn_reply_parse_header(spdy_syn_reply *syn_reply, spdy_data *data)
  * @return 0 on success, -1 on failure.
  */
 int spdy_syn_reply_parse(spdy_syn_reply *syn_reply,
-                         struct hash *hash,
+                         struct spindly_phys *phys,
                          spdy_data *data,
                          uint32_t frame_length)
 {
   int ret;
   size_t length = data->data_end - data->cursor;
-  spdy_zlib_context *zlib_ctx = NULL;
+
   if(length < SPDY_SYN_REPLY_MIN_LENGTH) {
     SPDYDEBUG("Not enough data for parsing the stream.");
     data->needed = SPDY_SYN_REPLY_MIN_LENGTH - length;
@@ -74,13 +75,12 @@ int spdy_syn_reply_parse(spdy_syn_reply *syn_reply,
     return ret;
   }
 
-  /* TODO: get the zlib_ctx */
-
-  /* Parse NV block. */
-  if((ret = spdy_nv_block_inflate_parse(&syn_reply->nv_block,
-                                        data->cursor,
-                                        frame_length,
-                                        zlib_ctx)) != SPDY_ERROR_NONE) {
+  /* Parse NV block */
+  ret = spdy_nv_block_inflate_parse(&syn_reply->nv_block,
+                                    data->cursor,
+                                    frame_length,
+                                    &phys->zlib_in);
+  if(ret != SPDY_ERROR_NONE) {
     /* Clean up. */
     SPDYDEBUG("Failed to parse NV block.");
     return ret;

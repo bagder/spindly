@@ -43,7 +43,8 @@ struct spdy_frame
 
 int spdy_frame_init(spdy_frame *frame);
 int spdy_frame_parse_header(spdy_frame *frame, spdy_data *data);
-int spdy_frame_parse(spdy_frame *frame, struct hash *hash, spdy_data *data);
+int spdy_frame_parse(spdy_frame *frame, struct spindly_phys *phys,
+                     spdy_data *data);
 void spdy_frame_destroy(spdy_frame *frame);
 
 #endif

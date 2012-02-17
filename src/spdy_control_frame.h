@@ -11,7 +11,7 @@
 #include "spdy_rst_stream.h"
 #include "spdy_headers.h"
 
-struct hash;
+struct spindly_phys;
 
 /**
  * SPDY control frame types.
@@ -60,7 +60,7 @@ int spdy_control_frame_pack_header(unsigned char *outp, size_t bufsize,
 int spdy_control_frame_pack(unsigned char *outp, size_t bufsize,
                             size_t *outsize, spdy_control_frame *frame);
 int spdy_control_frame_parse(spdy_control_frame *frame,
-                             struct hash *hash,
+                             struct spindly_phys *phys,
                              spdy_data *data);
 char *spdy_control_frame_get_type_name(int type);
 

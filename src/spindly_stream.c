@@ -62,17 +62,9 @@ spindly_error_t _spindly_stream_init(struct spindly_phys *phys,
   s->userp = userp;
   s->config = config;
 
-  /* create zlib contexts for incoming and outgoing data */
-  rc = spdy_zlib_inflate_init(&s->zlib_in);
-  if(rc)
-    goto fail;
-
-  rc = spdy_zlib_inflate_init(&s->zlib_out);
-  if(rc)
-    goto fail;
-
   /* init the SPDY protocol handle for this stream */
-  rc = spdy_stream_init(&s->spdy, false, false, &s->zlib_in, &s->zlib_out);
+  rc = spdy_stream_init(&s->spdy, false, false, &phys->zlib_in,
+                        &phys->zlib_out);
   if(rc)
     goto fail;
 
@@ -132,9 +124,6 @@ spindly_error_t _spindly_stream_init(struct spindly_phys *phys,
   fail:
 
   spdy_control_frame_destroy(&ctrl_frame);
-
-  spdy_zlib_inflate_end(&s->zlib_in);
-  spdy_zlib_inflate_end(&s->zlib_out);
 
   FREE(phys, s);
 

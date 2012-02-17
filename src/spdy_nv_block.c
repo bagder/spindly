@@ -208,7 +208,7 @@ int spdy_nv_block_inflate_parse(spdy_nv_block *nv_block,
   size_t inflate_size = 0;
 
   if((ret = spdy_zlib_inflate(zlib_ctx,
-                              data,
+                              (char *)data,
                               data_length,
                               &inflate, &inflate_size)) != SPDY_ERROR_NONE) {
     SPDYDEBUG("Failed to inflate data.");
@@ -216,7 +216,7 @@ int spdy_nv_block_inflate_parse(spdy_nv_block *nv_block,
   }
 
   /* Parse NV block. */
-  ret = spdy_nv_block_parse(nv_block, inflate, inflate_size);
+  ret = spdy_nv_block_parse(nv_block, (unsigned char *)inflate, inflate_size);
 
   free(inflate);
 

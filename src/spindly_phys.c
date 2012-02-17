@@ -42,6 +42,7 @@ struct spindly_phys *spindly_phys_init(spindly_side_t side,
                                        struct spindly_phys_config *config)
 {
   struct spindly_phys *phys;
+  int rc;
 
   /* this is the first malloc, it should use the malloc function provided in
      the config struct if set, but probably cannot use the MALLOC macro */
@@ -53,6 +54,15 @@ struct spindly_phys *spindly_phys_init(spindly_side_t side,
   phys->protver = protver;
   phys->num_streams = 0;
   phys->streamid = side == SPINDLY_SIDE_CLIENT?1:2;
+
+  /* create zlib contexts for incoming and outgoing data */
+  rc = spdy_zlib_inflate_init(&phys->zlib_in);
+  if(rc)
+    goto fail;
+
+  rc = spdy_zlib_inflate_init(&phys->zlib_out);
+  if(rc)
+    goto fail;
 
   _spindly_list_init(&phys->streams);
   _spindly_list_init(&phys->outq);
@@ -68,6 +78,9 @@ struct spindly_phys *spindly_phys_init(spindly_side_t side,
   return phys;
 
 fail:
+  spdy_zlib_inflate_end(&phys->zlib_in);
+  spdy_zlib_inflate_end(&phys->zlib_out);
+
   if(phys)
     free(phys);
 
@@ -228,7 +241,7 @@ spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
      * contiguous buffer so unless it is, we must create a full frame from the
      * input we have.
      */
-    rc = spdy_frame_parse(&phys->frame, &phys->streamhash, &phys->data);
+    rc = spdy_frame_parse(&phys->frame, phys, &phys->data);
 
     if(rc == SPDY_ERROR_NONE) {
       if(phys->frame.type == SPDY_CONTROL_FRAME) {
@@ -245,8 +258,6 @@ spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
            */
           syn = &phys->frame.frame.control.obj.syn_stream;
 
-          /* TODO: inherit the zlib context that was already created
-             for the stream! */
           rc = _spindly_stream_init(phys, syn->priority, &stream, NULL,
                                     NULL, syn->stream_id);
           if(rc)

@@ -8,6 +8,7 @@
 #include "spdy_log.h"
 #include "spdy_error.h"
 #include "spdy_bytes.h"
+#include "spindly_phys.h"
 #include "hash.h"
 
 /* Minimum length of a SYN_STREAM frame. */
@@ -84,7 +85,7 @@ int spdy_syn_stream_parse_header(spdy_syn_stream *syn_stream, spdy_data *data)
  * @return 0 on success, -1 on failure.
  */
 int spdy_syn_stream_parse(spdy_syn_stream *syn_stream,
-                          struct hash *hash,
+                          struct spindly_phys *phys,
                           spdy_data *data,
                           uint32_t frame_length)
 {
@@ -92,7 +93,7 @@ int spdy_syn_stream_parse(spdy_syn_stream *syn_stream,
   size_t length = data->data_end - data->cursor;
   struct hashnode *hn;
 
-  assert(hash != NULL);
+  assert(phys != NULL);
 
   if(length < frame_length) {
     data->needed = frame_length - length;
@@ -114,16 +115,11 @@ int spdy_syn_stream_parse(spdy_syn_stream *syn_stream,
   }
 
   /* make sure the incoming streamid isn't already used */
-  hn = _spindly_hash_get(hash, syn_stream->stream_id);
+  hn = _spindly_hash_get(&phys->streamhash, syn_stream->stream_id);
   if(hn) {
     SPDYDEBUG("Got a SPDY_STREAM with an exiting id!");
     return SPDY_ERROR_INVALID_DATA;
   }
-
-  /* create zlib context for the new stream */
-  ret = spdy_zlib_inflate_init(&syn_stream->zlib_ctx);
-  if(ret)
-    return ret;
 
   /* Init NV block. */
   ret = spdy_nv_block_init(&syn_stream->nv_block);
@@ -134,7 +130,7 @@ int spdy_syn_stream_parse(spdy_syn_stream *syn_stream,
   ret = spdy_nv_block_inflate_parse(&syn_stream->nv_block,
                                     data->cursor,
                                     frame_length,
-                                    &syn_stream->zlib_ctx);
+                                    &phys->zlib_in);
   if(ret) {
     /* Clean up. */
     SPDYDEBUG("Failed to parse NV block.");
