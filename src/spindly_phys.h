@@ -26,6 +26,23 @@
 
 #include "spdy_frame.h"
 
+/*
+ * We use a set of pre-allocated structs in a linked list to put data in to
+ * get sent.
+ */
+#define PHYS_NUM_OUTDATA 64 /* number of allocated structs by default */
+#define PHYS_OUTBUFSIZE 128 /* size of buffer that avoids malloc */
+
+struct spindly_outdata {
+  struct list_node node;
+  size_t len; /* number of bytes of data provided */
+  unsigned char *alloced; /* if not NULL, an allocated pointer with data
+                             instead of buffer */
+  unsigned char buffer[PHYS_OUTBUFSIZE];
+  struct spindly_stream *stream; /* originating stream */
+};
+
+
 struct spindly_indata {
   struct list_node node;
   void *identifier;
@@ -49,6 +66,9 @@ struct spindly_phys
   /* list of spindly_indata with incoming traffic */
   struct list_head inq;
   size_t inq_size; /* total number of bytes in the queue */
+
+  /* list of spindly_outdata nodes that are unused */
+  struct list_head pendq;
 
   /* state variables for the parsing and demuxing of single incoming data
      stream */

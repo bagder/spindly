@@ -43,6 +43,7 @@ struct spindly_phys *spindly_phys_init(spindly_side_t side,
 {
   struct spindly_phys *phys;
   int rc;
+  struct spindly_outdata *od;
 
   /* this is the first malloc, it should use the malloc function provided in
      the config struct if set, but probably cannot use the MALLOC macro */
@@ -67,6 +68,16 @@ struct spindly_phys *spindly_phys_init(spindly_side_t side,
   _spindly_list_init(&phys->streams);
   _spindly_list_init(&phys->outq);
   _spindly_list_init(&phys->inq);
+  _spindly_list_init(&phys->pendq);
+
+  /* now add all outdata nodes to the pending queue */
+  for(rc=0; rc < PHYS_NUM_OUTDATA; rc++) {
+    od = CALLOC(phys, sizeof(struct spindly_outdata));
+    if(!od)
+      goto fail;
+
+    _spindly_list_add(&phys->pendq, &od->node);
+  }
 
   /* init receiver variables  */
   spdy_frame_init(&phys->frame);
@@ -80,6 +91,8 @@ struct spindly_phys *spindly_phys_init(spindly_side_t side,
 fail:
   spdy_zlib_inflate_end(&phys->zlib_in);
   spdy_zlib_inflate_end(&phys->zlib_out);
+
+  /* TODO: clean up the pendq list */
 
   if(phys)
     free(phys);
@@ -104,21 +117,14 @@ spindly_error_t spindly_phys_outgoing(struct spindly_phys *phys,
                                       unsigned char **data,
                                       size_t *len)
 {
-  struct list_node *n = _spindly_list_first(&phys->outq);
-  if(n) {
-    struct spindly_stream *s= (struct spindly_stream *)
-      ((char *)n - offsetof(struct spindly_stream, outnode));
-
-    /* iterate over the attached streams and return binary data */
-    switch(s->out) {
-    case SPDY_CTRL_SYN_STREAM:
-    case SPDY_CTRL_SYN_REPLY:
-      *data = s->buffer;
-      *len = s->outlen;
-      /* remove this node from the outgoing queue */
-      _spindly_list_remove(&s->outnode);
-      break;
-    }
+  struct spindly_outdata *od = _spindly_list_first(&phys->outq);
+  if(od) {
+    *data = od->buffer;
+    *len = od->len;
+    /* remove this node from the outgoing queue */
+    _spindly_list_remove(&od->node);
+    /* add this node back to the pending queue */
+    _spindly_list_add(&phys->pendq, &od->node);
   }
   else {
     *data = NULL;

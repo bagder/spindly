@@ -71,9 +71,7 @@ spindly_error_t _spindly_stream_init(struct spindly_phys *phys,
   if(!madebypeer) {
     /* only send a SYN_STREAM if this stream is not the result of a received
        SYN_STREAM from the peer */
-
-    /* mark the current action */
-    s->out = SPDY_CTRL_SYN_STREAM;
+    struct spindly_outdata *od;
 
     /* make it a SYN_STREAM frame.
 
@@ -95,14 +93,20 @@ spindly_error_t _spindly_stream_init(struct spindly_phys *phys,
     if(rc)
       goto fail;
 
+    /* get an out buffer, TODO: what if drained? */
+    od = _spindly_list_first(&phys->pendq);
+
     /* pack a control frame to the output buffer */
-    rc = spdy_control_frame_pack(s->buffer, sizeof(s->buffer),
-                                 &s->outlen, &ctrl_frame);
+    rc = spdy_control_frame_pack(od->buffer, PHYS_OUTBUFSIZE,
+                                 &od->len, &ctrl_frame);
+
     if(rc)
       goto fail;
 
+    od->stream = s;
+
     /* add this handle to the outq */
-    _spindly_list_add(&phys->outq, &s->outnode);
+    _spindly_list_add(&phys->outq, &od->node);
   }
 
   /* append this stream to the list of streams held by the phys handle */
@@ -154,14 +158,11 @@ static spindly_error_t stream_acknack(struct spindly_stream *s, bool ack)
 {
   spindly_error_t rc = SPINDLYE_OK;
   spdy_control_frame ctrl_frame;
+  struct spindly_outdata *od;
 
   assert(s != NULL);
 
   /* queue up a SYN_REPLY or RST_STREAM message */
-
-  /* mark the current action */
-  s->out = ack?SPDY_CTRL_SYN_REPLY:SPDY_CTRL_RST_STREAM;
-
   if(ack)
     rc = spdy_control_mk_syn_reply(&ctrl_frame, s->streamid, NULL);
   else
@@ -170,14 +171,19 @@ static spindly_error_t stream_acknack(struct spindly_stream *s, bool ack)
   if(rc)
     goto fail;
 
+  /* get an out buffer TODO: what if drained? */
+  od = _spindly_list_first(&s->phys->pendq);
+
   /* pack a control frame to the output buffer */
-  rc = spdy_control_frame_pack(s->buffer, sizeof(s->buffer),
-                               &s->outlen, &ctrl_frame);
+  rc = spdy_control_frame_pack(od->buffer, PHYS_OUTBUFSIZE,
+                               &od->len, &ctrl_frame);
   if(rc)
     goto fail;
 
+  od->stream = s;
+
   /* add this handle to the outq */
-  _spindly_list_add(&s->phys->outq, &s->outnode);
+  _spindly_list_add(&s->phys->outq, &od->node);
 
   fail:
   return rc;
