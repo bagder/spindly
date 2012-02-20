@@ -337,6 +337,11 @@ spindly_error_t spindly_phys_sent(struct spindly_phys *phys, size_t len)
 {
   struct spindly_outdata *od = phys->outgoing;
 
+  if(len > phys->outgoing_tosend)
+    /* a larger value that outstanding means badness and we rather tell the
+       user than adapt in silence */
+    return SPINDLYE_INVAL;
+
   phys->outgoing_tosend -= len;
 
   if(phys->outgoing_tosend == 0) {
