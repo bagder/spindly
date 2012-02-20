@@ -55,6 +55,9 @@ START_TEST (test_spindly_phys_init)
   spint = spindly_phys_incoming(phys_server, data, datalen, NULL);
   fail_unless(spint == SPINDLYE_OK, "spindly_phys_incoming() failed");
 
+  /* NOTE: since spindly_phys_incoming() does not immediately copy the data
+     passed to it, we cannot immediately call spindly_phys_sent() */
+
   /* demux the incoming data */
   spint = spindly_phys_demux(phys_server, &demux);
   fail_unless(spint == SPINDLYE_OK, "spindly_phys_demux() failed");
