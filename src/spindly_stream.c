@@ -95,6 +95,13 @@ spindly_error_t _spindly_stream_init(struct spindly_phys *phys,
 
     /* get an out buffer, TODO: what if drained? */
     od = _spindly_list_first(&phys->pendq);
+    if(!od) {
+      assert(0);
+      goto fail;
+    }
+
+    /* remove the node from the pending list */
+    _spindly_list_remove(&od->node);
 
     /* pack a control frame to the output buffer */
     rc = spdy_control_frame_pack(od->buffer, PHYS_OUTBUFSIZE,
@@ -173,6 +180,13 @@ static spindly_error_t stream_acknack(struct spindly_stream *s, bool ack)
 
   /* get an out buffer TODO: what if drained? */
   od = _spindly_list_first(&s->phys->pendq);
+  if(!od) {
+    assert(0);
+    goto fail;
+  }
+
+  /* remove the node from the pending list */
+  _spindly_list_remove(&od->node);
 
   /* pack a control frame to the output buffer */
   rc = spdy_control_frame_pack(od->buffer, PHYS_OUTBUFSIZE,
