@@ -106,7 +106,6 @@ spindly_error_t _spindly_phys_add_stream(struct spindly_phys *phys,
                                          struct spindly_stream *s)
 {
   _spindly_list_add(&phys->streams, &s->node);
-  s->streamid = ++phys->streamid;
   phys->num_streams++;
   return SPINDLYE_OK;
 }
