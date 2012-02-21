@@ -285,20 +285,17 @@ spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
           ptr->msg.stream.stream = stream;
           break;
         case SPDY_CTRL_SYN_REPLY:
-          break;
         case SPDY_CTRL_RST_STREAM:
-          break;
         case SPDY_CTRL_SETTINGS:
-          break;
         case SPDY_CTRL_NOOP:
-          break;
         case SPDY_CTRL_PING:
-          break;
         case SPDY_CTRL_GOAWAY:
-          break;
         case SPDY_CTRL_HEADERS:
-          break;
         case SPDY_CTRL_WINDOW_UPDATE:
+          assert(0); /* not implemented yet! */
+          break;
+        default:
+          assert(0); /* internal error */
           break;
         }
       }
