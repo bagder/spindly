@@ -1,11 +1,13 @@
 #include "spdy_setup.h"         /* MUST be the first header to include */
+
+#include <string.h>
+#include <netinet/in.h>
 #include "spdy_syn_reply.h"
 #include "spdy_log.h"
 #include "spdy_error.h"
 #include "spdy_bytes.h"
 #include "spindly_phys.h"
 
-#include <netinet/in.h>
 
 /* Minimum length of a SYN_REPLY frame. */
 #define SPDY_SYN_REPLY_MIN_LENGTH 8
@@ -87,6 +89,45 @@ int spdy_syn_reply_parse(spdy_syn_reply *syn_reply,
   }
   data->cursor += frame_length - SPDY_SYN_REPLY_HEADER_MIN_LENGTH;
 
+  return SPDY_ERROR_NONE;
+}
+
+
+/*
+ * Pack SYN_REPLY into an output buffer for transmitting.
+ */
+int spdy_syn_reply_pack(unsigned char *out, size_t bufsize,
+                        size_t *outsize, spdy_syn_reply *rep)
+{
+  char buf[2];
+  size_t consumed;
+  char *deflated;
+  size_t deflated_length;
+  int rc;
+
+  if(bufsize < 6)
+    return SPDY_ERROR_TOO_SMALL_BUFFER;
+  BE_STORE_32(out, rep->stream_id);
+  out += 4;
+  BE_STORE_16(out, 0); /* 16 bits unused */
+  out += 2;
+
+  /* create the NV block to include */
+  BE_STORE_16(buf, 0); /* 16 bit NV pair counter */
+
+  rc = spdy_zlib_deflate(buf, 2, &consumed, &deflated, &deflated_length);
+  if(rc)
+    return rc;
+
+  if(bufsize < (10 + deflated_length)) {
+    free(deflated);
+    return SPDY_ERROR_TOO_SMALL_BUFFER;
+  }
+
+  memcpy(out, deflated, deflated_length);
+  free(deflated);
+
+  *outsize = 6 + deflated_length;
   return SPDY_ERROR_NONE;
 }
 

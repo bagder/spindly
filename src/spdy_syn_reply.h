@@ -30,7 +30,8 @@ int spdy_syn_reply_parse_header(spdy_syn_reply *syn_reply, spdy_data *data);
 int spdy_syn_reply_parse(spdy_syn_reply *syn_reply, struct spindly_phys *phys,
                          spdy_data *data,
                          uint32_t frame_length);
-
+int spdy_syn_reply_pack(unsigned char *out, size_t bufsize,
+                        size_t *outsize, spdy_syn_reply *rep);
 void spdy_syn_reply_destroy(spdy_syn_reply *syn_reply);
 
 #endif

@@ -195,6 +195,13 @@ int spdy_control_frame_pack(unsigned char *out, size_t bufsize,
     rc = spdy_syn_stream_pack(out, bufsize, &payloadsize,
                               &frame->obj.syn_stream);
     break;
+  case SPDY_CTRL_SYN_REPLY:
+    rc = spdy_syn_reply_pack(out, bufsize, &payloadsize,
+                             &frame->obj.syn_reply);
+    break;
+  default:
+    assert(0); /* not implemented or internal error! */
+    break;
   }
   if(rc)
     return rc;

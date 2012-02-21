@@ -3,15 +3,15 @@
 #include <check.h>
 
 static const unsigned char SPDY_SYN_STREAM[] =
-  "\x80\x02\x00\x01\x00\x00\x00\x0a" \
-  "\x00\x00\x00\x01\x00\x00\x00\x00" \
-  "\x00\x00\x78\xbb\xdf\xa2\x51\xb2" \
+  "\x80\x02\x00\x01\x00\x00\x00\x0a"
+  "\x00\x00\x00\x01\x00\x00\x00\x00"
+  "\x00\x00\x78\xbb\xdf\xa2\x51\xb2"
   "\x63\x60\x00\x00\x00\x02\x00\x01";
 
 static const unsigned char SPDY_SYN_REPLY[] =
-  "\x80\x02\x00\x02\x00\x00\x00\x0a" \
-  "\x00\x00\x00\x01\x00\x00\x00\x00" \
-  "\x00\x00\x78\xbb\xdf\xa2\x51\xb2" \
+  "\x80\x02\x00\x02\x00\x00\x00\x0a"
+  "\x00\x00\x00\x01\x00\x00"
+  "\x78\xbb\xdf\xa2\x51\xb2"
   "\x63\x60\x00\x00\x00\x02\x00\x01";
 
 START_TEST (test_spindly_phys_init)
@@ -36,7 +36,7 @@ START_TEST (test_spindly_phys_init)
   spint = spindly_phys_outgoing(phys_client, &data, &datalen);
   fail_unless(spint == SPINDLYE_OK, "spindly_phys_outgoing() failed");
 
-#if 0
+#if 1
   {
     size_t i;
     for(i=0; i<datalen; i++) {
@@ -75,7 +75,7 @@ START_TEST (test_spindly_phys_init)
   spint = spindly_phys_outgoing(phys_server, &data, &datalen);
   fail_unless(spint == SPINDLYE_OK, "spindly_phys_outgoing() failed");
 
-  fail_unless(datalen == 32, "spindly_phys_outgoing() returned bad value");
+  fail_unless(datalen == 28, "spindly_phys_outgoing() returned bad value");
 
 #if 1
   {
