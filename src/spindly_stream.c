@@ -37,14 +37,17 @@ spindly_error_t _spindly_stream_init(struct spindly_phys *phys,
                                      struct spindly_stream **stream,
                                      void *userp,
                                      struct spindly_stream_config *config,
-                                     uint32_t peer_streamid)
+                                     uint32_t streamid)
 {
   struct spindly_stream *s;
   int rc;
   spdy_control_frame ctrl_frame;
 
   /* if there's a given streamid, this stream was created by the peer */
-  bool madebypeer = peer_streamid?true:false;
+  bool madebypeer = streamid?true:false;
+
+  if(!madebypeer)
+    streamid = phys->streamid;
 
   if(!phys || prio> PRIO_MAX)
     return SPINDLYE_INVAL;
@@ -88,8 +91,7 @@ spindly_error_t _spindly_stream_init(struct spindly_phys *phys,
        function
     */
 
-    rc = spdy_control_mk_syn_stream(&ctrl_frame, phys->streamid, 0, prio,
-                                    NULL);
+    rc = spdy_control_mk_syn_stream(&ctrl_frame, streamid, 0, prio, NULL);
     if(rc)
       goto fail;
 
@@ -115,12 +117,14 @@ spindly_error_t _spindly_stream_init(struct spindly_phys *phys,
     /* add this handle to the outq */
     _spindly_list_add(&phys->outq, &od->node);
   }
+  else
+    s->streamid = streamid;
 
   /* append this stream to the list of streams held by the phys handle */
   _spindly_phys_add_stream(phys, s);
 
   /* store a lookup from the streamid to the stream struct */
-  _spindly_hash_store(phys, &phys->streamhash, phys->streamid, s);
+  _spindly_hash_store(phys, &phys->streamhash, streamid, s);
 
   *stream = s;
 
@@ -155,7 +159,7 @@ spindly_error_t spindly_stream_new(struct spindly_phys *phys,
                                    void *userp,
                                    struct spindly_stream_config *config)
 {
-  return _spindly_stream_init(phys, prio, stream, userp, config, false);
+  return _spindly_stream_init(phys, prio, stream, userp, config, 0);
 }
 
 /*
