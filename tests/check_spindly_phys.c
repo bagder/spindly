@@ -71,6 +71,10 @@ START_TEST (test_spindly_phys_init)
   fail_unless(demux.msg.stream.stream != NULL,
               "spindly_phys_demux() demuxed incorrect message");
 
+  /* CLIENT: consider the data sent and tell spindly so */
+  spint = spindly_phys_sent(phys_client, datalen);
+  fail_unless(spint == SPINDLYE_OK, "spindly_phys_sent() failed");
+
   /* SERVER: ACK the new stream */
   spint = spindly_stream_ack(demux.msg.stream.stream);
   fail_unless(spint == SPINDLYE_OK, "spindly_stream_ack() failed");
@@ -108,6 +112,10 @@ START_TEST (test_spindly_phys_init)
               "spindly_phys_demux() demuxed incorrect message");
   fail_unless(demux.msg.stream.stream != NULL,
               "spindly_phys_demux() demuxed incorrect message");
+
+  /* SERVER: consider the data sent and tell spindly so */
+  spint = spindly_phys_sent(phys_server, datalen);
+  fail_unless(spint == SPINDLYE_OK, "spindly_phys_sent() failed");
 
   spindly_phys_cleanup(phys_client);
   spindly_phys_cleanup(phys_server);
