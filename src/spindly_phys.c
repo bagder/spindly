@@ -261,7 +261,9 @@ spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
     if(rc == SPDY_ERROR_NONE) {
       if(phys->frame.type == SPDY_CONTROL_FRAME) {
         spdy_syn_stream *syn;
+        spdy_syn_reply *rep;
         struct spindly_stream *stream;
+        struct hashnode *n;
 
         switch(phys->frame.frame.control.type) {
         case SPDY_CTRL_SYN_STREAM:
@@ -279,18 +281,47 @@ spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
             /* TODO: how do we deal with a failure here? */
             break;
 
-          spdy_frame_destroy(&phys->frame);
-
           ptr->type = SPINDLY_DX_STREAM_REQ;
           ptr->msg.stream.stream = stream;
           break;
         case SPDY_CTRL_SYN_REPLY:
+          /*
+           * At this point there's a syn_reply struct that needs to be
+           * converted to a full spinly_stream struct!
+           *
+           * phys->frame.frame.control.obj.syn_reply
+           */
+          rep = &phys->frame.frame.control.obj.syn_reply;
+
+          n = _spindly_hash_get(&phys->streamhash, rep->stream_id);
+          if(!n)
+            /* received a SYN_REPLY for an unknown streamid */
+            rc = SPINDLYE_PROTOCOL;
+          else {
+            stream = n->ptr;
+            stream->state = STREAM_ACKED;
+            ptr->type = SPINDLY_DX_STREAM_ACK;
+            ptr->msg.stream.stream = stream;
+          }
+          break;
         case SPDY_CTRL_RST_STREAM:
+          assert(0); /* not implemented yet! */
+          break;
         case SPDY_CTRL_SETTINGS:
+          assert(0); /* not implemented yet! */
+          break;
         case SPDY_CTRL_NOOP:
+          assert(0); /* not implemented yet! */
+          break;
         case SPDY_CTRL_PING:
+          assert(0); /* not implemented yet! */
+          break;
         case SPDY_CTRL_GOAWAY:
+          assert(0); /* not implemented yet! */
+          break;
         case SPDY_CTRL_HEADERS:
+          assert(0); /* not implemented yet! */
+          break;
         case SPDY_CTRL_WINDOW_UPDATE:
           assert(0); /* not implemented yet! */
           break;
@@ -298,6 +329,7 @@ spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
           assert(0); /* internal error */
           break;
         }
+        spdy_frame_destroy(&phys->frame);
       }
       else { /* data */
         ptr->type = SPINDLY_DX_DATA;
