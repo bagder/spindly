@@ -163,7 +163,7 @@ spindly_error_t spindly_stream_new(struct spindly_phys *phys,
 }
 
 /*
- * Send nack or ack
+ * Send nack or ack on a stream that was received from the peer.
  */
 static spindly_error_t stream_acknack(struct spindly_stream *s, bool ack)
 {
@@ -172,6 +172,11 @@ static spindly_error_t stream_acknack(struct spindly_stream *s, bool ack)
   struct spindly_outdata *od;
 
   assert(s != NULL);
+
+  if(s->state != STREAM_NEW)
+    /* only allow this function on a brand new stream, but it must also have
+       been received from the peer. TODO: check that it came from the peer */
+    return SPINDLYE_INVAL;
 
   /* queue up a SYN_REPLY or RST_STREAM message */
   if(ack)
@@ -202,6 +207,9 @@ static spindly_error_t stream_acknack(struct spindly_stream *s, bool ack)
 
   /* add this handle to the outq */
   _spindly_list_add(&s->phys->outq, &od->node);
+
+  /* set the state of the stream after this function */
+  s->state = ack?STREAM_ACKED:STREAM_CLOSED;
 
   fail:
   return rc;
