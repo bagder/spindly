@@ -126,6 +126,7 @@ typedef enum
   SPINDLYE_RESET,        /* 5 - stream was (unexpectedly) reset */
   SPINDLYE_STOP,         /* 6 - stream was (unexpectedly) terminated */
   SPINDLYE_SMALL_BUFFER, /* 7 - too small buffer */
+  SPINDLYE_PROTOCOL,     /* 8 - bad SPDY protocol received */
 
   SPINDLYE_LAST          /* not used, always the last */
 } spindly_error_t;
@@ -255,9 +256,6 @@ void spindly_phys_cleanup(struct spindly_phys *phys);
  * Note that the stream is not yet ready to be used until it has been
  * acknowledged by the peer and we get a SPINDLY_DX_STREAM_ACK response.
  *
- * Each stream has a limited local buffer size in which data can be put. When
- * that buffer is full, it needs to be drained first before more data can get
- * added.
  */
 spindly_error_t spindly_stream_new(struct spindly_phys *phys,
                                    unsigned int prio,
