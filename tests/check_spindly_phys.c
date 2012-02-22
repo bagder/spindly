@@ -24,19 +24,23 @@ START_TEST (test_spindly_phys_init)
   unsigned char *data;
   size_t datalen;
 
+  /* CLIENT: create a handle for the physical connection */
   phys_client = spindly_phys_init(SPINDLY_SIDE_CLIENT, SPINDLY_DEFAULT, NULL);
   fail_unless(phys_client != NULL, "spindly_phys_init() failed");
 
+  /* SERVER: create a handle for the physical connection */
   phys_server = spindly_phys_init(SPINDLY_SIDE_SERVER, SPINDLY_DEFAULT, NULL);
   fail_unless(phys_server != NULL, "spindly_phys_init() failed");
 
+  /* CLIENT: create a stream on the physical connection */
   spint = spindly_stream_new(phys_client, 0, &stream_client, NULL, NULL);
   fail_unless(spint == SPINDLYE_OK, "spindly_stream_new() failed");
 
+  /* CLIENT: get data to send */
   spint = spindly_phys_outgoing(phys_client, &data, &datalen);
   fail_unless(spint == SPINDLYE_OK, "spindly_phys_outgoing() failed");
 
-#if 1
+#if 0
   {
     size_t i;
     for(i=0; i<datalen; i++) {
@@ -50,7 +54,7 @@ START_TEST (test_spindly_phys_init)
   fail_unless(memcmp(data, SPDY_SYN_STREAM, datalen) == 0,
               "SYN_STREAM data wrong");
 
-  /* now feed the created outgoing packet from the client as incoming
+  /* SERVER: now feed the created outgoing packet from the client as incoming
      in the server! */
   spint = spindly_phys_incoming(phys_server, data, datalen, NULL);
   fail_unless(spint == SPINDLYE_OK, "spindly_phys_incoming() failed");
@@ -58,7 +62,7 @@ START_TEST (test_spindly_phys_init)
   /* NOTE: since spindly_phys_incoming() does not immediately copy the data
      passed to it, we cannot immediately call spindly_phys_sent() */
 
-  /* demux the incoming data */
+  /* SERVER: demux the incoming data */
   spint = spindly_phys_demux(phys_server, &demux);
   fail_unless(spint == SPINDLYE_OK, "spindly_phys_demux() failed");
 
@@ -67,17 +71,17 @@ START_TEST (test_spindly_phys_init)
   fail_unless(demux.msg.stream.stream != NULL,
               "spindly_phys_demux() demuxed incorrect message");
 
-  /* ACK the new stream */
+  /* SERVER: ACK the new stream */
   spint = spindly_stream_ack(demux.msg.stream.stream);
   fail_unless(spint == SPINDLYE_OK, "spindly_stream_ack() failed");
 
-  /* figure out what to send from the server */
+  /* SERVER: figure out what to send to client */
   spint = spindly_phys_outgoing(phys_server, &data, &datalen);
   fail_unless(spint == SPINDLYE_OK, "spindly_phys_outgoing() failed");
 
   fail_unless(datalen == 28, "spindly_phys_outgoing() returned bad value");
 
-#if 1
+#if 0
   {
     size_t i;
     for(i=0; i<datalen; i++) {
@@ -88,6 +92,22 @@ START_TEST (test_spindly_phys_init)
 #endif
   fail_unless(memcmp(data, SPDY_SYN_REPLY, datalen) == 0,
               "SYN_REPLY data wrong");
+
+  /* CLIENT feed the data back as incoming, as a response to what the client
+     sent initially */
+  spint = spindly_phys_incoming(phys_client, data, datalen, NULL);
+  fail_unless(spint == SPINDLYE_OK, "spindly_phys_incoming() failed");
+
+  /* NOTE: since spindly_phys_incoming() does not immediately copy the data
+     passed to it, we cannot immediately call spindly_phys_sent() */
+
+  /* CLIENT: demux the incoming data */
+  spint = spindly_phys_demux(phys_client, &demux);
+  fail_unless(spint == SPINDLYE_OK, "spindly_phys_demux() failed");
+  fail_unless(demux.type == SPINDLY_DX_STREAM_ACK,
+              "spindly_phys_demux() demuxed incorrect message");
+  fail_unless(demux.msg.stream.stream != NULL,
+              "spindly_phys_demux() demuxed incorrect message");
 
   spindly_phys_cleanup(phys_client);
   spindly_phys_cleanup(phys_server);
