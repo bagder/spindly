@@ -1,8 +1,22 @@
-spindly  October 17th 2011, Daniel Stenberg
+spindly since October 17th 2011, Daniel Stenberg
 =======
 
-We've imported the libspdy git repository as a foundation for further work,
-toying around and research.
+Purpose:
+
+  Create a portable C library for SPDY that lets applications easily do
+  many streams over a single connection without having to know much protocol
+  details.
+
+Origin:
+
+  We started by importing the libspdy git repository. We have since then
+  modified and extended it beyond what was originally the plan and we can most
+  likely never merge with the original project again - should they emerge
+  again from their deep sleep.
+
+Contribute:
+
+  Please do! See docs/HACKING for how!
 
 Mailing list:
   http://cool.haxx.se/cgi-bin/mailman/listinfo/spdy-library
@@ -16,9 +30,6 @@ Wiki:
 Code:
   https://github.com/bagder/spindly
 
-Hopefully we will merge again with the libspdy.org team in a not too distant
-future. In the mean time we move ahead.
-
 PROTOCOL specs
 ==============
 
@@ -29,22 +40,3 @@ Draft-2:
 Draft-3:
 
  http://mbelshe.github.com/SPDY-Specification/draft-mbelshe-spdy-00.xml
-
-
-The original README follows below:
-------------------------------------------------------------------------
-libspdy - An implementation of Googles SPDY protocol.
-
-You should've received a copy of the 3-clause BSD license with this release.
-
-Directories:
-	bin/
-		Contains usage samples for libspdy.
-	doc/
-		Contains additional documentation and is the Doxygen target.
-	includes/
-		Contains the includes which should be used by code utilizing the library.
-	src/
-		Contains the sourcecode of the library
-	tests/
-		Contains Check based unittests.
