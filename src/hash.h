@@ -22,6 +22,7 @@
  * Hash functions for spindly
  */
 
+#include "spindly.h"
 #include "list.h"
 
 /* initial implementation uses a stupid linked list to scan through! */
@@ -38,11 +39,11 @@ struct hashnode {
 
 void _spindly_hash_init(struct hash *h, struct spindly_phys *phys);
 struct hashnode * _spindly_hash_get(struct hash *h, uint32_t id);
-int _spindly_hash_store(struct spindly_phys *phys,
+spindly_error_t _spindly_hash_store(struct spindly_phys *phys,
                         struct hash *h, uint32_t id, void *ptr);
-int _spindly_hash_remove(struct spindly_phys *phys,
+spindly_error_t _spindly_hash_remove(struct spindly_phys *phys,
                          struct hash *h, uint32_t id);
-int _spindly_hash_destroy(struct spindly_phys *phys,
+spindly_error_t _spindly_hash_destroy(struct spindly_phys *phys,
                           struct hash *h);
 
 #endif /* SPINDLY_HASH_H */
