@@ -27,3 +27,4 @@ ltmain.sh
 m4
 missing
 TAGS
+cscope.*
