@@ -21,16 +21,52 @@
  */
 #include "spdy_setup.h"         /* MUST be the first header to include */
 
-#include <stdlib.h>
-#include <assert.h>
+
+#include "spdy_syn_stream.h"
+#include "spdy_syn_reply.h"
+#include "spdy_rst_stream.h"
+#include "spdy_log.h"
+#include "spdy_error.h"
+
 #include "spindly.h"
 #include "spindly_stream.h"
 #include "spindly_phys.h"
 #include "hash.h"
 
+
+#include <string.h>
+#include <stdlib.h>
+#include <assert.h>
 /*
  * Internal function for creating and setting up a new stream.
  */
+
+spindly_error_t _spindly_stream_init0(spdy_stream *stream,
+                     bool store_received_data,
+                     bool store_frames,
+                     spdy_zlib_context *in, spdy_zlib_context *out)
+{
+  memset(stream, 0, sizeof(stream));
+
+  stream->state = SPDY_STREAM_IDLE;
+
+  stream->store_received_data = store_received_data;
+  stream->store_frames = store_frames;
+
+  /* The C standard doesn't guarantee that NULL == 0x00000000, so we have to
+   * NULL the pointers explicitely.
+   */
+  stream->data_received = NULL;
+  stream->data_sent = NULL;
+  stream->frames = NULL;
+
+  stream->zlib_ctx_in = in;
+  stream->zlib_ctx_out = out;
+
+  return SPDY_ERROR_NONE;
+}
+
+
 
 spindly_error_t _spindly_stream_init(struct spindly_phys *phys,
                                      unsigned int prio,
@@ -66,7 +102,7 @@ spindly_error_t _spindly_stream_init(struct spindly_phys *phys,
   s->config = config;
 
   /* init the SPDY protocol handle for this stream */
-  rc = spdy_stream_init(&s->spdy, false, false, &phys->zlib_in,
+  rc = _spindly_stream_init0(&s->spdy, false, false, &phys->zlib_in,
                         &phys->zlib_out);
   if(rc)
     goto fail;

@@ -21,7 +21,9 @@
 
 #include "list.h"
 #include "spdy_zlib.h"
-#include "spdy_stream.h"
+#include "spdy_frame.h"
+#include "spdy_data_frame.h"
+#include "spdy_control_frame.h"
 
 enum stream_state
 {
@@ -29,6 +31,46 @@ enum stream_state
   STREAM_ACKED,                 /* ACKed by remote or locally */
   STREAM_CLOSED                 /* handle has been closed, can't use it */
 };
+
+enum spdy_stream_states
+{
+  SPDY_STREAM_IDLE,
+  SPDY_STREAM_PARSING_FRAME,
+  SPDY_STREAM_TERMINATED
+};
+
+/**
+ * SPDY Stream
+ * This structure keeps the whole state of a SPDY stream.
+ */
+typedef struct
+{
+  /** State: */
+  enum spdy_stream_states state;
+  /** Configuration: **/
+  bool store_received_data;
+  bool store_frames;
+  /** Stream data: **/
+  uint32_t stream_id;
+  uint32_t associated_to;
+  bool unidirectional;
+  uint32_t data_received_length;
+  uint32_t data_sent_length;
+  char *data_received;
+  char *data_sent;
+  bool fin_received;
+  bool fin_sent;
+  bool rst_received;
+  bool rst_sent;
+  uint32_t status_code;
+  uint32_t frames_count;
+  spdy_frame *frames;
+  spdy_frame *last_frame;
+  spdy_zlib_context *zlib_ctx_in;
+  spdy_zlib_context *zlib_ctx_out;
+  /** Temporary data: */
+  spdy_frame *active_frame;
+} spdy_stream;
 
 struct spindly_stream
 {
@@ -48,6 +90,12 @@ struct spindly_stream
 };
 
 #define PRIO_MAX 7
+
+
+spindly_error_t _spindly_stream_init0(spdy_stream *stream,
+                     bool store_received_data,
+                     bool store_frames,
+                     spdy_zlib_context *in, spdy_zlib_context *out);
 
 spindly_error_t _spindly_stream_init(struct spindly_phys *phys,
                                      unsigned int prio,
