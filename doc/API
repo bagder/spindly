@@ -40,6 +40,8 @@ PHYS = spindly_phys_init(SIDE, PROTVER, CONFIG)
     free     - callback to be called instead of free
     demuxed  - callback called when incoming data passed in with
                spindly_phys_incoming() has been consumed
+    data     - optional callback called when outgoing data is available, as an
+               alternative to polling with spindly_phys_outgoing
 
   A PHYS handle will hold default values for all SETTINGS and for client-side
   handles it will keep persistent SETTINGS.
@@ -128,8 +130,8 @@ RESULT = spindly_phys_outgoing(PHYS, &DATA, &LENGTH);
   this function repeated times to get updated values after data has been sent
   off (and spindly_phys_sent was called).
 
-  NOTE: if this function is called again before earlier data as not yet been
-  reported fully with spindly_phys_sent() it will return SPINDLYE_INVAL.
+  NOTE: This function will return SPINDLYE_INVAL if earlier data has not been
+  reported fully with spindly_phys_sent(), or if the data callback is non-NULL.
 
 RESULT = spindly_phys_sent(PHYS, LENGTH);
 
