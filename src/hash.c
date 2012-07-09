@@ -65,7 +65,7 @@ struct hashnode * _spindly_hash_get(struct hash *h, uint32_t id)
 }
 
 spindly_error_t _spindly_hash_store(struct spindly_phys *phys,
-                        struct hash *h, uint32_t id, void *ptr)
+                                    struct hash *h, uint32_t id, void *ptr)
 {
   struct hashnode *n = _spindly_hash_get(h, id);
   if(n)
@@ -88,7 +88,7 @@ spindly_error_t _spindly_hash_store(struct spindly_phys *phys,
 }
 
 spindly_error_t _spindly_hash_remove(struct spindly_phys *phys,
-                         struct hash *h, uint32_t id)
+                                     struct hash *h, uint32_t id)
 {
   struct hashnode *n = _spindly_hash_get(h, id);
   if(!n)
@@ -103,7 +103,7 @@ spindly_error_t _spindly_hash_remove(struct spindly_phys *phys,
 }
 
 spindly_error_t _spindly_hash_destroy(struct spindly_phys *phys,
-                          struct hash *h)
+                                      struct hash *h)
 {
   struct hashnode *n = _spindly_list_first(&h->lhead);
   while(n) {
