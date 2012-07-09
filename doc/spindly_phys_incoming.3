@@ -1,0 +1,45 @@
+.TH spindly_phys_incoming 3 "9 Jul 2012" "spindly 0.1" "spindly manual"
+.SH NAME
+spindly_phys_incoming - pass in physical data to spindly
+.SH SYNOPSIS
+.nf
+#include <spindly.h>
+
+spindly_error_t spindly_phys_incoming(struct spindly_phys *phys,
+                                      unsigned char *data, size_t datalen,
+                                      int flags,
+                                      void *identifier);
+.fi
+.SH DESCRIPTION
+When your application has read data off the transport (perhaps a socket), this
+function is called to tell spindly about the data that has arrived. As spindly
+doesn't read any network data by itself, it needs to get the data passed into
+it by the application.
+
+After data has been fed into the handle, call \fIspindly_phys_demux(3)\fP to
+make it demux the incoming data.
+
+The data passed in is not copied immediately by spindly in this funtion unless
+told so. It will use the data as pointed to, so it is important that the
+application maintains the data untouched in that buffer until spindly is done
+with it. Data will be used from within the \fIspindly_phys_demux(3)\fP
+function and CONFIG->demuxed will be called (the callback pointer set with the
+\fIspindly_phys_init(3)\fP function) with this \fBidentifier\fP pointer when
+this block of data has been handled.
+
+\fIspindly_phys_incoming(3)\fP can return information that it couldn't accept
+any more data to add to the internal queues. When that happens,
+\fIspindly_phys_demux(3)\fP needs to be called first to drain the input queue
+somewhat before \fIspindly_phys_incoming(3)\fP can be called again. TODO:
+mention which error code that signals this!
+
+The \fIflags\fP parameter is a bitmask used to alter behavior. Set the
+\fISPINDLY_INCOMING_COPY\fP bit to force \fispindly_phys_incoming(3)\fP to
+copy the data at once so that the buffers can be reused immedately on return.
+
+RECOMMENDATION: feed as large data chunks as possible into this function
+.SH RETURN VALUE
+Returns a spindly_error_t error code. See \fIspindly-errors(3)\fP.
+.SH SEE ALSO
+.BR spindly_phys_demux(3),
+.BR spindly_phys_init(3)

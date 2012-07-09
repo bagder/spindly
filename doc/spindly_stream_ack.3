@@ -1,0 +1,28 @@
+.TH spindly_stream_ack 3 "10 Jul 2012" "spindly 0.1" "spindly manual"
+.SH NAME
+spindly_stream_ack - accept a new stream
+.SH SYNOPSIS
+.nf
+#include <spindly.h>
+
+spindly_error_t spindly_stream_ack(struct spindly_stream *stream);
+.fi
+.SH DESCRIPTION
+The \fIstream\fP as requested to get opened by the remote is accepted!
+
+The request for a new stream can only arrive as a \fBSPINDLY_DX_STREAM_REQ\fP
+message returned by the \fIspindly_phys_demux(3)\fP function. The \fIstream\fP
+handle passed in to this function is then the handle as returned in the
+\fIspindly_phys_demux(3)\fP function call.
+
+The use of this function will create new outgoing data to send off.
+
+If the remote end is using spindly, the request for a new stream was made with
+\fIspindly_stream_new(3)\fP.
+.SH RETURN VALUE
+Returns a spindly_error_t error code. See \fIspindly-errors(3)\fP.
+.SH SEE ALSO
+.BR spindly_phys_demux(3),
+.BR spindly_stream_nack(3),
+.BR spindly_stream_new(3)
+

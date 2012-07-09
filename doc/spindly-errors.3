@@ -1,0 +1,26 @@
+.TH spindly-errors 3 "9 Jul 2012" "spindly 0.1" "spindly manual"
+.SH NAME
+spindly-errors - error codes return by spindly functions
+.SH DESCRIPTION
+This man page includes most, if not all, available error codes in spindly.
+.SH spindly_error_t
+Returned by most spindly functions.
+
+.IP SPINDLYE_OK (0)
+All is fine. This is not an error.
+.IP  SPINDLYE_NOMEM (1)
+Out  of memory
+.IP  SPINDLYE_INVAL (2)
+Invalid input/argument/value
+.IP  SPINDLYE_INSUFF (3)
+Insufficient data provided
+.IP  SPINDLYE_ZLIB (4)
+A compression/decompression problem detected by zlib
+.IP  SPINDLYE_RESET (5)
+A SPDY stream was (unexpectedly) reset
+.IP  SPINDLYE_STOP (6)
+A SPDY stream was (unexpectedly) terminated
+.IP  SPINDLYE_SMALL_BUFFER (7)
+Too small buffer
+.IP  SPINDLYE_PROTOCOL (8)
+Bad SPDY protocol received

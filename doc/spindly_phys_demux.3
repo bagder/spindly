@@ -1,0 +1,64 @@
+.TH spindly_phys_demux 3 "9 Jul 2012" "spindly 0.1" "spindly manual"
+.SH NAME
+spindly_phys_demux - demultiplex data from the physical connection
+.SH SYNOPSIS
+.nf
+#include <spindly.h>
+
+spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
+                                   struct spindly_demux *message);
+.fi
+.SH DESCRIPTION
+When data from the single physical connection has been passed into spindly, it
+needs to demux the data. It means it will split it up into separate messages
+and separate channels and then hand it out as individual messages.
+
+\fIspindly_phys_demux(3)\fP returns information about the first incoming
+messages on the connection, separated for consumption accordingly. Subsequent
+calls will return the next result and so on until there's nothing left to
+demux - until \fIspindly_phys_incoming(3)\fP is called again to feed it with
+more data. When it returns with no more message, it may still hold trailing
+data that forms the beginning of the subsequent message.
+
+When a piece of data passed in with \fIspindly_phys_incoming(3)\fP has been
+fully handled (which it needs to be even if the trailing part isn't a complete
+packet/frame), the CONFIG->demuxed callback must be called (if set with
+\fIspindly_phys_init(3)\fP).
+
+When \fIspindly_phys_demux(3)\fP is called, do note that if you pass in the
+same struct_demux pointer as in the previous invoke, spindly will overwrite
+the old data.
+
+\fBphys\fP is a pointer to the handle returned by \fIspindly_phys_init(3)\fP
+
+\fBmessage\fP is a pointer to a spindly_demux struct.
+
+If this function returns SPINDLYE_OK, the spindly_demux struct's 'type' field
+will be filled with information about which kind of message that was
+retrieved. Depending on the type, the corresponding union struct has been
+provided:
+.IP SPINDLY_DX_NONE
+No message
+.IP SPINDLY_DX_GOAWAY
+No data provided
+.IP SPINDLY_DX_STREAM_ACK
+The 'stream' struct has been filled in
+.IP SPINDLY_DX_STREAM_REQ
+The 'stream' struct has been filled in
+.IP SPINDLY_DX_STREAM_KILL
+The 'stream' struct has been filled in
+.IP SPINDLY_DX_SETTINGS
+The 'settings' struct has been filled in
+.IP SPINDLY_DX_PING
+No data provided
+.IP SPINDLY_DX_DATA
+The 'data' struct has been filled in
+.IP SPINDLY_DX_HEADERS
+The 'headers' struct has been filled in
+.SH RETURN VALUE
+Returns a spindly_error_t error code. See \fIspindly-errors(3)\fP.
+.SH SEE ALSO
+.BR spindly_phys_incoming(3),
+.BR spindly_phys_init(3)
+
+

@@ -1,0 +1,36 @@
+.TH spindly_phys_outgoing 3 "10 Jul 2012" "spindly 0.1" "spindly manual"
+.SH NAME
+spindly_phys_outgoing - get data to send over physical
+.SH SYNOPSIS
+.nf
+#include <spindly.h>
+
+spindly_error_t spindly_phys_outgoing(struct spindly_phys *phys,
+                                      unsigned char **dataptr,
+                                      size_t *datalen);
+.fi
+.SH DESCRIPTION
+\fIspindly_phys_outgoing(3)\fP returns info (\fBdataptr\fP and \fBdatalen\fP)
+with data that is ready to send over the transport medium immediately. This
+function may return data in multiple pieces. Spindly doesn't actually transfer
+anything itself but it delivers the data the application must send off itself.
+
+\fBphys\fP is the handle as returned by \fIspindly_phys_init(3)\fP.
+
+The data is muxed from all streams and is provided in a prio order - at the
+time of the calling of this function. The data is a binary SPDY protocol
+stream.
+
+The amount of data this function can return in a single call may be capped to
+a certain maximum level due. Therefore, an application should call this
+function repeatedly to get updated values after data has been sent off (and
+\fIspindly_phys_sent(3)\fP was called) until it no longer returns data.
+
+NOTE: This function will return \fBSPINDLYE_INVAL\fP if earlier data has not
+been reported fully with \fIspindly_phys_sent(3)\fP, or if the data callback
+is non-NULL.
+.SH RETURN VALUE
+Returns a spindly_error_t error code. See \fIspindly-errors(3)\fP.
+.SH SEE ALSO
+.BR spindly_phys_sent(3),
+.BR spindly_phys_init(3)

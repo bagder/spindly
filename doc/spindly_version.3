@@ -1,0 +1,31 @@
+.TH spindly_version 3 "9 Jul 2012" "spindly 0.1" "spindly manual"
+.SH NAME
+spindly_version - return spindly version information
+.SH SYNOPSIS
+.nf
+#include <spindly.h>
+
+int spindly_version(int req);
+.fi
+.SH DESCRIPTION
+\fIspindly_version(3)\fP returns the version number that is known as
+\fBSPINDLY_VERSION_NUM\fP at compile time. The returned number is constructed
+like:
+
+ (majornum << 16 | minornum << 8 | patchnum)
+
+If \fBreq\fP is set to a non-zero number, that is counted as the lowest
+acceptable library version to use and if the running library is deemed to be
+older than so, 0 will be returned instead.
+.SH EXAMPLE
+This function can thus be used like this:
+
+.nf
+  if (!spindly_version(SPINDLY_VERSION_NUM)) {
+    fprintf (stderr, "Runtime spindly version too old!\n");
+    exit(1);
+  }
+.SH RETURN VALUE
+The version number or 0.
+.SH SEE ALSO
+Add related functions

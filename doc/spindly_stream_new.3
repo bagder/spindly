@@ -1,0 +1,45 @@
+.TH spindly_stream_new 3 "10 Jul 2012" "spindly 0.1" "spindly manual"
+.SH NAME
+spindly_stream_new - short function description
+.SH SYNOPSIS
+.nf
+#include <spindly.h>
+
+spindly_error_t spindly_stream_new(struct spindly_phys *phys,
+                                   unsigned int prio,
+                                   struct spindly_stream **stream,
+                                   void *userp,
+                                   struct spindly_stream_config *config);
+.fi
+.SH DESCRIPTION
+\fIspindly_stream_new(3)\fP creates a request for a new stream and muxes the
+request into the output connection. If the function returns success, there's a
+pointer to a spindly_stream struct stored in the \fIstream\fP pointer
+identifying the pending stream. The \fIuserp\fP pointer is a custom pointer
+that will be associated with the \fIstream\fP to allow the application to
+identify it.
+
+When the outgoing message has been created, the application must sent it off
+to the peer by calling \fIspindly_phys_outgoing(3)\fP and transferring the
+returned data.
+
+\fIprio\fP is a priority, 0 - 7 where 0 is the most important. It maps
+directly to the priority property as defined in the SPDY protocol.
+
+The stream is not yet ready to be used until it has been acknowledged by the
+peer and we get a \fBSPINDLY_DX_STREAM_ACK\fP response. This function merely
+creates the request for this channel to be created.
+
+\fIconfig\fP is NULL or a pointer to a spindly_stream_config struct with the
+following fields:
+.IP age
+should be set to SPINDLY_CONFIG_AGE
+.IP consumed
+callback function to call when 'data' or 'headers' have completed. The HANDLED
+pointer is passed on in addition to the \fIuserp\fP one.
+.SH RETURN VALUE
+Returns a spindly_error_t error code. See \fIspindly-errors(3)\fP.
+.SH ERRORS
+Add error codes
+.SH SEE ALSO
+.BR spindly_phys_outgoing(3)

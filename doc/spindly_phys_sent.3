@@ -1,0 +1,25 @@
+.TH spindly_phys_sent 3 "10 Jul 2012" "spindly 0.1" "spindly manual"
+.SH NAME
+spindly_phys_sent - this many bytes were sent off
+.SH SYNOPSIS
+.nf
+#include <spindly.h>
+
+spindly_error_t spindly_phys_sent(struct spindly_phys *phys, size_t len);
+.fi
+.SH DESCRIPTION
+With the \fIspindly_phys_sent(3)\fP function, the application tells spindly
+how many bytes data that has been sent over the physical connection and should
+be considered consumed - out of the data that spindly previously reported back
+in the \fIspindly_phys_outgoing(3)\fP call.
+
+If not all data was sent off, the application must send the remainder before
+\fIspindly_phys_outgoing(3)\fP is called again (to get more data).
+
+This function exists since spindly doesn't send the data itself so thus it
+doesn't know when data has actually been sent, or how many bytes.
+.SH RETURN VALUE
+Returns a spindly_error_t error code. See \fIspindly-errors(3)\fP.
+.SH SEE ALSO
+.BR spindly_phys_outgoing(3),
+.BR spindly_phys_init(3)

@@ -1,0 +1,19 @@
+.TH spindly_phys_cleanup 3 "10 Jul 2012" "spindly 0.1" "spindly manual"
+.SH NAME
+spindly_phys_cleanup - cleanup a phys handle
+.SH SYNOPSIS
+.nf
+#include <spindly.h>
+
+void spindly_phys_cleanup(struct spindly_phys *phys);
+.fi
+.SH DESCRIPTION
+Cleanup the entire physical connection and all associated streams and data.
+
+Once this is called, all stream handles that were created for this connection
+have been made invalid.
+.SH RETURN VALUE
+None
+.SH SEE ALSO
+.BR spindly_phys_init(3)
+

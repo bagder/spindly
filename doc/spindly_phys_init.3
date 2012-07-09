@@ -1,0 +1,49 @@
+.TH spindly_phys_init 3 "9 Jul 2012" "spindly 0.1" "spindly manual"
+.SH NAME
+spindly_phys_init - init a physical connection
+.SH SYNOPSIS
+.nf
+#include <spindly.h>
+
+struct spindly_phys *spindly_phys_init(spindly_side_t side,
+                                       spindly_spdyver_t protver,
+                                       struct spindly_phys_config *config);
+.fi
+.SH DESCRIPTION
+\fIspindly_phys_init(3)\fP creates a handle for a single duplex connection,
+\fBside\fP is either SPINDLY_SIDE_CLIENT or SPINDLY_SIDE_SERVER - what side
+this handle is made to handle. \fBprotver\fP is the specific SPDY protocol
+version: SPINDLY_SPDYVER2 or SPINDLY_SPDYVER3.
+
+\fBconfig\fP can be NULL to accept internal defaults or a pointed to a filled
+in struct spindly_phys_config.
+
+The spindly_phys_config struct contains the following fields:
+.IP age
+should be set to SPINDLY_CONFIG_AGE when setting a config. The 'age' field
+tells spindly which fields that exist in this particular struct version.
+.IP customp
+custom pointer passed in to all callbacks
+.IP malloc
+function pointer to the callback to be called instead of malloc
+.IP realloc
+function pointer to the callback to be called instead of realloc
+.IP free
+function pointer to the callback to be called instead of free
+.IP demuxed
+function pointer to the callback called when incoming data passed in with
+\fIspindly_phys_incoming(3)\fP has been consumed
+.IP data
+function pointer to the callback called when outgoing data is available, as an
+alternative to polling with spindly_phys_outgoing
+
+A spindly_phys struct will hold default values for all SPDY SETTINGS and for
+client-side handles it will keep persistent SPDY SETTINGS.
+.SH RETURN VALUE
+Returns a pointer to a handle if successful. The pointer is a handle that is
+to be used as an input to numerous other spindly funcitons.
+
+If something fails, this function will return NULL instead of a handle.
+.SH SEE ALSO
+.BR spindly_phys_cleanup(3)
+
