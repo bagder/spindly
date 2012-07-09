@@ -56,7 +56,8 @@ START_TEST (test_spindly_phys_init)
 
   /* SERVER: now feed the created outgoing packet from the client as incoming
      in the server! */
-  spint = spindly_phys_incoming(phys_server, data, datalen, NULL);
+  spint = spindly_phys_incoming(phys_server, data, datalen,
+                                SPINDLY_INCOMING_NONE, NULL);
   fail_unless(spint == SPINDLYE_OK, "spindly_phys_incoming() failed");
 
   /* NOTE: since spindly_phys_incoming() does not immediately copy the data
@@ -99,11 +100,13 @@ START_TEST (test_spindly_phys_init)
 
   /* CLIENT feed the data back as incoming, as a response to what the client
      sent initially */
-  spint = spindly_phys_incoming(phys_client, data, datalen, NULL);
+  spint = spindly_phys_incoming(phys_client, data, datalen,
+                                SPINDLY_INCOMING_COPY, NULL);
   fail_unless(spint == SPINDLYE_OK, "spindly_phys_incoming() failed");
 
-  /* NOTE: since spindly_phys_incoming() does not immediately copy the data
-     passed to it, we cannot immediately call spindly_phys_sent() */
+  /* NOTE: since spindly_phys_incoming() in this case *does* immediately copy
+     the data passed to it, we can call spindly_phys_sent() immediately if we
+     want to. */
 
   /* CLIENT: demux the incoming data */
   spint = spindly_phys_demux(phys_client, &demux);

@@ -132,6 +132,9 @@ typedef enum
 } spindly_error_t;
 
 
+#define SPINDLY_INCOMING_NONE (0)
+#define SPINDLY_INCOMING_COPY (1<<0) /* force a copy at once */
+
 /*
  * when the application has read data off the transport, this function is
  * called to tell Spindly about more data that has arrived. As spindly doesn't
@@ -144,6 +147,7 @@ typedef enum
 
 spindly_error_t spindly_phys_incoming(struct spindly_phys *phys,
                                       unsigned char *data, size_t datalen,
+                                      int flags,
                                       void *identifier);
 
 

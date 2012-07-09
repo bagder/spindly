@@ -48,6 +48,7 @@ struct spindly_indata {
   void *identifier;
   unsigned char *data;
   size_t datalen;
+  bool copied; /* set TRUE if data malloced and copied here */
 };
 
 struct spindly_phys

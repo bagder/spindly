@@ -46,7 +46,7 @@ PHYS = spindly_phys_init(SIDE, PROTVER, CONFIG)
   A PHYS handle will hold default values for all SETTINGS and for client-side
   handles it will keep persistent SETTINGS.
 
-RESULT = spindly_phys_incoming(PHYS, DATA, DATALEN, IDENTIFIER);
+RESULT = spindly_phys_incoming(PHYS, DATA, DATALEN, FLAGS, IDENTIFIER);
 
   when the application has read data off the transport, this function is
   called to tell Spindly about more data that has arrived. As spindly doesn't
@@ -67,6 +67,9 @@ RESULT = spindly_phys_incoming(PHYS, DATA, DATALEN, IDENTIFIER);
   accept any more data. When that happens, spindly_phys_demux() needs to be
   called to drain the input queue somewhat first before
   spindly_phys_incoming() can be called again.
+
+  Flags - set SPINDLY_INCOMING_COPY to force this function to copy the data at
+  once so that the buffers can be reused immedately on return.
 
   RECOMMENDATION: feed as large data chunks as possible into this function
 

@@ -30,6 +30,9 @@
 #include "spindly_stream.h"
 #include "spdy_error.h"
 
+static spindly_error_t remove_inqnode(struct spindly_phys *phys,
+                                      struct spindly_indata *chunk);
+
 /*
  * Create a handle for a single duplex physical connection, SIDE is either
  * client or server - what side the handle is made to handle. PROTVER is the
@@ -156,6 +159,7 @@ spindly_error_t spindly_phys_outgoing(struct spindly_phys *phys,
 
 spindly_error_t spindly_phys_incoming(struct spindly_phys *phys,
                                       unsigned char *data, size_t datalen,
+                                      int flags,
                                       void *identifier)
 {
   struct spindly_indata *in = MALLOC(phys, sizeof(*in));
@@ -164,8 +168,19 @@ spindly_error_t spindly_phys_incoming(struct spindly_phys *phys,
     return SPINDLYE_NOMEM;
 
   in->identifier = identifier;
-  in->datalen = datalen;
-  in->data = data;
+  if(flags & SPINDLY_INCOMING_COPY) {
+    in->data = MALLOC(phys, datalen);
+    if(!in->data) {
+      FREE(phys, in);
+      return SPINDLYE_NOMEM;
+    }
+    memcpy(in->data, data, datalen);
+    in->datalen = datalen;
+  }
+  else {
+    in->datalen = datalen;
+    in->data = data;
+  }
 
   phys->inq_size += datalen;
 
@@ -212,6 +227,10 @@ static int parse_append(struct spindly_phys *phys, bool *more)
     /* append the entire next chunk */
     memcpy(&phys->parse[copylen], in->data, in->datalen);
 
+    /* now remove both the copied nodes from the list */
+    remove_inqnode(phys, (struct spindly_indata *)n);
+    remove_inqnode(phys, (struct spindly_indata *)next);
+
     /* now store the combined data amount */
     spdy_data_use(&phys->data, phys->parse, needed);
   }
@@ -220,6 +239,28 @@ static int parse_append(struct spindly_phys *phys, bool *more)
 
   return SPINDLYE_OK;
 }
+
+/* TODO: if the complete inq node was consumed::
+   1 - call the callback.
+   2 - possibly free the ->data
+   3 - remove the node from the list
+*/
+static spindly_error_t remove_inqnode(struct spindly_phys *phys,
+                                      struct spindly_indata *chunk)
+{
+  /* call the completetion callback? */
+  (void)phys;
+
+  /* free the data if it was previously copied into the node */
+  if(chunk->copied)
+    FREE(phys, chunk->data);
+
+  /* remove the node from the linked list */
+  _spindly_list_remove(&chunk->node);
+
+  return SPINDLYE_OK;
+}
+
 
 /*
  * Returns information about incoming data, split up for consumption.
@@ -335,7 +376,9 @@ spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
         ptr->type = SPINDLY_DX_DATA;
       }
 
-      /* TODO: if the complete inq node was consumed, call the callback */
+      if(phys->data.cursor == phys->data.data_end)
+        /* the complete inq node was consumed */
+        remove_inqnode(phys, in);
 
       return SPINDLYE_OK;
     }
@@ -346,6 +389,8 @@ spindly_error_t spindly_phys_demux(struct spindly_phys *phys,
        */
       bool more;
       rc = parse_append(phys, &more);
+      if(rc)
+        break;
 
       if(!more)
         /* there's no more right now */
