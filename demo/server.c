@@ -12,6 +12,8 @@
  *
  * Allow many clients to connect. All headers and data that is received by
  * the server get sent out to all connected clients.
+ *
+ * Right now: only allow a single client.
  */
 
 #include <stdio.h>
@@ -25,6 +27,8 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <fcntl.h>
+
+#include <spindly.h>
 
 #define TIMEOUT_SECS 20
 
@@ -74,15 +78,46 @@ static int createserver(unsigned short port)
   return sock;
 }
 
-static int handleclient(socket_t sock)
+struct client {
+  struct spindly_phys *phys_server;
+  struct spindly_stream *stream_client;
+  socket_t sock;
+};
+
+static struct client cl; /* this should be turned into a linked list of struct
+                            later, one for each connected client */
+
+static int handleclient(struct client *clp)
 {
   char buffer[256];
   int len;
 
-  len = recv(sock, buffer, sizeof(buffer), 0);
+  len = recv(clp->sock, buffer, sizeof(buffer), 0);
   if (len >= 0) {
-    write(sock, "bye", 3);
+    /* feed incoming data into spindly and request an immediate copy since
+       we have the buffer on the stack. */
+    struct spindly_demux demux;
+    spindly_error_t spint = spindly_phys_incoming(clp->phys_server,
+                                                  (unsigned char *)buffer,
+                                                  len,
+                                                  SPINDLY_INCOMING_COPY, NULL);
+    if(spint != SPINDLYE_OK)
+      return -1;
+
+    /* demux the incoming data to figure out if there's anything to do (yet) */
+    spint = spindly_phys_demux(clp->phys_server, &demux);
+
+    if(spint != SPINDLYE_OK)
+      return -1;
+
+    if(demux.type == SPINDLY_DX_NONE)
+      /* we haven't demux'ed enough for a message yet */
+      return len;
+
+    fprintf(stderr, "demux type: %x\n", demux.type);
   }
+  else
+    fprintf(stderr, "recv() returned %d\n", len);
 
   return len;
 }
@@ -138,20 +173,26 @@ int main(int argc, char *argv[])
 
       if (clientsock > 0) {
         if (FD_ISSET(clientsock, &readfds)) {
-	  /* client is readable */
-	  if (handleclient(clientsock) < 0) {
+          /* client is readable */
+          if (handleclient(&cl) < 0) {
             sclose(clientsock);
             clientsock = SOCKET_BAD;
-	  }
-	}
-	if (FD_ISSET(clientsock, &writefds)) {
+          }
+        }
+        if (FD_ISSET(clientsock, &writefds)) {
           /* client is writeable */
-	}
+        }
       }
 
       if (FD_ISSET(servsock, &readfds)) {
-        printf("New client connects on port %d:  ", SERVER_PORT);
+        printf("New client connects on port %d - assume fine TLS-NPN",
+               SERVER_PORT);
         clientsock = acceptclient(servsock);
+
+        /* create a spindly handle for the physical connection */
+        cl.phys_server = spindly_phys_init(SPINDLY_SIDE_SERVER,
+                                           SPINDLY_DEFAULT, NULL);
+        cl.sock = clientsock; /* store the socket */
         maxfd = clientsock;
       }
     }
