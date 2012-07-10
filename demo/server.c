@@ -93,7 +93,14 @@ static int handleclient(struct client *clp)
   int len;
 
   len = recv(clp->sock, buffer, sizeof(buffer), 0);
-  if (len >= 0) {
+
+  fprintf(stderr, "recv() returned %d!\n", len);
+
+  if (0 == len)
+    /* connection is presumed to be dead */
+    return -1;
+
+  else if (len >= 0) {
     /* feed incoming data into spindly and request an immediate copy since
        we have the buffer on the stack. */
     struct spindly_demux demux;
@@ -116,8 +123,6 @@ static int handleclient(struct client *clp)
 
     fprintf(stderr, "demux type: %x\n", demux.type);
   }
-  else
-    fprintf(stderr, "recv() returned %d\n", len);
 
   return len;
 }

@@ -59,12 +59,16 @@ int main(int argc, char *argv[])
   /* get data to send over the socket */
   spint = spindly_phys_outgoing(phys_client, &data, &datalen);
 
+  printf("Ask for a new stream\n");
+
   /* send away the SPDY packet */
   rc = send(sock, data, datalen, 0);
 
-  if(rc > 0)
+  if(rc > 0) {
     /* tell spindly how much of that data that was actually sent */
     spindly_phys_sent(phys_client, rc);
+    printf("Send %d bytes\n", rc);
+  }
 
   /* now wait for data to arrive on the socket and demux it to figure out
      what the peer says to us */
