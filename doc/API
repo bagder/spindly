@@ -101,7 +101,7 @@ RESULT = spindly_phys_demux(PHYS, &MESSAGE)
 
   SPINDLY_DX_STREAM_REQ - a request for a new stream from the peer was
     received and you should ack or nack it. see spindly_stream_ack() and
-    spindly_stream_nack()
+    spindly_stream_close()
 
   SPINDLY_DX_STREAM_KILL - a stream has been closed, the associated STREAM
     can no longer be used and should be closed. see spindly_stream_close()
@@ -178,10 +178,6 @@ RESULT = spindly_stream_new(PHYS, PRIO, &STREAM, CUSTOMP, CONFIG);
 RESULT = spindly_stream_ack(STREAM);
 
   The STREAM as requested to get opened by the remote is allowed!
-
-RESULT = spindly_stream_nack(STREAM);
-
-  The STREAM as requested to get opened by the remote is NOT allowed!
 
 RESULT = spindly_stream_close(STREAM);
 
