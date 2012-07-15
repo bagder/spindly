@@ -40,13 +40,18 @@ provided:
 .IP SPINDLY_DX_NONE
 No message
 .IP SPINDLY_DX_GOAWAY
-No data provided
+No data provided. This message is received when a SPDY GOAWAY message is
+received from the peer or if a serious enough error has ocurred, like zlib
+stream out-of-sync.
 .IP SPINDLY_DX_STREAM_ACK
 The 'stream' struct has been filled in
 .IP SPINDLY_DX_STREAM_REQ
 The 'stream' struct has been filled in
 .IP SPINDLY_DX_STREAM_KILL
-The 'stream' struct has been filled in
+The 'stream' struct has been filled in. This stream has been closed by the
+peer (RST_STREAM received) or a stream-based error was received like invalid
+header format. After this message, the associated \fIstream\fP handle can no
+longer be used and should be closed. See \fIspindly_stream_close(3)\fP.
 .IP SPINDLY_DX_SETTINGS
 The 'settings' struct has been filled in
 .IP SPINDLY_DX_PING
