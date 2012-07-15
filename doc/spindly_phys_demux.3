@@ -44,9 +44,13 @@ No data provided. This message is received when a SPDY GOAWAY message is
 received from the peer or if a serious enough error has ocurred, like zlib
 stream out-of-sync.
 .IP SPINDLY_DX_STREAM_ACK
-The 'stream' struct has been filled in
+The 'stream' struct has been filled in. A previous call to
+\fIspindly_stream_new(3)\fP has been acked and the associated \fIstream\fP
+struct can be used/extracted now.
 .IP SPINDLY_DX_STREAM_REQ
-The 'stream' struct has been filled in
+The 'stream' struct has been filled in. A request for a new stream from the
+peer was received and you must ack or nack it. See \fIspindly_stream_ack(3)\fP
+and \fIspindly_stream_close(3)\fP.
 .IP SPINDLY_DX_STREAM_KILL
 The 'stream' struct has been filled in. This stream has been closed by the
 peer (RST_STREAM received) or a stream-based error was received like invalid
@@ -55,7 +59,9 @@ longer be used and should be closed. See \fIspindly_stream_close(3)\fP.
 .IP SPINDLY_DX_SETTINGS
 The 'settings' struct has been filled in
 .IP SPINDLY_DX_PING
-No data provided
+No data provided. A ping was received (and a response have been created in the
+output queue). This is for informational purposes only and there's no extra
+action required on the application's behalf.
 .IP SPINDLY_DX_DATA
 The 'data' struct has been filled in
 .IP SPINDLY_DX_HEADERS
